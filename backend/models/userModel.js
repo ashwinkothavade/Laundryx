@@ -2,8 +2,7 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require('bcrypt');
 
-const userSchema = mongoose.Schema(
-  {
+const userSchema = mongoose.Schema({
     username: {
       type: String,
       minlength: [4, "Username must be at least 4 characters long"],

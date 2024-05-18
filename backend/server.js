@@ -25,8 +25,8 @@ app.use(cookieParser());
 app.use(userRoutes);
 app.use(orderRoutes);
 
-app.get("/", (req, res) => {
-  res.send("This is the LaundriX backend API.");
+app.get("/", (req, resp) => {
+  resp.status(200).json("This is the LaundriX backend API.");
 });
 
 app.listen(port, () => {

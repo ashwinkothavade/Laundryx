@@ -1,28 +1,27 @@
 const mongoose = require("mongoose");
 
 const itemSchema = mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    enum: ["shirt", "pant", "jacket", "blanket"],
-  },
-  quantity: {
-    type: Number,
-    required: true,
-  },
-  washType: {
-    type: String,
-    required: true,
-    enum: ["simple_wash", "power_clean", "dry_clean"],
-  },
-  price: {
-    type: Number,
-    required: true,
-  },
+    name: {
+      type: String,
+      required: true,
+      enum: ["shirt", "pant", "jacket", "blanket"],
+    },
+    quantity: {
+      type: Number,
+      required: true,
+    },
+    washType: {
+      type: String,
+      required: true,
+      enum: ["simple_wash", "power_clean", "dry_clean"],
+    },
+    price: {
+      type: Number,
+      required: true,
+    },
 });
 
-const orderSchema = mongoose.Schema(
-  {
+const orderSchema = mongoose.Schema({
     user: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
@@ -35,7 +34,7 @@ const orderSchema = mongoose.Schema(
       default: this.pickupDate + 2,
     },
     pickupAddress: {
-      tppe: String,
+      type: String,
       required: true,
     },
     deliveryAddress: {
