@@ -10,30 +10,33 @@ const maxAge = 86400; // 3 days in seconds
 const getAllUsers = async (req, resp) => {
   try {
     let result = await User.find();
-    resp.send(result);
+    resp.status(200).json(result);
   } catch (err) {
-    resp.send("UserModel error");
+    resp.status(500).json("UserModel error");
   }
 };
 
 // @desc    Create a new user
 // @route   POST /signup
 // @access  Public
-
 const createUser = async (req, resp) => {
   try {
     const { username, email, password, role } = req.body;
+
     const user = new User({
-      username,
-      email,
-      password,
-      role,
+        username,
+        email,
+        password,
+        role
     });
+
     await user.save();
-    resp.status(201).json(user);
+    resp.status(201).json({
+      user: user
+    });
   } catch (err) {
     const errors = authUtils.handleSignUpError(err);
-    resp.status(500).send({ errors });
+    resp.status(500).json({ errors });
   }
 };
 
@@ -44,27 +47,18 @@ const loginUser = async (req, resp) => {
   const { username, password } = req.body;
   try {
     const user = await User.findOne({ username });
+
     if (user) {
       const auth = await bcrypt.compare(password, user.password);
-      console.log(auth);
       if (auth) {
-        const token = authUtils.createToken(user.username);
-        console.log({
-          username: user.username,
-          token: token,
-        });
-        resp.cookie("jwt", token, {
-          httpOnly: true,
-          maxAge: maxAge * 1000,
-          secure: false, // set to true if your using https
-          sameSite: "none",
-        }); // Set the cookie
+        const token = authUtils.createToken(user.username, user.role);
 
-        resp.status(200).send({
-          username: user.username,
-          token: token,
-          userId: user._id,
-        });
+        resp.cookie("jwt", token, {
+            httpOnly: true,
+            maxAge: maxAge * 1000,
+            secure: true, // set to true if your using https
+            sameSite: "none",
+        }); // Set the cookie
       } else {
         throw new Error("Invalid password");
       }
@@ -82,17 +76,18 @@ const loginUser = async (req, resp) => {
 // @access  Public
 const logoutUser = (req, resp) => {
   resp.cookie("jwt", "", {
-    httpOnly: true,
-    maxAge: -1,
-    secure: true, // set to true if your using https
-    sameSite: "none",
+      httpOnly: true,
+      maxAge: -1,
+      secure: true, // set to true if your using https
+      sameSite: "none",
   }); //negative maxAge so that the cookie expires immediately
-  resp.send("User logged out successfully");
+
+  resp.status(200).json("User logged out successfully");
 };
 
 module.exports = {
-  getAllUsers,
-  createUser,
-  loginUser,
-  logoutUser,
+    getAllUsers,
+    createUser,
+    loginUser,
+    logoutUser,
 };

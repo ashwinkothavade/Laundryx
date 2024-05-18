@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 const handleSignUpError = (err) => {
     let error = {
@@ -20,8 +20,11 @@ const handleSignUpError = (err) => {
         error.password = err.errors.password.message
     else if(err.errors.email)
         error.email = "Please enter a valid email";
-    else if(err.errors.role)
-        error.role = "Please mention a role";
+    else if(err.errors.role.properties.type === "enum")
+        error.role = "Please enter a valid role: student or launderer";
+    else if (err.errors.role)
+        error.role = err.errors.role.message;
+    
     return error;
 }
 
@@ -37,9 +40,12 @@ const handleLogInError = (err) => {
 
 
 const maxAge = 86400; // 3 days in seconds
-const createToken = (username) => {
+const createToken = (username, role) => {
     return jwt.sign(
-        { username : username },
+        {
+            username: username,
+            role: role
+        },
         process.env.ACCESS_TOKEN_SECRET,
         { expiresIn: maxAge, },
     );
