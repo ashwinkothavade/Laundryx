@@ -5,6 +5,7 @@ const handleSignUpError = (err) => {
         username: "",
         email: "",
         password: "",
+        role: "",
     };
     if (err.code === 11000){
         if (err.keyValue.email){
@@ -19,6 +20,8 @@ const handleSignUpError = (err) => {
         error.password = err.errors.password.message
     else if(err.errors.email)
         error.email = "Please enter a valid email";
+    else if(err.errors.role)
+        error.role = "Please mention a role";
     return error;
 }
 

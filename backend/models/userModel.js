@@ -11,6 +11,11 @@ const userSchema = mongoose.Schema(
       unique: [true, "Username already taken"],
       trim: true,
     },
+    role: {
+      type: String,
+      enum: ["student", "launderer"],
+      required: [true, "Please select a role"],
+    },
     email: {
       type: String,
       required: [true, "Please provide an email"],
@@ -36,7 +41,7 @@ const userSchema = mongoose.Schema(
   },
   {
     timestamps: true,
-    collection: "Users",
+    collection: "User",
   }
 );
 
