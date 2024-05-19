@@ -8,41 +8,19 @@ const order = [[WashList, PowerCleanList, DryCleanList]];
 const useOrderStore = create((set) => ({
   Orders: [...order],
   Total: 0,
-  Phone: 0,
   pickupDate: '',
   deliveryDate: '-- -- --',
   pickupTime: '',
   deliveryTime: '',
-  isAuth: false,
-  userEmail: '',
-  userName: '',
   pickupAddress: '',
   dropAddress: '',
 
-  setUserEmail: (value) => {
-    set((state) => {
-      return {
-        ...state,
-        userEmail: value,
-      };
-    });
-  },
-
-  setUserName: (value) => {
-    set((state) => {
-      return {
-        ...state,
-        userName: value,
-      };
-    });
-  },
-
-  setUserPhone: (value) => {
-    set((state) => {
-      return { ...state, Phone: value };
-    });
-  },
-
+  isAuth: false,  //userCredentials
+  Phone: 0, //userCredentials
+  userName: '', //userCredentials
+  userEmail: '', //userCredentials
+  userRole: '', //userCredentials
+  
   addAuth: () => {
     set((state) => {
       return { ...state, isAuth: true };
@@ -52,6 +30,29 @@ const useOrderStore = create((set) => ({
   removeAuth: () => {
     set((state) => {
       return { ...state, isAuth: false };
+    });
+  },
+
+  setUserPhone: (value) => {
+    set((state) => {
+      return { ...state, Phone: value };
+    });
+  },
+
+  setUserName: (value) => {
+    set((state) => {
+      return {...state, userName: value };
+    });
+  },
+
+  setUserEmail: (value) => {
+    set((state) => {
+      return {...state, userEmail: value };
+    });
+  },
+  setUserRole: (value) => {
+    set((state) => {
+      return {...state, userRole: value };
     });
   },
 

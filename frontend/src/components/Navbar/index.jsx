@@ -9,14 +9,14 @@ import {
   Spacer,
   Text,
   Avatar,
+  useToast
 } from '@chakra-ui/react';
 import { BiUserCheck, BiUserPlus, BiLogOut } from 'react-icons/bi';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { Link, useNavigate } from 'react-router-dom';
 import useOrderStore from '../Store/OrderStore';
-import Cookies from 'universal-cookie';
-
-function Navbar() {
+import axios from 'axios';
+const Navbar = () => {
   const { isAuth, removeAuth, userName } = useOrderStore((state) => ({
     isAuth: state.isAuth,
     addAuth: state.addAuth,
@@ -29,17 +29,33 @@ function Navbar() {
 
   // eslint-disable-next-line no-unused-vars
   const navigate = useNavigate();
-  const cookies = new Cookies();
+  const toast = useToast();
 
-  function logout() {
-    window.location.reload(false);
-    removeAuth();
-    cookies.remove('token');
-    cookies.remove('userName');
-    cookies.remove('userEmail');
-    cookies.remove('userPhone');
+  const logOut = async() => {
+    try{
+      const response = await axios.get('http://localhost:4000/logout');
+      toast({
+        title: 'Success',
+        description: 'User Logged Out Successfully',
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+        position: 'top',
+      });
+      console.log(response.data)
+      removeAuth();
+      navigate('/');
+    }catch(err){
+      toast({
+        title: 'Error',
+        description: 'Unauthorized',
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+        position: 'top',
+      });
+    }
   }
-
   return (
     <>
       <Flex
@@ -76,7 +92,7 @@ function Navbar() {
                   bg: '#dbdbdb',
                   color: '#ce1567',
                 }}
-                onClick={() => logout()}
+                onClick={logOut}
               >
                 Log Out
               </Button>
@@ -129,7 +145,7 @@ function Navbar() {
                 </MenuItem>
                 <MenuItem
                   icon={<BiLogOut size="1.5rem" color="#584bac" />}
-                  onClick={() => logout()}
+                  onClick={() => logOut()}
                 >
                   Logout
                 </MenuItem>
