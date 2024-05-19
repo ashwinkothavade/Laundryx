@@ -21,13 +21,14 @@ const getAllUsers = async (req, resp) => {
 // @access  Public
 const createUser = async (req, resp) => {
   try {
-    const { username, email, password, role } = req.body;
+    const { username, email, password, role, phone_number } = req.body;
 
     const user = new User({
-        username,
-        email,
-        password,
-        role
+        username: username,
+        email: email,
+        password: password,
+        role: role,
+        phone_number: phone_number
     });
 
     await user.save();

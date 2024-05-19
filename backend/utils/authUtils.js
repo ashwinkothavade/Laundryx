@@ -6,6 +6,7 @@ const handleSignUpError = (err) => {
         email: "",
         password: "",
         role: "",
+        phone_number: ""
     };
     if (err.code === 11000){
         if (err.keyValue.email){
@@ -20,10 +21,14 @@ const handleSignUpError = (err) => {
         error.password = err.errors.password.message
     else if(err.errors.email)
         error.email = "Please enter a valid email";
-    else if(err.errors.role.properties.type === "enum")
+    else if(err.errors.role && err.errors.role.properties.type === "enum")
         error.role = "Please enter a valid role: student or launderer";
     else if (err.errors.role)
         error.role = err.errors.role.message;
+    else if(err.errors.phone_number)
+        error.phone_number = err.errors.phone_number.message;
+    else
+        return err;
 
     return error;
 }

@@ -10,6 +10,17 @@ const userSchema = mongoose.Schema({
       unique: [true, "Username already taken"],
       trim: true,
     },
+    phone_number:{
+      type: String,
+      required: [true, "Please provide a phone number"],
+      unique: [true, "Phone number already taken"],
+      validate: {
+        validator: function (value) {
+          return /(\+91|0)\d{10}/g.test(value);
+        },
+        message: "Invalid phone number, enter an Indian phone number, starting with +91 or 0",
+      },
+    },
     role: {
       type: String,
       enum: ["student", "launderer"],
