@@ -12,7 +12,6 @@ module.exports.verifyUser = (req, resp, next) => {
                         console.error(err);
                         resp.status(401).json({ message: 'Unauthorized' });
                     } else {
-                        console.log(decodedToken)
                         next();
                     }
                 }
