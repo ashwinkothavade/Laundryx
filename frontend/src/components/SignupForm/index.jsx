@@ -1,5 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { BiShow, BiHide } from 'react-icons/bi';
+import { AiOutlineArrowRight } from 'react-icons/ai';
+import axios from 'axios';
+axios.defaults.withCredentials = true;
+// import Cookies from 'universal-cookie';
+import useOrderStore from '../../components/Store/OrderStore';
 import {
   useToast,
   Button,
@@ -11,35 +17,33 @@ import {
   Input,
   InputRightElement,
   InputGroup,
+  Select
 } from '@chakra-ui/react';
-import { BiShow, BiHide } from 'react-icons/bi';
-import { AiOutlineArrowRight } from 'react-icons/ai';
-import axios from 'axios';
-import Cookies from 'universal-cookie';
-import useOrderStore from '../../components/Store/OrderStore';
 
 export default function SignupForm() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [signupData, setSignupData] = useState({
-    name: '',
-    phone: '',
+    username: '',
+    phone_number: '',
     email: '',
+    role: '',
     password: '',
-    confirmPassword: '',
   });
-  const { name, phone, email, password, confirmPassword } = signupData;
-  const { addAuth, setUserEmail, setUserName, setUserPhone } = useOrderStore(
+  const { username, phone_number, email, role, password } = signupData;
+  const { addAuth, setUserName, setUserEmail, setUserPhone, setUserRole } = useOrderStore(
     (state) => ({
       addAuth: state.addAuth,
       setUserName: state.setUserName,
       setUserEmail: state.setUserEmail,
       setUserPhone: state.setUserPhone,
-      userName: state.userName,
+      setUserRole: state.setUserRole
+      // userName: state.userName,
     })
   );
 
-  const cookies = new Cookies();
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -56,27 +60,9 @@ export default function SignupForm() {
     }
   }, [loading]);
 
-  async function makeRegisterRequest() {
-    const response = await axios.post(
-      'http://localhost:4444/api/user/',
-      {
-        name: name,
-        email: email,
-        phone: phone,
-        password: password,
-      },
-      {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        withCredentials: true,
-      }
-    );
-    return response;
-  }
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!(email || password || name || phone)) {
+    if (!(email || password || username || phone_number || role)) {
       toast({
         title: 'Incomplete Entries',
         description: 'Please enter all the fields',
@@ -87,31 +73,60 @@ export default function SignupForm() {
       });
       return;
     }
+    if (password !== confirmPassword) {
+      toast({
+        title: 'Password Mismatch',
+        description: 'Password and Confirm Password do not match',
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+        position: 'top',
+      });
+      return;
+    }
     setLoading(true);
-    try {
-      const response = await makeRegisterRequest();
-
-      cookies.set('token', response.data.token);
-      cookies.set('userName', response.data.name);
-      cookies.set('userEmail', response.data.email);
-      cookies.set('userPhone', response.data.phone);
+    try{
+      const response = await axios.post(
+        'http://localhost:4000/signup',
+        signupData
+      );
 
       addAuth();
-      setUserName(response.data.name);
-      setUserEmail(response.data.email);
-      setUserPhone(response.data.phone);
-
+      console.log(response)
+      setUserName(username);
+      setUserEmail(email);
+      setUserPhone(phone_number);
+      setUserRole(role);
+      toast({
+        title: 'Account Created',
+        description: 'You have successfully created an account',
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+        position: 'top',
+      })
       navigate('/');
       setLoading(false);
-    } catch (error) {
+    }catch(err){
       setLoading(false);
-      const parser = new DOMParser();
-      const htmlDoc = parser.parseFromString(error.response.data, 'text/html');
-      const errorMessage = htmlDoc.body.textContent.trim();
-
+      console.log(err.response.data.errors)
+      console.log(err.response.data)
+      console.log(err.response.data.errors.password)
+      let errorDescription = '';
+      if (err.response.data.errors.username) {
+        errorDescription += err.response.data.errors.username;
+      } else if (err.response.data.errors.email) {
+        errorDescription += err.response.data.errors.email;
+      } else if (err.response.data.errors.password) {
+        errorDescription += err.response.data.errors.password;
+      } else if (err.response.data.errors.role) {
+        errorDescription += err.response.data.errors.role;
+      } else if (err.response.data.errors.phone_number) {
+        errorDescription += err.response.data.errors.phone_number;
+      }
       toast({
         title: 'Error',
-        description: errorMessage.slice(7, 27),
+        description: errorDescription,
         status: 'error',
         duration: 2000,
         isClosable: true,
@@ -142,6 +157,7 @@ export default function SignupForm() {
             mb="1rem"
           >
             <form onSubmit={onSubmit}>
+              {/*Username and Phone*/ }
               <Flex gap="2rem">
                 <Box mb={['1rem', '2rem']}>
                   <Text mb="0.5rem" fontSize={['1.1rem', '1.2rem']}>
@@ -153,8 +169,8 @@ export default function SignupForm() {
                       focusBorderColor="#ce1567"
                       bg="#ecedf6"
                       id="name"
-                      name="name"
-                      value={name}
+                      name="username"
+                      value={username}
                       placeholder="Name..."
                       onChange={onChange}
                     />
@@ -170,14 +186,15 @@ export default function SignupForm() {
                       focusBorderColor="#ce1567"
                       bg="#ecedf6"
                       id="phone"
-                      name="phone"
-                      value={phone}
+                      name="phone_number"
+                      value={phone_number}
                       placeholder="Phone..."
                       onChange={onChange}
                     />
                   </Box>
                 </Box>
               </Flex>
+              {/*Email */}
               <Box mb={['1rem', '2rem']}>
                 <Text mb="0.5rem" fontSize={['1.1rem', '1.2rem']}>
                   Email:{' '}
@@ -195,6 +212,7 @@ export default function SignupForm() {
                   />
                 </Box>
               </Box>
+              {/*Password */}
               <Box mb={['1rem', '2rem']}>
                 <Text mb="0.5rem" fontSize={['1.1rem', '1.2rem']}>
                   Password:{' '}
@@ -231,6 +249,7 @@ export default function SignupForm() {
                   </InputGroup>
                 </Box>
               </Box>
+              {/*Confirm Password */}
               <Box mb={['1rem', '2rem']}>
                 <Text mb="0.5rem" fontSize={['1.1rem', '1.2rem']}>
                   Confirm Password:{' '}
@@ -245,14 +264,14 @@ export default function SignupForm() {
                       name="confirmPassword"
                       value={confirmPassword}
                       placeholder="Confirm Password..."
-                      onChange={onChange}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
                     />
                     <InputRightElement
                       onClick={() => {
-                        setShowPassword(!showPassword);
+                        setShowConfirmPassword(!showConfirmPassword);
                       }}
                     >
-                      {showPassword ? (
+                      {showConfirmPassword ? (
                         <BiHide
                           style={{ width: '20px', height: '20px' }}
                           color="#3d3d3d"
@@ -267,6 +286,25 @@ export default function SignupForm() {
                   </InputGroup>
                 </Box>
               </Box>
+              <Box mb={['1rem', '2rem']}>
+        <Text mb="0.5rem" fontSize={['1.1rem', '1.2rem']}>
+          Select Role:{' '}
+        </Text>
+        <Box bg="#ffffff" borderRadius="0.4rem">
+          <Select
+            focusBorderColor="#ce1567"
+            bg="#ecedf6"
+            id="role"
+            name="role"
+            value={role}
+            onChange={onChange}
+          >
+             <option value="" disabled selected>Select Role</option>
+            <option value="launderer">Launderer</option>
+            <option value="student">Student</option>
+          </Select>
+        </Box>
+      </Box>
               <Center>
                 {loading ? (
                   <Button isLoading loadingText="Logging In...">
