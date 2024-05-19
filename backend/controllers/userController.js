@@ -32,6 +32,15 @@ const createUser = async (req, resp) => {
     });
 
     await user.save();
+    const token = authUtils.createToken(user.username, user.role);
+    //Always set the headers before sending the response
+    resp.cookie("jwt", token, {
+      httpOnly: true,
+      maxAge: maxAge * 1000,
+      secure: true, // set to true if your using https
+      sameSite: "none",
+    }); // Set the cookie
+
     resp.status(201).json({
       user: user
     });

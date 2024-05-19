@@ -27,15 +27,16 @@ const createStudentOrder = async(req, resp) => {
         const student= await User.findOne({
             username: student_name
         });
-        const { items, deliveryDate, pickupAddress, deliveryAddress, totalAmount } = req.body;
+        const { items, deliveryDate, pickupAddress, deliveryAddress, totalAmount, pickupDate } = req.body;
         //all the items validation is done in the frontend without any anomaly.
         const order = new Order({
             user: student._id,
             items: items,
             deliveryDate: deliveryDate,
             pickupAddress: pickupAddress,
-            deliveryDate: deliveryAddress,
-            totalAmount: totalAmount
+            deliveryAddress: deliveryAddress,
+            totalAmount: totalAmount,
+            pickupDate: pickupDate
         });
         await order.save();
         resp.status(201).json({
