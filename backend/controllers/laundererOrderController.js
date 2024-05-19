@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 // @route   GET /allorders
 // @access  Private
 // when accepted and delivery status are marked as true, the orders will be deleted automatically from the database.
-const getAllOrders = async (req, resp) => {
+const getAllOrders = async(req, resp) => {
   try{
       const token = req.cookies.jwt;
       const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
@@ -28,7 +28,7 @@ const getAllOrders = async (req, resp) => {
 // @desc    Get orders of a particular user
 // @route   GET /orders/:username
 // @access  Private
-const getOrdersByStudent = async (req, resp) => {
+const getOrdersByStudent = async(req, resp) => {
   try{
     const token = req.cookies.jwt;
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
@@ -54,7 +54,7 @@ const getOrdersByStudent = async (req, resp) => {
 // @desc    Delete orders as soon as they are completed/delivered
 // @route   DELETE /orders
 // @access  Private
-const deleteOrders = async (req, resp) => {
+const deleteOrders = async(req, resp) => {
   try {
     const result = await Order.deleteMany({
       acceptedStatus: true,

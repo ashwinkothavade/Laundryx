@@ -59,6 +59,12 @@ const loginUser = async (req, resp) => {
             secure: true, // set to true if your using https
             sameSite: "none",
         }); // Set the cookie
+
+        resp.status(200).json({
+          username: user.username,
+          role: user.role,
+          token: token
+        });
       } else {
         throw new Error("Invalid password");
       }

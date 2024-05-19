@@ -6,7 +6,8 @@ const port = process.env.PORT || 4000;
 const cors = require("cors");
 const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
-const orderRoutes = require("./routes/orderRoutes");
+const laundererRoutes = require("./routes/laundererRoutes");
+const studentRoutes = require("./routes/studentRoutes");
 const app = express();
 const corsOptions = {
   origin: ["http://localhost:5173"],
@@ -23,7 +24,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(userRoutes);
-app.use(orderRoutes);
+app.use(laundererRoutes);
+app.use(studentRoutes);
 
 app.get("/", (req, resp) => {
   resp.status(200).json("This is the LaundriX backend API.");

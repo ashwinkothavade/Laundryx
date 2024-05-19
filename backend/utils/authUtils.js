@@ -24,7 +24,7 @@ const handleSignUpError = (err) => {
         error.role = "Please enter a valid role: student or launderer";
     else if (err.errors.role)
         error.role = err.errors.role.message;
-    
+
     return error;
 }
 

@@ -15,7 +15,7 @@ const itemSchema = mongoose.Schema({
       required: true,
       enum: ["simple_wash", "power_clean", "dry_clean"],
     },
-    price: {
+    pricePerItem: {
       type: Number,
       required: true,
     },
