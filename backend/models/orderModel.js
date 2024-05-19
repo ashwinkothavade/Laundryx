@@ -1,27 +1,28 @@
 const mongoose = require("mongoose");
 
 const itemSchema = mongoose.Schema({
-    name: {
-      type: String,
-      required: true,
-      enum: ["shirt", "pant", "jacket", "blanket"],
-    },
-    quantity: {
-      type: Number,
-      required: true,
-    },
-    washType: {
-      type: String,
-      required: true,
-      enum: ["simple_wash", "power_clean", "dry_clean"],
-    },
-    pricePerItem: {
-      type: Number,
-      required: true,
-    },
+  name: {
+    type: String,
+    required: true,
+    enum: ["shirt", "pant", "jacket", "blanket"],
+  },
+  quantity: {
+    type: Number,
+    required: true,
+  },
+  washType: {
+    type: String,
+    required: true,
+    enum: ["simple_wash", "power_clean", "dry_clean"],
+  },
+  pricePerItem: {
+    type: Number,
+    required: true,
+  },
 });
 
-const orderSchema = mongoose.Schema({
+const orderSchema = mongoose.Schema(
+  {
     user: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
@@ -43,12 +44,16 @@ const orderSchema = mongoose.Schema({
     },
     totalAmount: Number,
     acceptedStatus: {
-        type: Boolean,
-        default: false,
+      type: Boolean,
+      default: false,
     },
     deliveredStatus: {
-        type: Boolean,
-        default: false,
+      type: Boolean,
+      default: false,
+    },
+    paid: {
+      type: Boolean,
+      default: false,
     },
   },
   {

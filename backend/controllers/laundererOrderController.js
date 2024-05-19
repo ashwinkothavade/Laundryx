@@ -58,7 +58,8 @@ const deleteOrders = async(req, resp) => {
   try {
     const result = await Order.deleteMany({
       acceptedStatus: true,
-      deliveredStatus: true
+      deliveredStatus: true,
+      paid: true,
     });
     resp.status(200).json({
       deletedCount: result.deletedCount,
