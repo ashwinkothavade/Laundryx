@@ -13,22 +13,35 @@ const handleSignUpError = (err) => {
             error.email = "Email already taken";
         }else if(err.keyValue.username){
             error.username = "Username already taken";
+        }else if(err.keyValue.phone_number){
+            error.phone_number = "Phone number already taken";
+        }
+    }else{
+        if (err.errors) {
+            if (err.errors.username) {
+                error.username = err.errors.username.message;
+            }
+            if (err.errors.password) {
+                error.password = err.errors.password.message;
+            }
+            if (err.errors.email) {
+                error.email = "Please enter a valid email";
+            }
+            if (err.errors.role) {
+                if (err.errors.role.properties && err.errors.role.properties.type === "enum") {
+                    error.role = "Please enter a valid role: student or launderer";
+                } else {
+                    error.role = err.errors.role.message;
+                }
+            }
+            if (err.errors.phone_number) {
+                error.phone_number = err.errors.phone_number.message;
+            }
+        } else {
+            // If no specific errors are found, return the whole error object
+            return err;
         }
     }
-    else if(err.errors.username)
-        error.username = err.errors.username.message;
-    else if(err.errors.password)
-        error.password = err.errors.password.message
-    else if(err.errors.email)
-        error.email = "Please enter a valid email";
-    else if(err.errors.role && err.errors.role.properties.type === "enum")
-        error.role = "Please enter a valid role: student or launderer";
-    else if (err.errors.role)
-        error.role = err.errors.role.message;
-    else if(err.errors.phone_number)
-        error.phone_number = err.errors.phone_number.message;
-    else
-        return err;
 
     return error;
 }
