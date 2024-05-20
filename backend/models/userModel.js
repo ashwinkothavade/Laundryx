@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 
-const userSchema = mongoose.Schema({
+const userSchema = mongoose.Schema(
+  {
     username: {
       type: String,
       minlength: [4, "Username must be at least 4 characters long"],
@@ -10,7 +11,7 @@ const userSchema = mongoose.Schema({
       unique: [true, "Username already taken"],
       trim: true,
     },
-    phone_number:{
+    phone_number: {
       type: String,
       required: [true, "Please provide a phone number"],
       unique: [true, "Phone number already taken"],
@@ -18,8 +19,13 @@ const userSchema = mongoose.Schema({
         validator: function (value) {
           return /(\+91|0)\d{10}/g.test(value);
         },
-        message: "Invalid phone number, enter an Indian phone number, starting with +91 or 0",
+        message:
+          "Invalid phone number, enter an Indian phone number, starting with +91 or 0",
       },
+    },
+    roll_number: {
+      type: String,
+      default: "",
     },
     role: {
       type: String,
@@ -48,6 +54,14 @@ const userSchema = mongoose.Schema({
           "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character",
       },
     },
+    room_number: {
+      type: String,
+      default: "",
+    },
+    hostel: {
+      type: String,
+      default: "",
+    },
   },
   {
     timestamps: true,
@@ -55,11 +69,10 @@ const userSchema = mongoose.Schema({
   }
 );
 
-userSchema.pre('save', async function(next) {
+userSchema.pre("save", async function (next) {
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
   next();
-})
-
+});
 
 module.exports = mongoose.model("User", userSchema);
