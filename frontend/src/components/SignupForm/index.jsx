@@ -40,7 +40,6 @@ export default function SignupForm() {
       setUserEmail: state.setUserEmail,
       setUserPhone: state.setUserPhone,
       setUserRole: state.setUserRole
-      // userName: state.userName,
     })
   );
 
@@ -62,7 +61,7 @@ export default function SignupForm() {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!(email || password || username || phone_number || role)) {
+    if (!(email && password && username && phone_number && role)) {
       toast({
         title: 'Incomplete Entries',
         description: 'Please enter all the fields',
@@ -109,9 +108,6 @@ export default function SignupForm() {
       setLoading(false);
     }catch(err){
       setLoading(false);
-      console.log(err.response.data.errors)
-      console.log(err.response.data)
-      console.log(err.response.data.errors.password)
       let errorDescription = '';
       if (err.response.data.errors.username) {
         errorDescription += err.response.data.errors.username;
@@ -168,7 +164,7 @@ export default function SignupForm() {
                       type="text"
                       focusBorderColor="#ce1567"
                       bg="#ecedf6"
-                      id="name"
+                      id="username"
                       name="username"
                       value={username}
                       placeholder="Name..."
@@ -185,7 +181,7 @@ export default function SignupForm() {
                       type="text"
                       focusBorderColor="#ce1567"
                       bg="#ecedf6"
-                      id="phone"
+                      id="phone_number"
                       name="phone_number"
                       value={phone_number}
                       placeholder="Phone..."
@@ -257,7 +253,7 @@ export default function SignupForm() {
                 <Box bg="#ffffff" borderRadius="0.4rem">
                   <InputGroup>
                     <Input
-                      type={showPassword ? 'text' : 'password'}
+                      type={showConfirmPassword ? 'text' : 'password'}
                       focusBorderColor="#ce1567"
                       bg="#ecedf6"
                       id="confirmPassword"
