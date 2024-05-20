@@ -23,14 +23,11 @@ const createStudentOrder = async(req, resp) => {
     try{
         const token = req.cookies.jwt;
         const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-        const student_name = decodedToken.username;
-        const student= await User.findOne({
-            username: student_name
-        });
+        const studentId = decodedToken.user_id; //avoiding database call by storing the user_id in the token
         const { items, deliveryDate, pickupAddress, deliveryAddress, totalAmount, pickupDate } = req.body;
         //all the items validation is done in the frontend without any anomaly.
         const order = new Order({
-            user: student._id,
+            user: studentId,
             items: items,
             deliveryDate: deliveryDate,
             pickupAddress: pickupAddress,
