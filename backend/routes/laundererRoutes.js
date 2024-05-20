@@ -5,7 +5,10 @@ const {verifyUser} = require("../middlewares/authMiddleware");
 
 // launderer routes
 router.get('/allorders', verifyUser, laundererOrderController.getAllOrders);
-router.get('/orders', verifyUser, laundererOrderController.getOrdersByStudent);
+router.get('/orders/:username', verifyUser, laundererOrderController.getOrdersByStudent);
+router.put('/acceptorder/:order_id', verifyUser, laundererOrderController.updateOrderAccept);
+router.put('/rejectorder/:order_id', verifyUser, laundererOrderController.updateOrderReject);
+router.put('/updatedeliverydate/:order_id', verifyUser, laundererOrderController.updateOrderDeliveryDate);
 router.delete('/orders', verifyUser, laundererOrderController.deleteOrders);
 
 module.exports = router;
