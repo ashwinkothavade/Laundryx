@@ -1,13 +1,14 @@
 const express = require("express");
 const colors = require("colors");
 const cookieParser = require("cookie-parser");
-const dotenv = require("dotenv");
+const dotenv = require("dotenv").config();
 const port = process.env.PORT || 4000;
 const cors = require("cors");
 const connectDB = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
 const laundererRoutes = require("./routes/laundererRoutes");
 const studentRoutes = require("./routes/studentRoutes");
+const razorpayRoutes = require("./routes/razorpayRoutes");
 const app = express();
 const corsOptions = {
   origin: ["http://localhost:5173"],
@@ -15,8 +16,6 @@ const corsOptions = {
   credentials: true,
   optionsSuccessStatus: 200,
 };
-
-dotenv.config();
 
 connectDB();
 app.use(express.json());
@@ -26,6 +25,7 @@ app.use(cookieParser());
 app.use(userRoutes);
 app.use(laundererRoutes);
 app.use(studentRoutes);
+app.use(razorpayRoutes);
 
 app.get("/", (req, resp) => {
   resp.status(200).json("This is the LaundriX backend API.");

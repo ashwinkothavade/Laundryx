@@ -9,6 +9,7 @@ import OrderConfirmationPage from './pages/OrderConfirmation';
 import OrderHistoryPage from './pages/OrderHistoryPage';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import DumyPayment from './pages/DumyPayment';
 import Cookies from 'universal-cookie';
 import useOrderStore from './components/Store/OrderStore';
 
@@ -60,6 +61,7 @@ function App() {
         />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/payment" element={<DumyPayment />} />
       </Routes>
     </>
   );
