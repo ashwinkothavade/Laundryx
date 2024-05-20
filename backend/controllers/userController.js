@@ -32,7 +32,7 @@ const createUser = async (req, resp) => {
     });
 
     await user.save();
-    const token = authUtils.createToken(user.username, user.role);
+    const token = authUtils.createToken(user.username, user.role, user._id);
     //Always set the headers before sending the response
     resp.cookie("jwt", token, {
       httpOnly: true,
@@ -61,7 +61,7 @@ const loginUser = async (req, resp) => {
     if (user) {
       const auth = await bcrypt.compare(password, user.password);
       if (auth) {
-        const token = authUtils.createToken(user.username, user.role);
+        const token = authUtils.createToken(user.username, user.role, user._id);
 
         resp.cookie("jwt", token, {
             httpOnly: true,
