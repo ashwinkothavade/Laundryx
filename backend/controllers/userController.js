@@ -76,7 +76,7 @@ const loginUser = async (req, resp) => {
           token: token
         });
       } else {
-        throw new Error("Invalid password");
+        throw new Error("Incorrect password!!");
       }
     } else {
       throw new Error("User not found");

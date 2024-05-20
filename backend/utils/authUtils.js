@@ -50,7 +50,7 @@ const handleLogInError = (err) => {
     let errors = { username: '', password: '' };
     if (err.message === 'User not found') {
         errors.username = err.message;
-    } else if (err.message === 'Invalid password') {
+    } else if (err.message === 'Incorrect password!!') {
         errors.password = err.message;
     }
     return errors;
