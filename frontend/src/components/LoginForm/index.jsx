@@ -1,4 +1,4 @@
-import {
+  import {
   Box,
   Button,
   Center,
@@ -17,28 +17,24 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AiOutlineArrowRight } from 'react-icons/ai';
 import { BiHide, BiShow } from 'react-icons/bi';
 import useOrderStore from '../Store/OrderStore';
-import Cookies from 'universal-cookie';
 
 export default function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loginData, setLoginData] = useState({
-    email: '',
-    password: '',
+    username: '',
+    password: ''
   });
 
-  const { addAuth, setUserName, setUserEmail, setUserPhone } = useOrderStore(
+  const { addAuth, setUserName } = useOrderStore(
     (state) => ({
       addAuth: state.addAuth,
       setUserName: state.setUserName,
-      setUserEmail: state.setUserEmail,
-      setUserPhone: state.setUserPhone,
     })
   );
+  //password global state mein store nahi karna hai imo.
+  const { username, password } = loginData;
 
-  const { email, password } = loginData;
-
-  const cookies = new Cookies();
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -49,26 +45,9 @@ export default function LoginForm() {
     }));
   };
 
-  async function makeLoginRequest() {
-    const response = await axios.post(
-      'http://localhost:4444/api/user/login',
-      {
-        email: email,
-        password: password,
-      },
-      {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        withCredentials: true,
-      }
-    );
-    return response;
-  }
-
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!(email && password)) {
+    if (!(username && password)) {
       toast({
         title: 'Incomplete Entries',
         description: 'Please enter both email and password',
@@ -82,37 +61,39 @@ export default function LoginForm() {
 
     setLoading(true);
     try {
-      let response = await makeLoginRequest();
-
-      cookies.set('token', response.data.token);
-      cookies.set('userName', decodeURIComponent(response.data.name));
-      cookies.set('userEmail', decodeURIComponent(response.data.email));
-      cookies.set('userPhone', decodeURIComponent(response.data.phone));
-
+      const response = await axios.post(
+        'http://localhost:4000/login',
+        loginData
+      );
       addAuth();
-      setUserName(response.data.name);
-      setUserEmail(response.data.email);
-      setUserPhone(response.data.phone);
-
+      console.log(response)
+      setUserName(username);
+      toast({
+        title: 'Success',
+        description: 'Successfully logged in!',
+        status: 'success',
+        duration: 2000,
+        isClosable: true,
+        position: 'top',
+      });
       navigate('/');
       setLoading(false);
-    } catch (error) {
+    } catch (err) {
       setLoading(false);
-
-      const parser = new DOMParser();
-      const htmlDoc = parser.parseFromString(error.response.data, 'text/html');
-      const errorMessage = htmlDoc.body.textContent.trim();
-
+      let errorDescription = '';
+      if (err.response.data.errors.username) {
+        errorDescription += err.response.data.errors.username;
+      } else if (err.response.data.errors.password) {
+        errorDescription += err.response.data.errors.password;
+      }
       toast({
         title: 'Error',
-        description: errorMessage.slice(7, 27),
+        description: errorDescription,
         status: 'error',
         duration: 2000,
         isClosable: true,
         position: 'top',
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -141,17 +122,17 @@ export default function LoginForm() {
             <form onSubmit={onSubmit}>
               <Box mb={['1rem', '2rem']}>
                 <Text mb="0.5rem" fontSize={['1.1rem', '1.2rem']}>
-                  Email:{' '}
+                  Username:{' '}
                 </Text>
                 <Box bg="#ffffff" borderRadius="0.4rem">
                   <Input
-                    type="email"
+                    type="text"
                     focusBorderColor="#ce1567"
                     bg="#ecedf6"
-                    id="email"
-                    name="email"
-                    value={email}
-                    placeholder="Enter your email..."
+                    id="username"
+                    name="username"
+                    value={username}
+                    placeholder="Enter your username  ..."
                     onChange={onChange}
                   />
                 </Box>
