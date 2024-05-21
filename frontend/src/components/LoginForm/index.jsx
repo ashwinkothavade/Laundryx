@@ -1,4 +1,4 @@
-  import {
+import {
   Box,
   Button,
   Center,
@@ -6,16 +6,16 @@
   Input,
   InputGroup,
   InputRightElement,
+  Spinner,
   Stack,
   Text,
   useToast,
-  Spinner,
 } from '@chakra-ui/react';
-import { useState } from 'react';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
-import { AiOutlineArrowRight } from 'react-icons/ai';
+import { useState } from 'react';
 import { BiHide, BiShow } from 'react-icons/bi';
+import { HiArrowLongRight } from 'react-icons/hi2';
+import { Link, useNavigate } from 'react-router-dom';
 import useOrderStore from '../Store/OrderStore';
 
 export default function LoginForm() {
@@ -23,15 +23,14 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [loginData, setLoginData] = useState({
     username: '',
-    password: ''
+    password: '',
   });
 
-  const { addAuth, setUserName } = useOrderStore(
-    (state) => ({
-      addAuth: state.addAuth,
-      setUserName: state.setUserName,
-    })
-  );
+  const { addAuth, setUserName, setUserRole } = useOrderStore((state) => ({
+    addAuth: state.addAuth,
+    setUserName: state.setUserName,
+    setUserRole : state.setUserRole,
+  }));
   //password global state mein store nahi karna hai imo.
   const { username, password } = loginData;
 
@@ -59,15 +58,19 @@ export default function LoginForm() {
       return;
     }
 
-    setLoading(true);
     try {
+      setLoading(true);
       const response = await axios.post(
         'http://localhost:4000/login',
         loginData
       );
       addAuth();
-      console.log(response)
+      console.log(response);
       setUserName(username);
+      setUserRole(response.data.role);
+      sessionStorage.setItem('isAuth', true);
+      sessionStorage.setItem('username', username);
+      sessionStorage.setItem('userrole', response.data.role);
       toast({
         title: 'Success',
         description: 'Successfully logged in!',
@@ -79,7 +82,7 @@ export default function LoginForm() {
       navigate('/');
       setLoading(false);
     } catch (err) {
-      setLoading(false);
+      // setLoading(false);
       let errorDescription = '';
       if (err.response.data.errors.username) {
         errorDescription += err.response.data.errors.username;
@@ -189,7 +192,7 @@ export default function LoginForm() {
                       bg: '',
                     }}
                     rightIcon={
-                      <AiOutlineArrowRight color="#ffffff" size="1.2rem" />
+                      <HiArrowLongRight color="#ffffff" size="1.5rem" />
                     }
                   >
                     Log In

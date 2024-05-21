@@ -16,8 +16,9 @@ import { GiHamburgerMenu } from 'react-icons/gi';
 import { Link, useNavigate } from 'react-router-dom';
 import useOrderStore from '../Store/OrderStore';
 import axios from 'axios';
+import { useEffect } from 'react';
 const Navbar = () => {
-  const { isAuth, removeAuth, userName } = useOrderStore((state) => ({
+  const { isAuth, addAuth, removeAuth, userName, setUserRole, setUserName } = useOrderStore((state) => ({
     isAuth: state.isAuth,
     addAuth: state.addAuth,
     removeAuth: state.removeAuth,
@@ -25,7 +26,16 @@ const Navbar = () => {
     setUserName: state.setUserName,
     setUserEmail: state.setUserEmail,
     setUserPhone: state.setUserPhone,
+    setUserRole: state.setUserRole,
   }));
+
+  useEffect(() => {
+    if(sessionStorage.getItem('isAuth')) {
+      addAuth();
+      setUserName(sessionStorage.getItem('username'));
+      setUserRole(sessionStorage.getItem('userrole'));
+    }
+  }, []);
 
   // eslint-disable-next-line no-unused-vars
   const navigate = useNavigate();
@@ -44,6 +54,11 @@ const Navbar = () => {
       });
       console.log(response.data)
       removeAuth();
+      setUserName(null);
+      setUserRole(null);
+      sessionStorage.removeItem('isAuth');
+      sessionStorage.removeItem('username');
+      sessionStorage.removeItem('userrole');
       navigate('/');
     }catch(err){
       toast({

@@ -15,11 +15,11 @@ const useOrderStore = create((set) => ({
   pickupAddress: '',
   dropAddress: '',
 
-  isAuth: false,  //userCredentials
+  isAuth: sessionStorage.getItem('isAuth') ? true : false,  //userCredentials
   Phone: 0, //userCredentials
-  userName: '', //userCredentials
+  userName: sessionStorage.getItem('username'), //userCredentials
   userEmail: '', //userCredentials
-  userRole: '', //userCredentials
+  userRole: sessionStorage.getItem("userrole"), //userCredentials
   
   addAuth: () => {
     set((state) => {

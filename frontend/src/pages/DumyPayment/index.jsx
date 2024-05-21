@@ -29,13 +29,7 @@ const DumyPayment = () => {
       name: 'LaundriX', //your business name
       description: 'Test Transaction',
       image: 'https://example.com/your_logo',
-      order_id: order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
-      prefill: {
-        //We recommend using the prefill parameter to auto-fill customer's contact information, especially their phone number
-        name: 'Vedant Jain', //your customer's name
-        email: 'jainvedant392@gmail.com',
-        contact: '9644962241', //Provide the customer's phone number for better conversion rates
-      },
+      order_id: order.id, 
       handler: async function (response) {
         const body = { ...response };
 

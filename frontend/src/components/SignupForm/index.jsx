@@ -1,24 +1,24 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { BiShow, BiHide } from 'react-icons/bi';
-import { AiOutlineArrowRight } from 'react-icons/ai';
 import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { BiHide, BiShow } from 'react-icons/bi';
+import { HiArrowLongRight } from 'react-icons/hi2';
+import { Link, useNavigate } from 'react-router-dom';
 axios.defaults.withCredentials = true;
 // import Cookies from 'universal-cookie';
-import useOrderStore from '../../components/Store/OrderStore';
 import {
-  useToast,
-  Button,
-  Text,
-  Flex,
-  Stack,
   Box,
+  Button,
   Center,
+  Flex,
   Input,
-  InputRightElement,
   InputGroup,
-  Select
+  InputRightElement,
+  Select,
+  Stack,
+  Text,
+  useToast,
 } from '@chakra-ui/react';
+import useOrderStore from '../../components/Store/OrderStore';
 
 export default function SignupForm() {
   const [loading, setLoading] = useState(false);
@@ -33,15 +33,14 @@ export default function SignupForm() {
     password: '',
   });
   const { username, phone_number, email, role, password } = signupData;
-  const { addAuth, setUserName, setUserEmail, setUserPhone, setUserRole } = useOrderStore(
-    (state) => ({
+  const { addAuth, setUserName, setUserEmail, setUserPhone, setUserRole } =
+    useOrderStore((state) => ({
       addAuth: state.addAuth,
       setUserName: state.setUserName,
       setUserEmail: state.setUserEmail,
       setUserPhone: state.setUserPhone,
-      setUserRole: state.setUserRole
-    })
-  );
+      setUserRole: state.setUserRole,
+    }));
 
   const navigate = useNavigate();
   const toast = useToast();
@@ -83,19 +82,22 @@ export default function SignupForm() {
       });
       return;
     }
-    setLoading(true);
-    try{
+    try {
+      setLoading(true);
       const response = await axios.post(
         'http://localhost:4000/signup',
         signupData
       );
 
       addAuth();
-      console.log(response)
+      console.log(response);
       setUserName(username);
       setUserEmail(email);
       setUserPhone(phone_number);
       setUserRole(role);
+      sessionStorage.setItem('isAuth', true);
+      sessionStorage.setItem('username', username);
+      sessionStorage.setItem('userrole', role);
       toast({
         title: 'Account Created',
         description: 'You have successfully created an account',
@@ -103,11 +105,11 @@ export default function SignupForm() {
         duration: 2000,
         isClosable: true,
         position: 'top',
-      })
+      });
       navigate('/');
       setLoading(false);
-    }catch(err){
-      setLoading(false);
+    } catch (err) {
+      // setLoading(false);
       let errorDescription = '';
       if (err.response.data.errors.username) {
         errorDescription += err.response.data.errors.username;
@@ -153,7 +155,7 @@ export default function SignupForm() {
             mb="1rem"
           >
             <form onSubmit={onSubmit}>
-              {/*Username and Phone*/ }
+              {/*Username and Phone*/}
               <Flex gap="2rem">
                 <Box mb={['1rem', '2rem']}>
                   <Text mb="0.5rem" fontSize={['1.1rem', '1.2rem']}>
@@ -283,24 +285,26 @@ export default function SignupForm() {
                 </Box>
               </Box>
               <Box mb={['1rem', '2rem']}>
-        <Text mb="0.5rem" fontSize={['1.1rem', '1.2rem']}>
-          Select Role:{' '}
-        </Text>
-        <Box bg="#ffffff" borderRadius="0.4rem">
-          <Select
-            focusBorderColor="#ce1567"
-            bg="#ecedf6"
-            id="role"
-            name="role"
-            value={role}
-            onChange={onChange}
-          >
-             <option value="" disabled selected>Select Role</option>
-            <option value="launderer">Launderer</option>
-            <option value="student">Student</option>
-          </Select>
-        </Box>
-      </Box>
+                <Text mb="0.5rem" fontSize={['1.1rem', '1.2rem']}>
+                  Select Role:{' '}
+                </Text>
+                <Box bg="#ffffff" borderRadius="0.4rem">
+                  <Select
+                    focusBorderColor="#ce1567"
+                    bg="#ecedf6"
+                    id="role"
+                    name="role"
+                    value={role}
+                    onChange={onChange}
+                  >
+                    <option value="" disabled selected>
+                      Select Role
+                    </option>
+                    <option value="launderer">Launderer</option>
+                    <option value="student">Student</option>
+                  </Select>
+                </Box>
+              </Box>
               <Center>
                 {loading ? (
                   <Button isLoading loadingText="Logging In...">
@@ -319,7 +323,7 @@ export default function SignupForm() {
                       bg: '',
                     }}
                     rightIcon={
-                      <AiOutlineArrowRight color="#ffffff" size="1.2rem" />
+                      <HiArrowLongRight color="#ffffff" size="1.5rem" />
                     }
                   >
                     Create Account
