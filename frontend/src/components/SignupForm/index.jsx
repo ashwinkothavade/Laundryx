@@ -82,8 +82,8 @@ export default function SignupForm() {
       });
       return;
     }
+    setLoading(true);
     try {
-      setLoading(true);
       const response = await axios.post(
         'http://localhost:4000/signup',
         signupData
@@ -109,7 +109,7 @@ export default function SignupForm() {
       navigate('/');
       setLoading(false);
     } catch (err) {
-      // setLoading(false);
+      setLoading(false);
       let errorDescription = '';
       if (err.response.data.errors.username) {
         errorDescription += err.response.data.errors.username;

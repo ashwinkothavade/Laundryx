@@ -58,8 +58,8 @@ export default function LoginForm() {
       return;
     }
 
+    setLoading(true);
     try {
-      setLoading(true);
       const response = await axios.post(
         'http://localhost:4000/login',
         loginData
@@ -82,7 +82,7 @@ export default function LoginForm() {
       navigate('/');
       setLoading(false);
     } catch (err) {
-      // setLoading(false);
+      setLoading(false);
       let errorDescription = '';
       if (err.response.data.errors.username) {
         errorDescription += err.response.data.errors.username;
