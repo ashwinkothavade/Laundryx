@@ -1,0 +1,2 @@
+1) two routes controllers to be added to student
+2) frontend of launderer, student
