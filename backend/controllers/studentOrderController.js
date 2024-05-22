@@ -50,7 +50,7 @@ const createStudentOrder = async(req, resp) => {
 
 //pickupStatus -> true set karne ka controller.
 //orderDelete -> if the acceptStatus is false.
-//
+//deliveredStatus -> true set karne ka controller.
 
 module.exports = {
     getStudentOrders,
