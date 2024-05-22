@@ -1,6 +1,6 @@
 1) two routes controllers to be added to student(or three)
 2) frontend of launderer, student
-3) add paid -> true in /validate payment in razorpay controller
+3) add paid -> true in /validate payment in razorpay controller, DONE.
 4) design dashboard of launderer
 5) modify the zustand store to get the state from session sessionStorage
-6) modify updateOrder reject in launderer to be available if the pickup status is not true
+6) modify updateOrder reject in launderer to be available if the pickup status is not true, DONE.

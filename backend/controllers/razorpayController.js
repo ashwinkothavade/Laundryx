@@ -11,29 +11,33 @@ const createOrder = async (req, resp) => {
     const options = req.body;
     const order = await razorpay.orders.create(options);
     if (!order) {
-      return resp.status(500).json({
+      return resp.status(401).json({
         message: "Some error occurred",
       });
     }
     console.log(order);
     resp.json(order);
-  } catch {
-    resp.status(500).json({
-      message: "Some error occurred",
+  } catch (err) {
+    resp.status(401).json({
+      message: err,
     });
   }
 };
 
 const validatePayment = async (req, resp) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
-      req.body;
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      order_id,
+    } = req.body;
     const sha = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET);
     sha.update(`${razorpay_order_id}|${razorpay_payment_id}`);
     const digest = sha.digest("hex");
 
     if (digest !== razorpay_signature) {
-      return resp.status(400).json({
+      return resp.status(401).json({
         message: "Invalid signature",
       });
     }
@@ -42,9 +46,13 @@ const validatePayment = async (req, resp) => {
       orderId: razorpay_order_id,
       paymentId: razorpay_payment_id,
     });
-  } catch {
-    resp.status(500).json({
-      message: "Some error occurred",
+    // const updatedOrder = await Order.findByIdAndUpdate(order_id, {
+    //   paid: true,
+    // });
+    // updatedOrder.save();
+  } catch (err) {
+    resp.status(401).json({
+      message: err,
     });
   }
 };

@@ -5,6 +5,7 @@ const DumyPayment = () => {
   const amount = 50000;
   const currency = 'INR';
   const receipt = 'qwsaq1';
+  const order_id = "some_order_id";
   const navigate = useNavigate();
 
   const handlePayment = async (e) => {
@@ -31,7 +32,7 @@ const DumyPayment = () => {
       image: 'https://example.com/your_logo',
       order_id: order.id, 
       handler: async function (response) {
-        const body = { ...response };
+        const body = { ...response, order_id };
 
         const validateResp = await fetch(
           'http://localhost:4000/payment/validate',
