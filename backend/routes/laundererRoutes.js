@@ -9,6 +9,5 @@ router.get('/orders/:username', verifyUser, laundererOrderController.getOrdersBy
 router.put('/acceptorder/:order_id', verifyUser, laundererOrderController.updateOrderAccept);
 router.put('/rejectorder/:order_id', verifyUser, laundererOrderController.updateOrderReject);
 router.put('/updatedeliverydate/:order_id', verifyUser, laundererOrderController.updateOrderDeliveryDate);
-router.delete('/orders', verifyUser, laundererOrderController.deleteOrders);
 
 module.exports = router;
