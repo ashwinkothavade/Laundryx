@@ -37,7 +37,6 @@ const Navbar = () => {
     }
   }, []);
 
-  // eslint-disable-next-line no-unused-vars
   const navigate = useNavigate();
   const toast = useToast();
 

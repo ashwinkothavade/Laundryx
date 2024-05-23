@@ -82,7 +82,6 @@ const CheckoutPage = () => {
         isClosable: true,
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function handlePickupDate(e) {
@@ -129,14 +128,6 @@ const CheckoutPage = () => {
         description: 'Complete payment',
         image: 'https://example.com/your_logo',
         order_id: data.data.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
-        // eslint-disable-next-line no-unused-vars
-        handler: function (response) {
-          // alert(response.razorpay_payment_id);
-          // alert(response.razorpay_order_id);
-          // alert(response.razorpay_signature);
-          // can be used to redirect after paymenmt completion
-          // window.location.replace(window.location.href)
-        },
         callback_url: 'https://www.google.com/',
         prefill: {
           name: { userName },
