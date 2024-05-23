@@ -202,7 +202,6 @@ export default function LoginForm() {
             </form>
           </Flex>
           <Text textAlign="center" fontSize={['1.1rem', '1.2rem']}>
-            {/*eslint-disable-next-line react/no-unescaped-entities */}
             Don't have an account?
           </Text>
           <Text

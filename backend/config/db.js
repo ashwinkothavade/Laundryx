@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+const Order = require("../models/orderModel");
 const connect = async () => {
   try {
     const connection = await mongoose.connect(process.env.MONGO_URI);

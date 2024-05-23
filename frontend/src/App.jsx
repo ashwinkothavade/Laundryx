@@ -3,7 +3,7 @@ import './App.css';
 import { Route, Routes } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import OrderList from './pages/OrderList';
-import PreLoader from './components/PreLoader';
+import PreLoader from './Animation/PreLoader';
 import CheckoutPage from './pages/CheckoutPage';
 import OrderConfirmationPage from './pages/OrderConfirmation';
 import OrderHistoryPage from './pages/OrderHistoryPage';
@@ -36,7 +36,6 @@ function App() {
       setUserEmail(cookies.get('userEmail'));
       setUserPhone(cookies.get('userPhone'));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
