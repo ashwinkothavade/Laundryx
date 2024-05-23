@@ -23,7 +23,10 @@ const getAllOrders = async (req, resp) => {
     }
   } catch (err) {
     console.error(err);
-    resp.status(401).json({ message: err });
+    resp.status(500).json({
+      message: "Error fetching the orders",
+      error: err
+    });
   }
 };
 
@@ -51,30 +54,13 @@ const getOrdersByStudent = async (req, resp) => {
     }
   } catch (err) {
     console.error(err);
-    resp.status(401).json({ message: err });
+    resp.status(500).json({
+      message: "Error fetching the orders",
+      error: err
+    });
   }
 };
 
-// @desc    Delete orders as soon as they are completed/delivered
-// @route   DELETE /orders
-// @access  Private
-const deleteOrders = async (req, resp) => {
-  try {
-    const result = await Order.deleteMany({
-      acceptedStatus: true,
-      deliveredStatus: true,
-      paid: true,
-    });
-    resp.status(200).json({
-      deletedCount: result.deletedCount,
-      message: "Orders deleted successfully",
-    });
-  } catch (err) {
-    resp.status(401).json({
-      message: err,
-    });
-  }
-};
 
 // @desc    Update Order status as accepted by the launderer
 // @route   PUT /acceptorder/:order_id
@@ -87,17 +73,22 @@ const updateOrderAccept = async (req, resp) => {
       resp.status(401).json({
         message: "User does not have access rights",
       });
-    } else {
+    }else {
       // the role is launderer, and the route can now be accessed.
       // launderer can now accept the order
       const orderId = req.params.order_id;
-      const result = await Order.findByIdAndUpdate(orderId, {
-        acceptedStatus: true,
-      });
-      result.save();
-      resp.status(200).json({
-        updatedOrder: result,
-      });
+      const order = await Order.findById(orderId);
+      if (order.acceptedStatus === true) {
+        resp.status(400).json({
+          message: "Order is already accepted.",
+        });
+      }else{
+        order.acceptedStatus = true;
+        result.save();
+        resp.status(200).json({
+          updatedOrder: result,
+        });
+      }
     }
   } catch (err) {
     resp.status(401).json({
@@ -123,13 +114,14 @@ const updateOrderReject = async (req, resp) => {
       const orderId = req.params.order_id;
       const order = await Order.findById(orderId);
       if (order.pickUpStatus === true) {
-        resp.status(401).json({
+        resp.status(400).json({
           message: "Order is picked up, cannot be rejected.",
         });
       } else {
         order.acceptedStatus = false;
         order.save();
         resp.status(201).json({
+          message: "Order rejected successfully",
           updatedOrder: order,
         });
       }
@@ -174,7 +166,6 @@ const updateOrderDeliveryDate = async (req, resp) => {
 module.exports = {
   getAllOrders,
   getOrdersByStudent,
-  deleteOrders,
   updateOrderAccept,
   updateOrderReject,
   updateOrderDeliveryDate,
