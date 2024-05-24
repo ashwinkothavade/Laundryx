@@ -196,5 +196,48 @@ const useGeneralOrderStore = create((set) => ({
       };
     });
   },
+  incrementQuantity: (itemName, listName) => {
+    set((state) => {
+      const updatedList = state.order[listName].map((item) => {
+        if (item.item === itemName) {
+          return {
+            ...item,
+            quantity: item.quantity + 1,
+          };
+        }
+        return item;
+      });
+
+      return {
+        ...state,
+        order: {
+          ...state.order,
+          [listName]: updatedList,
+        },
+      };
+    });
+  },
+
+  decrementQuantity: (itemName, listName) => {
+    set((state) => {
+      const updatedList = state.order[listName].map((item) => {
+        if (item.item === itemName) {
+          return {
+            ...item,
+            quantity: item.quantity - 1,
+          };
+        }
+        return item;
+      });
+
+      return {
+        ...state,
+        order: {
+          ...state.order,
+          [listName]: updatedList,
+        },
+      };
+    });
+  },
 }));
 export default useGeneralOrderStore;
