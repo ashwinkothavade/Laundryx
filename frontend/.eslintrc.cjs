@@ -1,9 +1,15 @@
 module.exports = {
+  root: true,
   env: {
     browser: true,
     es2021: true,
   },
-  extends: ['airbnb/hooks', 'eslint:recommended', 'plugin:react/recommended'],
+  extends: [
+    'airbnb',
+    'airbnb/hooks',
+    'plugin:react-hooks/recommended',
+    'plugin:prettier/recommended', // adding it at last to override other configs
+  ],
   overrides: [
     {
       env: {
@@ -26,10 +32,17 @@ module.exports = {
     'react/react-in-jsx-scope': 0,
     'react-hooks/exhaustive-deps': 0,
     'react/no-unescaped-entities': 'off',
+    'react/require-default-props': 'off',
+    'react/no-array-index-key': 0,
+    'react/destructuring-assignment': 0,
+    'no-console': 0,
+    camelcase: 0,
+    'no-alert': 0,
+    'react/button-has-type': 0,
   },
   settings: {
     react: {
-      version: 'detect'
-    }
-  }
+      version: 'detect',
+    },
+  },
 };

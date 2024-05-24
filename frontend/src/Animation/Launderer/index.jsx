@@ -15,9 +15,15 @@ function Animation() {
   const playSegmentsTwice = () => {
     if (lottieRef.current) {
       lottieRef.current.playSegments([0, lottieRef.current.totalFrames], true);
-      setTimeout(() => {
-        lottieRef.current.playSegments([0, lottieRef.current.totalFrames], true);
-      }, (lottieRef.current.totalFrames / lottieRef.current.getDuration()) * 1000);
+      setTimeout(
+        () => {
+          lottieRef.current.playSegments(
+            [0, lottieRef.current.totalFrames],
+            true
+          );
+        },
+        (lottieRef.current.totalFrames / lottieRef.current.getDuration()) * 1000
+      );
     }
   };
 

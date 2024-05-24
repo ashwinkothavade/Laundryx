@@ -1,8 +1,8 @@
 import { create } from 'zustand';
+import moment from 'moment';
 import PowerCleanList from '../../TempData/PowerCleanList';
 import WashList from '../../TempData/WashList';
 import DryCleanList from '../../TempData/DryCleanList';
-import moment from 'moment';
 
 const order = [[WashList, PowerCleanList, DryCleanList]];
 const useOrderStore = create((set) => ({
@@ -15,12 +15,12 @@ const useOrderStore = create((set) => ({
   pickupAddress: '',
   dropAddress: '',
 
-  isAuth: sessionStorage.getItem('isAuth') ? true : false,  //userCredentials
-  Phone: 0, //userCredentials
-  userName: sessionStorage.getItem('username'), //userCredentials
-  userEmail: '', //userCredentials
-  userRole: sessionStorage.getItem("userrole"), //userCredentials
-  
+  isAuth: !!sessionStorage.getItem('isAuth'), // userCredentials
+  Phone: 0, // userCredentials
+  userName: sessionStorage.getItem('username'), // userCredentials
+  userEmail: '', // userCredentials
+  userRole: sessionStorage.getItem('userrole'), // userCredentials
+
   addAuth: () => {
     set((state) => {
       return { ...state, isAuth: true };
@@ -41,18 +41,18 @@ const useOrderStore = create((set) => ({
 
   setUserName: (value) => {
     set((state) => {
-      return {...state, userName: value };
+      return { ...state, userName: value };
     });
   },
 
   setUserEmail: (value) => {
     set((state) => {
-      return {...state, userEmail: value };
+      return { ...state, userEmail: value };
     });
   },
   setUserRole: (value) => {
     set((state) => {
-      return {...state, userRole: value };
+      return { ...state, userRole: value };
     });
   },
 
@@ -109,9 +109,11 @@ const useOrderStore = create((set) => ({
   },
 
   // Orders[0][0][0].quantity
+
   incrementQuantity: (orderIndex, itemIndex) => {
     set((state) => {
       const updatedOrders = [...state.Orders];
+      // eslint-disable-next-line
       ++updatedOrders[0][orderIndex][itemIndex].quantity;
       state.setTotal(
         state.Total + updatedOrders[0][orderIndex][itemIndex].price
@@ -124,6 +126,7 @@ const useOrderStore = create((set) => ({
     set((state) => {
       const updatedOrders = [...state.Orders];
       if (updatedOrders[0][orderIndex][itemIndex].quantity > 0) {
+        // eslint-disable-next-line
         --updatedOrders[0][orderIndex][itemIndex].quantity;
         state.setTotal(
           state.Total - updatedOrders[0][orderIndex][itemIndex].price

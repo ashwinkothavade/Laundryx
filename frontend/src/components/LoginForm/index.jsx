@@ -16,7 +16,7 @@ import { useState } from 'react';
 import { BiHide, BiShow } from 'react-icons/bi';
 import { HiArrowLongRight } from 'react-icons/hi2';
 import { Link, useNavigate } from 'react-router-dom';
-import useOrderStore from '../Store/OrderStore';
+import useAuthStore from '../Store/AuthStore';
 
 export default function LoginForm() {
   const [loading, setLoading] = useState(false);
@@ -26,12 +26,12 @@ export default function LoginForm() {
     password: '',
   });
 
-  const { addAuth, setUserName, setUserRole } = useOrderStore((state) => ({
+  const { addAuth, setUserName, setUserRole } = useAuthStore((state) => ({
     addAuth: state.addAuth,
     setUserName: state.setUserName,
-    setUserRole : state.setUserRole,
+    setUserRole: state.setUserRole,
   }));
-  //password global state mein store nahi karna hai imo.
+  // password global state mein store nahi karna hai imo.
   const { username, password } = loginData;
 
   const navigate = useNavigate();
@@ -101,119 +101,115 @@ export default function LoginForm() {
   };
 
   return (
-    <>
-      <Center m={0} p={0}>
-        <Stack>
-          <Text
-            textAlign="center"
-            color=""
-            fontSize={['1.7rem', '2.2rem']}
-            fontWeight="600"
-            mb="1rem"
-          >
-            Log In
-          </Text>
-          <Flex
-            direction="column"
-            border="2px solid #ce1567"
-            w={['20rem', '27rem']}
-            px={['1rem', '2rem']}
-            py={['1rem', '2rem']}
-            borderRadius="0.8rem"
-            mb="1rem"
-          >
-            <form onSubmit={onSubmit}>
-              <Box mb={['1rem', '2rem']}>
-                <Text mb="0.5rem" fontSize={['1.1rem', '1.2rem']}>
-                  Username:{' '}
-                </Text>
-                <Box bg="#ffffff" borderRadius="0.4rem">
+    <Center m={0} p={0}>
+      <Stack>
+        <Text
+          textAlign="center"
+          color=""
+          fontSize={['1.7rem', '2.2rem']}
+          fontWeight="600"
+          mb="1rem"
+        >
+          Log In
+        </Text>
+        <Flex
+          direction="column"
+          border="2px solid #ce1567"
+          w={['20rem', '27rem']}
+          px={['1rem', '2rem']}
+          py={['1rem', '2rem']}
+          borderRadius="0.8rem"
+          mb="1rem"
+        >
+          <form onSubmit={onSubmit}>
+            <Box mb={['1rem', '2rem']}>
+              <Text mb="0.5rem" fontSize={['1.1rem', '1.2rem']}>
+                Username:{' '}
+              </Text>
+              <Box bg="#ffffff" borderRadius="0.4rem">
+                <Input
+                  type="text"
+                  focusBorderColor="#ce1567"
+                  bg="#ecedf6"
+                  id="username"
+                  name="username"
+                  value={username}
+                  placeholder="Enter your username  ..."
+                  onChange={onChange}
+                />
+              </Box>
+            </Box>
+            <Box mb={['1rem', '2rem']}>
+              <Text mb="0.5rem" fontSize={['1.1rem', '1.2rem']}>
+                Password:{' '}
+              </Text>
+              <Box bg="#ffffff" borderRadius="0.4rem">
+                <InputGroup>
                   <Input
-                    type="text"
+                    type={showPassword ? 'text' : 'password'}
                     focusBorderColor="#ce1567"
                     bg="#ecedf6"
-                    id="username"
-                    name="username"
-                    value={username}
-                    placeholder="Enter your username  ..."
+                    id="password"
+                    name="password"
+                    value={password}
+                    placeholder="Enter your password..."
                     onChange={onChange}
                   />
-                </Box>
-              </Box>
-              <Box mb={['1rem', '2rem']}>
-                <Text mb="0.5rem" fontSize={['1.1rem', '1.2rem']}>
-                  Password:{' '}
-                </Text>
-                <Box bg="#ffffff" borderRadius="0.4rem">
-                  <InputGroup>
-                    <Input
-                      type={showPassword ? 'text' : 'password'}
-                      focusBorderColor="#ce1567"
-                      bg="#ecedf6"
-                      id="password"
-                      name="password"
-                      value={password}
-                      placeholder="Enter your password..."
-                      onChange={onChange}
-                    />
-                    <InputRightElement
-                      onClick={() => {
-                        setShowPassword(!showPassword);
-                      }}
-                    >
-                      {showPassword ? (
-                        <BiHide
-                          style={{ width: '20px', height: '20px' }}
-                          color="#3d3d3d"
-                        />
-                      ) : (
-                        <BiShow
-                          style={{ width: '20px', height: '20px' }}
-                          color="#3d3d3d"
-                        />
-                      )}
-                    </InputRightElement>
-                  </InputGroup>
-                </Box>
-              </Box>
-              <Center>
-                {loading ? (
-                  <Spinner />
-                ) : (
-                  <Button
-                    type="submit"
-                    letterSpacing={1}
-                    mt={['1rem', '']}
-                    px="4rem"
-                    fontSize="1rem"
-                    bg="#ce1567"
-                    color="white"
-                    _hover={{
-                      bg: '',
+                  <InputRightElement
+                    onClick={() => {
+                      setShowPassword(!showPassword);
                     }}
-                    rightIcon={
-                      <HiArrowLongRight color="#ffffff" size="1.5rem" />
-                    }
                   >
-                    Log In
-                  </Button>
-                )}
-              </Center>
-            </form>
-          </Flex>
-          <Text textAlign="center" fontSize={['1.1rem', '1.2rem']}>
-            Don't have an account?
-          </Text>
-          <Text
-            textAlign="center"
-            fontSize={['1.1rem', '1.2rem']}
-            color="#ce1567"
-            fontWeight="600"
-          >
-            <Link to="/signup">Register</Link>
-          </Text>
-        </Stack>
-      </Center>
-    </>
+                    {showPassword ? (
+                      <BiHide
+                        style={{ width: '20px', height: '20px' }}
+                        color="#3d3d3d"
+                      />
+                    ) : (
+                      <BiShow
+                        style={{ width: '20px', height: '20px' }}
+                        color="#3d3d3d"
+                      />
+                    )}
+                  </InputRightElement>
+                </InputGroup>
+              </Box>
+            </Box>
+            <Center>
+              {loading ? (
+                <Spinner />
+              ) : (
+                <Button
+                  type="submit"
+                  letterSpacing={1}
+                  mt={['1rem', '']}
+                  px="4rem"
+                  fontSize="1rem"
+                  bg="#ce1567"
+                  color="white"
+                  _hover={{
+                    bg: '',
+                  }}
+                  rightIcon={<HiArrowLongRight color="#ffffff" size="1.5rem" />}
+                >
+                  Log In
+                </Button>
+              )}
+            </Center>
+          </form>
+        </Flex>
+        <Text textAlign="center" fontSize={['1.1rem', '1.2rem']}>
+          Don't have an account?
+        </Text>
+        <Text
+          textAlign="center"
+          fontSize={['1.1rem', '1.2rem']}
+          color="#ce1567"
+          fontWeight="600"
+        >
+          <Link to="/signup">Register</Link>
+        </Text>
+      </Stack>
+    </Center>
   );
 }

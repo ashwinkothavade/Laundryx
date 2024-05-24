@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import { Route, Routes } from 'react-router-dom';
+import Cookies from 'universal-cookie';
 import LandingPage from './pages/LandingPage';
 import OrderList from './pages/OrderList';
 import PreLoader from './Animation/PreLoader';
@@ -10,7 +11,6 @@ import OrderHistoryPage from './pages/OrderHistoryPage';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import DumyPayment from './pages/DumyPayment';
-import Cookies from 'universal-cookie';
 import useOrderStore from './components/Store/OrderStore';
 
 function App() {
@@ -39,30 +39,28 @@ function App() {
   }, []);
 
   return (
-    <>
-      <Routes>
-        <Route path="/" element={isLoading ? <PreLoader /> : <LandingPage />} />
-        <Route
-          path="/OrderList"
-          element={isLoading ? <PreLoader /> : <OrderList />}
-        />
-        <Route
-          path="/CheckoutPage"
-          element={isLoading ? <PreLoader /> : <CheckoutPage />}
-        />
-        <Route
-          path="/OrderConfirmationPage"
-          element={isLoading ? <PreLoader /> : <OrderConfirmationPage />}
-        />
-        <Route
-          path="/OrderHistoryPage"
-          element={isLoading ? <PreLoader /> : <OrderHistoryPage />}
-        />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/payment" element={<DumyPayment />} />
-      </Routes>
-    </>
+    <Routes>
+      <Route path="/" element={isLoading ? <PreLoader /> : <LandingPage />} />
+      <Route
+        path="/OrderList"
+        element={isLoading ? <PreLoader /> : <OrderList />}
+      />
+      <Route
+        path="/CheckoutPage"
+        element={isLoading ? <PreLoader /> : <CheckoutPage />}
+      />
+      <Route
+        path="/OrderConfirmationPage"
+        element={isLoading ? <PreLoader /> : <OrderConfirmationPage />}
+      />
+      <Route
+        path="/OrderHistoryPage"
+        element={isLoading ? <PreLoader /> : <OrderHistoryPage />}
+      />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/payment" element={<DumyPayment />} />
+    </Routes>
   );
 }
 

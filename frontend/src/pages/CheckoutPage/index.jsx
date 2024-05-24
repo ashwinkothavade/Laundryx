@@ -30,7 +30,7 @@ function loadScript(src) {
   });
 }
 
-const CheckoutPage = () => {
+function CheckoutPage() {
   const toast = useToast();
 
   const {
@@ -127,7 +127,7 @@ const CheckoutPage = () => {
         name: 'Laundrix',
         description: 'Complete payment',
         image: 'https://example.com/your_logo',
-        order_id: data.data.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+        order_id: data.data.id, // This is a sample Order ID. Pass the `id` obtained in the response of Step 1
         callback_url: 'https://www.google.com/',
         prefill: {
           name: { userName },
@@ -141,7 +141,7 @@ const CheckoutPage = () => {
           color: '#584BAC',
         },
       };
-      var paymentObject = new window.Razorpay(options);
+      const paymentObject = new window.Razorpay(options);
       paymentObject.open();
     } catch (error) {
       console.log(error);
@@ -185,7 +185,7 @@ const CheckoutPage = () => {
             </Flex>
             <Select
               placeholder="Select date"
-              onChange={handlePickupDate}
+              onChange={() => handlePickupDate()}
               width="180px"
               color="black"
               fontWeight="medium"
@@ -203,7 +203,7 @@ const CheckoutPage = () => {
             </Select>
             <Select
               placeholder="Select Time"
-              onChange={handlePickupTime}
+              onChange={() => handlePickupTime()}
               width="140px"
               border="none"
               color="#584bac"
@@ -218,7 +218,7 @@ const CheckoutPage = () => {
             orientation="vertical"
             borderColor="lightgray"
             height="120px"
-          ></Divider>
+          />
           <Flex
             direction="column"
             justify="space-between"
@@ -240,7 +240,7 @@ const CheckoutPage = () => {
             </Text>
             <Select
               placeholder="Select Time"
-              onChange={handleDeliveryTime}
+              onChange={() => handleDeliveryTime()}
               width="140px"
               border="none"
               color="#584bac"
@@ -271,7 +271,7 @@ const CheckoutPage = () => {
               <Text color="#CE1567">Pickup Address</Text>
               <Select
                 placeholder="Select location"
-                onChange={handlePickupAddress}
+                onChange={() => handlePickupAddress()}
                 width="160px"
                 border="none"
                 color="#584bac"
@@ -290,7 +290,7 @@ const CheckoutPage = () => {
               <Text color="#CE1567">Drop Address</Text>
               <Select
                 placeholder="Select location"
-                onChange={handleDropAddress}
+                onChange={() => handleDropAddress()}
                 width="160px"
                 border="none"
                 color="#584bac"
@@ -309,6 +309,7 @@ const CheckoutPage = () => {
         <Button
           mt="3rem"
           onClick={() => {
+            // eslint-disable-next-line
             pickupTime &&
             deliveryTime &&
             pickupDate &&
@@ -330,5 +331,5 @@ const CheckoutPage = () => {
       </Flex>
     </>
   );
-};
+}
 export default CheckoutPage;

@@ -1,9 +1,9 @@
 import React from 'react';
+import { Box, Center, Divider, Text } from '@chakra-ui/react';
 import Services from '../../TempData/Services';
 import Service from './Service';
-import { Box, Center, Divider, Text } from '@chakra-ui/react';
 
-const ServiceCard = () => {
+function ServiceCard() {
   const tasks = Services.map((task) => {
     return <Service key={task.id} task={task} />;
   });
@@ -49,6 +49,6 @@ const ServiceCard = () => {
       </Box>
     </>
   );
-};
+}
 
 export default ServiceCard;

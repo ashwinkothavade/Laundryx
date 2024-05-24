@@ -48,7 +48,7 @@ const Circle = styled.div`
   margin: auto;
   margin-top: 2rem;
 `;
-const Working = (props) => {
+function Working(props) {
   return (
     <Box
       display="flex"
@@ -88,7 +88,7 @@ const Working = (props) => {
       </Text>
     </Box>
   );
-};
+}
 Working.propTypes = {
   procedure: PropTypes.shape({
     id: PropTypes.number,
