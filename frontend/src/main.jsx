@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App.jsx';
-import './index.css';
-import { ChakraProvider, extendTheme } from '@chakra-ui/react';
 import { BrowserRouter } from 'react-router-dom';
+import { ChakraProvider, extendTheme } from '@chakra-ui/react';
+import App from './App';
+import './index.css';
 
 const breakpoints = {
   base: '0px',

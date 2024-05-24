@@ -1,11 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const DumyPayment = () => {
+function DumyPayment() {
   const amount = 50000;
   const currency = 'INR';
   const receipt = 'qwsaq1';
-  const order_id = "some_order_id";
+  const order_id = 'some_order_id';
   const navigate = useNavigate();
 
   const handlePayment = async (e) => {
@@ -23,15 +23,16 @@ const DumyPayment = () => {
     const order = await response.json();
     console.log(order);
 
-    var options = {
+    const options = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID, // Enter the Key ID generated from the Dashboard
       amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
       currency,
-      name: 'LaundriX', //your business name
+      name: 'LaundriX', // your business name
       description: 'Test Transaction',
       image: 'https://example.com/your_logo',
-      order_id: order.id, 
-      handler: async function (response) {
+      order_id: order.id,
+      // eslint-disable-next-line
+      async handler(response) {
         const body = { ...response, order_id };
 
         const validateResp = await fetch(
@@ -60,7 +61,8 @@ const DumyPayment = () => {
         color: '#584BAC',
       },
     };
-    var rzp1 = new window.Razorpay(options);
+    const rzp1 = new window.Razorpay(options);
+    // eslint-disable-next-line
     rzp1.on('payment.failed', function (response) {
       alert(response.error.code);
       alert(response.error.description);
@@ -74,24 +76,22 @@ const DumyPayment = () => {
     e.preventDefault();
   };
   return (
-    <>
-      <div>
-        <button
-          style={{
-            background: 'black',
-            color: 'white',
-            width: '100px',
-            height: '50px',
-            margin: '5rem',
-            borderRadius: '10px',
-          }}
-          onClick={handlePayment}
-        >
-          Pay
-        </button>
-      </div>
-    </>
+    <div>
+      <button
+        style={{
+          background: 'black',
+          color: 'white',
+          width: '100px',
+          height: '50px',
+          margin: '5rem',
+          borderRadius: '10px',
+        }}
+        onClick={handlePayment}
+      >
+        Pay
+      </button>
+    </div>
   );
-};
+}
 
 export default DumyPayment;

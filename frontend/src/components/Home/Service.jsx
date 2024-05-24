@@ -51,7 +51,7 @@ const Circle = styled.div`
   margin: auto;
   margin-top: 1rem;
 `;
-const Service = (props) => {
+function Service(props) {
   const navigate = useNavigate();
   return (
     <Box
@@ -84,7 +84,7 @@ const Service = (props) => {
       </Text>
     </Box>
   );
-};
+}
 Service.propTypes = {
   task: PropTypes.shape({
     id: PropTypes.number,

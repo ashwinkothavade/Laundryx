@@ -3,7 +3,7 @@ import { Box, Center, Divider, Text } from '@chakra-ui/react';
 import Workings from '../../TempData/Workings';
 import Working from './Working';
 
-const WorkingCard = () => {
+function WorkingCard() {
   const procedures = Workings.map((procedure) => {
     return <Working key={procedure.id} procedure={procedure} />;
   });
@@ -49,6 +49,6 @@ const WorkingCard = () => {
       </Box>
     </Box>
   );
-};
+}
 
 export default WorkingCard;

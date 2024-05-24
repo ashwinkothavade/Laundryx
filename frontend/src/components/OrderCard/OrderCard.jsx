@@ -9,12 +9,12 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { LuIndianRupee, LuPlusCircle, LuMinusCircle } from 'react-icons/lu';
-import PriceCard from '../PriceCard';
-import useOrderStore from '../Store/OrderStore';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
+import PriceCard from '../PriceCard';
+import useOrderStore from '../Store/OrderStore';
 
-const OrderCard = (props) => {
+function OrderCard(props) {
   OrderCard.propTypes = {
     index: PropTypes.number,
   };
@@ -53,6 +53,7 @@ const OrderCard = (props) => {
             />
           </Box>
           <Flex flexDirection="column">
+            {/** Item Name */}
             <Heading size={{ base: 'xs', xs: 'sm', sm: 'medium', md: 'md' }}>
               {value.item}
             </Heading>
@@ -61,6 +62,7 @@ const OrderCard = (props) => {
               fontSize={{ base: 'small', xs: 'sm', sm: 'medium', md: 'lg' }}
               mt={{ base: '0.2rem', sm: '0.7rem' }}
             >
+              {/** Price Per Item */}
               <LuIndianRupee color="#CE1567" />
               <Text color="#CE1567">{value.price}</Text>
             </Flex>
@@ -115,6 +117,7 @@ const OrderCard = (props) => {
             width="40%"
             borderRadius="1.2rem"
             onClick={() => {
+              // eslint-disable-next-line
               isAuth
                 ? Total
                   ? navigate('/CheckoutPage')
@@ -143,6 +146,6 @@ const OrderCard = (props) => {
       </Flex>
     </Flex>
   );
-};
+}
 
 export default OrderCard;

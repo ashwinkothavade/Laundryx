@@ -3,7 +3,7 @@ import React from 'react';
 import Navbar from '../../components/Navbar';
 import PastOrderCard from '../../components/PastOrderTab/PastOrderCard';
 
-const OrderHistoryPage = () => {
+function OrderHistoryPage() {
   return (
     <>
       <Navbar />
@@ -12,12 +12,12 @@ const OrderHistoryPage = () => {
           Order History
         </Text>
         <Flex
-          w={'100%'}
-          direction={'column'}
-          align={'center'}
-          gap={'2rem'}
-          mt={'6rem'}
-          mb={'5rem'}
+          w="100%"
+          direction="column"
+          align="center"
+          gap="2rem"
+          mt="6rem"
+          mb="5rem"
         >
           <PastOrderCard />
           <PastOrderCard />
@@ -26,5 +26,5 @@ const OrderHistoryPage = () => {
       </Box>
     </>
   );
-};
+}
 export default OrderHistoryPage;

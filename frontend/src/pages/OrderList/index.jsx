@@ -1,6 +1,4 @@
 import React from 'react';
-import OrderCard from '../../components/OrderCard/OrderCard';
-import Navbar from '../../components/Navbar';
 import {
   Tabs,
   TabList,
@@ -10,6 +8,8 @@ import {
   Box,
   Text,
 } from '@chakra-ui/react';
+import OrderCard from '../../components/OrderCard/OrderCard';
+import Navbar from '../../components/Navbar';
 
 function OrderList() {
   return (

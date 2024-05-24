@@ -1,7 +1,7 @@
 import React from 'react';
+import { Box } from '@chakra-ui/react';
 import Hero from './Hero';
 import ServiceCard from './ServiceCard';
-import { Box } from '@chakra-ui/react';
 import WorkingCard from './WorkingCard';
 
 const main = () => {

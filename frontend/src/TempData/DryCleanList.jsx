@@ -23,4 +23,10 @@ export default [
     price: 50,
     quantity: 0,
   },
+  {
+    image: '',
+    item: 'Blanket',
+    price: 200,
+    quantity: 0,
+  },
 ];

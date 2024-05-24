@@ -4,7 +4,7 @@ import Navbar from '../../components/Navbar';
 import useOrderStore from '../../components/Store/OrderStore';
 
 function LandingPage() {
-  const {isAuth, userName, userRole} = useOrderStore();
+  const { isAuth, userName, userRole } = useOrderStore();
   console.log(isAuth, userName, userRole);
   return (
     <>
