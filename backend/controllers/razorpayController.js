@@ -1,6 +1,6 @@
-const Razorpay = require("razorpay");
-const crypto = require("crypto");
-const Order = require("../models/orderModel");
+const Razorpay = require('razorpay');
+const crypto = require('crypto');
+
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_SECRET,
@@ -12,7 +12,7 @@ const createOrder = async (req, resp) => {
     const order = await razorpay.orders.create(options);
     if (!order) {
       return resp.status(401).json({
-        message: "Some error occurred",
+        message: 'Some error occurred',
       });
     }
     console.log(order);
@@ -30,19 +30,20 @@ const validatePayment = async (req, resp) => {
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
+      // eslint-disable-next-line no-unused-vars
       order_id,
     } = req.body;
-    const sha = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET);
+    const sha = crypto.createHmac('sha256', process.env.RAZORPAY_SECRET);
     sha.update(`${razorpay_order_id}|${razorpay_payment_id}`);
-    const digest = sha.digest("hex");
+    const digest = sha.digest('hex');
 
     if (digest !== razorpay_signature) {
       return resp.status(401).json({
-        message: "Invalid signature",
+        message: 'Invalid signature',
       });
     }
     resp.json({
-      message: "Payment successful",
+      message: 'Payment successful',
       orderId: razorpay_order_id,
       paymentId: razorpay_payment_id,
     });

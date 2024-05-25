@@ -1,6 +1,6 @@
-const Order = require("../models/orderModel");
-const User = require("../models/userModel");
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
+const Order = require('../models/orderModel');
+const User = require('../models/userModel');
 
 // @desc    Get all orders
 // @route   GET /allorders
@@ -10,12 +10,12 @@ const getAllOrders = async (req, resp) => {
   try {
     const token = req.cookies.jwt;
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    if (decodedToken.role !== "launderer") {
+    if (decodedToken.role !== 'launderer') {
       resp.status(401).json({
-        message: "User does not have access rights",
+        message: 'User does not have access rights',
       });
     } else {
-      //the role is launderer, and the route can now be accessed.
+      // the role is launderer, and the route can now be accessed.
       const result = await Order.find();
       resp.status(200).json({
         orders: result,
@@ -24,8 +24,8 @@ const getAllOrders = async (req, resp) => {
   } catch (err) {
     console.error(err);
     resp.status(500).json({
-      message: "Error fetching the orders",
-      error: err
+      message: 'Error fetching the orders',
+      error: err,
     });
   }
 };
@@ -37,15 +37,15 @@ const getOrdersByStudent = async (req, resp) => {
   try {
     const token = req.cookies.jwt;
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    if (decodedToken.role !== "launderer") {
+    if (decodedToken.role !== 'launderer') {
       resp.status(401).json({
-        message: "User does not have access rights",
+        message: 'User does not have access rights',
       });
     } else {
-      //the role is launderer, and the route can now be accessed.
+      // the role is launderer, and the route can now be accessed.
       // Get the username of the student, search in the database for the orders with the username
-      const username = req.params.username;
-      const user = await User.findOne({ username: username });
+      const { username } = req.params;
+      const user = await User.findOne({ username });
       const userId = user._id;
       const result = await Order.find({ user: userId });
       resp.status(200).json({
@@ -55,12 +55,11 @@ const getOrdersByStudent = async (req, resp) => {
   } catch (err) {
     console.error(err);
     resp.status(500).json({
-      message: "Error fetching the orders",
-      error: err
+      message: 'Error fetching the orders',
+      error: err,
     });
   }
 };
-
 
 // @desc    Update Order status as accepted by the launderer
 // @route   PUT /acceptorder/:order_id
@@ -69,24 +68,24 @@ const updateOrderAccept = async (req, resp) => {
   try {
     const token = req.cookies.jwt;
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    if (decodedToken.role !== "launderer") {
+    if (decodedToken.role !== 'launderer') {
       resp.status(401).json({
-        message: "User does not have access rights",
+        message: 'User does not have access rights',
       });
-    }else {
+    } else {
       // the role is launderer, and the route can now be accessed.
       // launderer can now accept the order
       const orderId = req.params.order_id;
       const order = await Order.findById(orderId);
       if (order.acceptedStatus === true) {
         resp.status(400).json({
-          message: "Order is already accepted.",
+          message: 'Order is already accepted.',
         });
-      }else{
+      } else {
         order.acceptedStatus = true;
-        result.save();
+        order.save();
         resp.status(200).json({
-          updatedOrder: result,
+          updatedOrder: order,
         });
       }
     }
@@ -104,9 +103,9 @@ const updateOrderReject = async (req, resp) => {
   try {
     const token = req.cookies.jwt;
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    if (decodedToken.role !== "launderer") {
+    if (decodedToken.role !== 'launderer') {
       resp.status(401).json({
-        message: "User does not have access rights",
+        message: 'User does not have access rights',
       });
     } else {
       // the role is launderer, and the route can now be accessed.
@@ -115,13 +114,13 @@ const updateOrderReject = async (req, resp) => {
       const order = await Order.findById(orderId);
       if (order.pickUpStatus === true) {
         resp.status(400).json({
-          message: "Order is picked up, cannot be rejected.",
+          message: 'Order is picked up, cannot be rejected.',
         });
       } else {
         order.acceptedStatus = false;
         order.save();
         resp.status(201).json({
-          message: "Order rejected successfully",
+          message: 'Order rejected successfully',
           updatedOrder: order,
         });
       }
@@ -140,9 +139,9 @@ const updateOrderDeliveryDate = async (req, resp) => {
   try {
     const token = req.cookies.jwt;
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    if (decodedToken.role !== "launderer") {
+    if (decodedToken.role !== 'launderer') {
       resp.status(401).json({
-        message: "User does not have access rights",
+        message: 'User does not have access rights',
       });
     } else {
       // the role is launderer, and the route can now be accessed.
