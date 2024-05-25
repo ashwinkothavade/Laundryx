@@ -28,7 +28,7 @@ const useGeneralOrderStore = create((set) => ({
     pickupTime: '',
     deliveryTime: '',
     pickupAddress: '',
-    dropAddress: '',
+    deliveryAddress: '',
   },
 
   updateWashList: (newWashList) => {
@@ -184,14 +184,14 @@ const useGeneralOrderStore = create((set) => ({
     });
   },
 
-  // Action to update DropAddress
-  setDropAddress: (value) => {
+  // Action to update DeliveryAddress
+  setDeliveryAddress: (value) => {
     set((state) => {
       return {
         ...state,
         order: {
           ...state.order,
-          dropAddress: value,
+          deliveryAddress: value,
         },
       };
     });

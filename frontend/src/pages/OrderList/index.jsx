@@ -8,7 +8,8 @@ import {
   Box,
   Text,
 } from '@chakra-ui/react';
-import OrderCard from '../../components/OrderCard/OrderCard';
+// import OrderCard from '../../components/OrderCard/OrderCard';
+import OrderCard2 from '../../components/OrderCard2/OrderCard2';
 import Navbar from '../../components/Navbar';
 
 function OrderList() {
@@ -57,13 +58,13 @@ function OrderList() {
 
           <TabPanels>
             <TabPanel>
-              <OrderCard index={0} />
+              <OrderCard2 index={0} />
             </TabPanel>
             <TabPanel>
-              <OrderCard index={1} />
+              <OrderCard2 index={1} />
             </TabPanel>
             <TabPanel>
-              <OrderCard index={2} />
+              <OrderCard2 index={2} />
             </TabPanel>
           </TabPanels>
         </Tabs>

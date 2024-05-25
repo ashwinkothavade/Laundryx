@@ -1,30 +1,30 @@
 export default [
   {
-    image: 'shirt.svg',
+    image: 'shirt.png',
     item: 'Shirt',
     price: 25,
     quantity: 0,
   },
   {
-    image: 'T-shirt.svg',
+    image: 'tshirt.png',
     item: 'T-Shirt',
     price: 20,
     quantity: 0,
   },
   {
-    image: 'suit.svg',
-    item: 'Suit',
+    image: 'jacket.png',
+    item: 'Jacket',
     price: 40,
     quantity: 0,
   },
   {
-    image: 'jeans.svg',
-    item: 'Jeans',
+    image: 'pant.png',
+    item: 'Pant',
     price: 30,
     quantity: 0,
   },
   {
-    image: '',
+    image: 'blanket.png',
     item: 'Blanket',
     price: 200,
     quantity: 0,

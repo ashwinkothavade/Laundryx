@@ -4,7 +4,7 @@ const itemSchema = new mongoose.Schema({
     name: {
       type: String,
       required: true,
-      enum: ["shirt", "t-shirt", "pant", "jacket", "blanket"],
+      enum: ["Shirt", "T-shirt", "Pant", "Jacket", "Blanket"],
     },
     quantity: {
       type: Number,
