@@ -1,5 +1,6 @@
-const mongoose = require("mongoose");
-const Order = require("../models/orderModel");
+const mongoose = require('mongoose');
+const Order = require('../models/orderModel');
+
 const connect = async () => {
   try {
     const connection = await mongoose.connect(process.env.MONGO_URI);
@@ -23,7 +24,7 @@ const deleteValidOrders = async () => {
       acceptedStatus: true,
       deliveredStatus: true,
       pickUpStatus: true,
-      updatedAt: { $lte: twoDaysAgo }
+      updatedAt: { $lte: twoDaysAgo },
     });
     console.log(`${result.deletedCount} orders deleted.`);
   } catch (err) {
@@ -33,5 +34,5 @@ const deleteValidOrders = async () => {
 
 module.exports = {
   connect,
-  deleteValidOrders
-}
+  deleteValidOrders,
+};

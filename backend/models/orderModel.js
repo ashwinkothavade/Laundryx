@@ -1,40 +1,41 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const itemSchema = new mongoose.Schema({
-    name: {
-      type: String,
-      required: true,
-      enum: ["Shirt", "T-shirt", "Pant", "Jacket", "Blanket"],
-    },
-    quantity: {
-      type: Number,
-      required: true,
-    },
-    washType: {
-      type: String,
-      required: true,
-      enum: ["simple_wash", "power_clean", "dry_clean"],
-    },
-    pricePerItem: {
-      type: Number,
-      required: true,
-    },
+  name: {
+    type: String,
+    required: true,
+    enum: ['Shirt', 'T-shirt', 'Pant', 'Jacket', 'Blanket'],
+  },
+  quantity: {
+    type: Number,
+    required: true,
+  },
+  washType: {
+    type: String,
+    required: true,
+    enum: ['simple_wash', 'power_clean', 'dry_clean'],
+  },
+  pricePerItem: {
+    type: Number,
+    required: true,
+  },
 });
 
-const orderSchema = new mongoose.Schema({
+const orderSchema = new mongoose.Schema(
+  {
     user: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: "User",
+      ref: 'User',
     },
     items: [itemSchema],
     pickupDate: {
       type: String,
-      required: true
+      required: true,
     },
     deliveryDate: {
       type: String,
-      required: true
+      required: true,
     },
     pickupAddress: {
       type: String,
@@ -45,7 +46,7 @@ const orderSchema = new mongoose.Schema({
       required: true,
     },
     totalAmount: Number,
-    //accept -> pickup -> delivered -> pay (for security concerns, we can add a payment gateway to the app to make sure the payment is done before the delivery is made)
+    // accept -> pickup -> delivered -> pay (for security concerns, we can add a payment gateway to the app to make sure the payment is done before the delivery is made)
     acceptedStatus: {
       type: Boolean,
       default: false,
@@ -65,8 +66,8 @@ const orderSchema = new mongoose.Schema({
   },
   {
     timestamps: true,
-    collection: "Order",
+    collection: 'Order',
   }
 );
 
-module.exports = mongoose.model("Order", orderSchema);
+module.exports = mongoose.model('Order', orderSchema);
