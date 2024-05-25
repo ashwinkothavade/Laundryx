@@ -11,7 +11,6 @@ const useGeneralOrderStore = create((set) => ({
     pickupTime: '',
     deliveryTime: '',
     pickupAddress: '',
-
     deliveryAddress: '',
   },
   updateItems: (newItems) => {
@@ -110,49 +109,6 @@ const useGeneralOrderStore = create((set) => ({
         order: {
           ...state.order,
           deliveryAddress: value,
-        },
-      };
-    });
-  },
-  incrementQuantity: (itemName, listName) => {
-    set((state) => {
-      const updatedList = state.order[listName].map((item) => {
-        if (item.item === itemName) {
-          return {
-            ...item,
-            quantity: item.quantity + 1,
-          };
-        }
-        return item;
-      });
-
-      return {
-        ...state,
-        order: {
-          ...state.order,
-          [listName]: updatedList,
-        },
-      };
-    });
-  },
-
-  decrementQuantity: (itemName, listName) => {
-    set((state) => {
-      const updatedList = state.order[listName].map((item) => {
-        if (item.item === itemName) {
-          return {
-            ...item,
-            quantity: item.quantity - 1,
-          };
-        }
-        return item;
-      });
-
-      return {
-        ...state,
-        order: {
-          ...state.order,
-          [listName]: updatedList,
         },
       };
     });
