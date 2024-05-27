@@ -1,5 +1,5 @@
-import { create } from 'zustand';
 import moment from 'moment';
+import { create } from 'zustand';
 
 // Create the Zustand store
 const useGeneralOrderStore = create((set) => ({
@@ -13,16 +13,34 @@ const useGeneralOrderStore = create((set) => ({
     pickupAddress: '',
     deliveryAddress: '',
   },
+
+  // Action to add or update Items
   updateItems: (newItems) => {
     set((state) => {
+      const updatedItems = [...state.order.items];
+
+      newItems.forEach((newItem) => {
+        const existingItemIndex = updatedItems.findIndex(
+          (item) =>
+            item.name === newItem.name && item.washType === newItem.washType
+        );
+
+        if (existingItemIndex > -1) {
+          updatedItems[existingItemIndex].quantity = newItem.quantity;
+        } else {
+          updatedItems.push(newItem);
+        }
+      });
+
       return {
         order: {
           ...state.order,
-          items: newItems,
+          items: updatedItems,
         },
       };
     });
   },
+
   // Action to update OrderTotal
   updateOrderTotal: (newOrderTotal) => {
     set((state) => {

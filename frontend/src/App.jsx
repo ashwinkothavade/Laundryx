@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import './App.css';
 import { Route, Routes } from 'react-router-dom';
 import Cookies from 'universal-cookie';
-import LandingPage from './pages/LandingPage';
-import OrderList from './pages/OrderList';
 import PreLoader from './Animation/PreLoader';
+import './App.css';
+import useOrderStore from './components/Store/OrderStore';
 import CheckoutPage from './pages/CheckoutPage';
+import DumyPayment from './pages/DumyPayment';
+import LandingPage from './pages/LandingPage';
+import Login from './pages/Login';
 import OrderConfirmationPage from './pages/OrderConfirmation';
 import OrderHistoryPage from './pages/OrderHistoryPage';
-import Login from './pages/Login';
+import OrderList from './pages/OrderList';
 import Signup from './pages/Signup';
-import DumyPayment from './pages/DumyPayment';
-import useOrderStore from './components/Store/OrderStore';
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);

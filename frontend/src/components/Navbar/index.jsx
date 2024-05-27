@@ -87,7 +87,7 @@ function Navbar() {
       <Link to="/">
         <Text
           color="#584BAC"
-          fontWeight="500"
+          fontWeight="600"
           fontSize={['1.5rem', '1.7rem', '2.3rem', '2.7rem']}
           ml={['20px', '30px', '40px', '50px']}
         >
@@ -119,7 +119,6 @@ function Navbar() {
               fontSize="1.1rem"
               px="2rem"
               _hover={{
-                bg: '#dbdbdb',
                 color: '#ce1567',
               }}
               onClick={() => navigate('/login')}

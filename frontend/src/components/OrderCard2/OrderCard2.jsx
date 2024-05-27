@@ -1,151 +1,264 @@
 import {
   Box,
   Button,
+  Center,
   Flex,
-  Heading,
+  FormControl,
+  FormLabel,
+  Grid,
+  GridItem,
   Image,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  Select,
+  Stack,
+  Tag,
+  TagLabel,
+  TagLeftIcon,
   Text,
-  useToast,
 } from '@chakra-ui/react';
-import PropTypes from 'prop-types';
-import React from 'react';
-import { LuIndianRupee, LuMinusCircle, LuPlusCircle } from 'react-icons/lu';
-import { useNavigate } from 'react-router-dom';
-import PriceCard from '../PriceCard';
-import useOrderStore from '../Store/OrderStore';
+import { DotLottiePlayer } from '@dotlottie/react-player';
+import '@dotlottie/react-player/dist/index.css';
+import React, { useRef } from 'react';
+import { HiArrowLongRight, HiMiniCurrencyRupee } from 'react-icons/hi2';
+import prices from '../../TempData/prices.json';
+import useGeneralOrderStore from '../Store/OrderStore_';
 
-function OrderCard2(props) {
-  console.log('this is order card 2');
-  OrderCard2.propTypes = {
-    index: PropTypes.number,
+function OrderCard2() {
+  console.log('order card rendered');
+  const { order, updateItems } = useGeneralOrderStore();
+  const quantityRefs = useRef(prices.map(() => 0));
+  const washTypeRefs = useRef(prices.map(() => ''));
+
+  const handleAddItems = () => {
+    const newItems = [];
+    prices.forEach((item, index) => {
+      const quantity = quantityRefs.current[index];
+      const washType = washTypeRefs.current[index];
+
+      if (quantity > 0 && washType) {
+        const pricePerItem = item.prices[washType] || 0;
+        newItems.push({
+          name: item.name,
+          quantity,
+          washType,
+          pricePerItem,
+        });
+      }
+    });
+    if (newItems.length > 0) {
+      updateItems(newItems);
+      console.log('items: ', order.items);
+    }
   };
-  const navigate = useNavigate();
-
-  const { Orders, incrementQuantity, decrementQuantity, Total, isAuth } =
-    useOrderStore((state) => ({
-      Orders: state.Orders,
-      incrementQuantity: state.incrementQuantity,
-      decrementQuantity: state.decrementQuantity,
-      Total: state.Total,
-      isAuth: state.isAuth,
-    }));
-
-  const toast = useToast();
-
-  const card = Orders[0][props.index].map((value, index) => {
-    return (
-      <Flex
-        key={index}
-        boxShadow="0px 4px 4px 0px rgba(0, 0, 0, 0.25)"
-        borderRadius="0.5rem"
-        mb={{ base: '1.5rem', xs: '2rem', sm: '3rem' }}
-        width={{ base: '17rem', xs: '20rem', sm: '27rem', md: '30rem' }}
-        height={{ base: '5rem', sm: '6.5rem' }}
-        alignItems="center"
-        justifyContent="space-between"
-      >
-        <Flex>
-          <Box>
-            <Image
-              width={{ base: '2.5rem', xs: '3rem', sm: '4rem', md: '5rem' }}
-              ml={2}
-              mr={{ base: '1.5rem', sm: '2rem' }}
-              src={`/assets/${value.image}`}
-            />
-          </Box>
-          <Flex flexDirection="column">
-            {/** Item Name */}
-            <Heading size={{ base: 'xs', xs: 'sm', sm: 'medium', md: 'md' }}>
-              {value.item}
-            </Heading>
-            <Flex
-              alignItems="center"
-              fontSize={{ base: 'small', xs: 'sm', sm: 'medium', md: 'lg' }}
-              mt={{ base: '0.2rem', sm: '0.7rem' }}
-            >
-              {/** Price Per Item */}
-              <LuIndianRupee color="#CE1567" />
-              <Text color="#CE1567">{value.price}</Text>
-            </Flex>
-          </Flex>
-        </Flex>
-        <Flex mr={5} alignItems="center">
-          <LuMinusCircle
-            color="#584BAC"
-            size={32}
-            strokeWidth={1.5}
-            onClick={() => {
-              decrementQuantity(props.index, index);
-            }}
-          />
-          <Text mx={2}>{value.quantity}</Text>
-          <LuPlusCircle
-            color="#584BAC"
-            size={32}
-            strokeWidth={1.5}
-            onClick={() => {
-              incrementQuantity(props.index, index);
-            }}
-          />
-        </Flex>
-      </Flex>
-    );
-  });
 
   return (
-    <Flex
-      flexDirection={{ base: 'column', xl: 'row' }}
-      gap={{ base: '3rem', xl: '10rem' }}
-      mt="5rem"
-      justifyContent="center"
-      alignItems="center"
-    >
-      <Box>{card}</Box>
+    <>
+      <Center>
+        <Text mt="5rem" fontWeight={600} fontSize="2.2rem">
+          Select & Add Items
+        </Text>
+      </Center>
       <Flex
-        flexDirection="column"
-        justifyContent="space-between"
-        boxShadow="0px 0px 20px 0px rgba(0, 0, 0, 0.20)"
-        borderRadius="1.25rem"
-        width={{ base: '17rem', xs: '20rem', sm: '27rem', md: '30rem' }}
+        flexDirection={{ base: 'column', xl: 'row' }}
+        gap={{ base: '3rem', xl: '5rem' }}
+        mt="2rem"
+        justifyContent="center"
+        alignItems="center"
       >
-        <PriceCard index={props.index} />
-        <Box>
-          <Button
-            fontSize={{ base: '0.8rem', sm: '1.2rem' }}
-            bg="lxRed"
-            color="lxLightPurple"
-            mb="1rem"
-            width="40%"
-            borderRadius="1.2rem"
-            onClick={() => {
-              // eslint-disable-next-line
-              isAuth
-                ? Total
-                  ? navigate('/CheckoutPage')
-                  : toast({
-                      position: 'top',
-                      title: 'Error !',
-                      description: 'Add some items.',
-                      status: 'error',
-                      isClosable: false,
-                      variant: 'subtle',
-                      duration: 2000,
-                    })
-                : toast({
-                    position: 'top',
-                    title: 'Error !',
-                    description: 'Sign in first.',
-                    status: 'error',
-                    variant: 'subtle',
-                    duration: 2000,
-                  });
-            }}
-          >
-            Confirm Order
-          </Button>
-        </Box>
+        <DotLottiePlayer
+          src="Child.lottie"
+          style={{ height: '40rem', width: '40rem' }}
+          autoplay
+          loop
+          playMode="bounce"
+        />
+        <Stack>
+          {/* <Alert status="info" variant="left-accent">
+            <AlertIcon />
+            Select wash type to view price per item.
+          </Alert> */}
+          <Grid templateColumns="repeat(2, 1fr)" rowGap={8} columnGap={6}>
+            {prices.map((element, index) => {
+              return (
+                <GridItem key={index}>
+                  <Flex
+                    boxShadow="0px 4px 4px 0px rgba(0, 0, 0, 0.25)"
+                    borderRadius="0.5rem"
+                    py="1.5rem"
+                    px="2rem"
+                    alignItems="center"
+                  >
+                    <Flex align="center" gap="3rem">
+                      <Stack align="center" gap="1rem">
+                        <Text fontWeight={600} fontSize="1.3rem" as="u">
+                          {element.name}
+                        </Text>
+                        <Image
+                          width={{
+                            base: '2.5rem',
+                            xs: '3rem',
+                            sm: '4rem',
+                            md: '5rem',
+                          }}
+                          src={`/assets/${element.image}`}
+                        />
+                      </Stack>
+                      <Stack gap={4}>
+                        <Flex gap="2rem">
+                          <Box>
+                            <FormControl isRequired>
+                              <FormLabel fontWeight={600}>Quantity</FormLabel>
+                              <NumberInput
+                                isRequired
+                                allowMouseWheel
+                                min={0}
+                                defaultValue={0}
+                                onChange={(value) => {
+                                  quantityRefs.current[index] =
+                                    parseInt(value, 10) || 0;
+                                }}
+                              >
+                                <NumberInputField
+                                  w="6rem"
+                                  border="2px solid #CE1567"
+                                  _hover={{ border: '2px solid #CE1567' }}
+                                  _focus={{ border: '2px solid #CE1567' }}
+                                />
+                                <NumberInputStepper border="1px solid #CE1567">
+                                  <NumberIncrementStepper />
+                                  <NumberDecrementStepper />
+                                </NumberInputStepper>
+                              </NumberInput>
+                            </FormControl>
+                          </Box>
+                          <Box>
+                            <FormControl isRequired>
+                              <FormLabel fontWeight={600}>
+                                Washing Type
+                              </FormLabel>
+                              <Select
+                                isRequired
+                                placeholder="Select Wash Type"
+                                border="2px solid #CE1567"
+                                _hover={{ border: '2px solid #CE1567' }}
+                                _focus={{ border: '2px solid #CE1567' }}
+                                onChange={(e) => {
+                                  washTypeRefs.current[index] = e.target.value;
+                                }}
+                              >
+                                <option value="simple_wash">Simple Wash</option>
+                                <option value="power_clean">Power Clean</option>
+                                <option value="dry_clean">Dry Clean</option>
+                              </Select>
+                            </FormControl>
+                          </Box>
+                        </Flex>
+                        <Grid
+                          templateColumns="repeat(2, 1fr)"
+                          rowGap={2}
+                          columnGap={1}
+                        >
+                          <Tag
+                            w="fit-content"
+                            color="#CE1567"
+                            border="2px solid #CE1567"
+                            borderRadius="full"
+                          >
+                            <TagLeftIcon
+                              boxSize="1.2rem"
+                              as={HiMiniCurrencyRupee}
+                            />
+                            <TagLabel>
+                              {`${prices[index].prices.simple_wash} - Simple Wash`}
+                            </TagLabel>
+                          </Tag>
+                          <Tag
+                            w="fit-content"
+                            color="#CE1567"
+                            border="2px solid #CE1567"
+                            borderRadius="full"
+                          >
+                            <TagLeftIcon
+                              boxSize="1.2rem"
+                              as={HiMiniCurrencyRupee}
+                            />
+                            <TagLabel>
+                              {`${prices[index].prices.power_clean} - Power Clean`}
+                            </TagLabel>
+                          </Tag>
+                          <Tag
+                            w="fit-content"
+                            color="#CE1567"
+                            border="2px solid #CE1567"
+                            borderRadius="full"
+                          >
+                            <TagLeftIcon
+                              boxSize="1.2rem"
+                              as={HiMiniCurrencyRupee}
+                            />
+                            <TagLabel>
+                              {`${prices[index].prices.dry_clean} - Dry Clean`}
+                            </TagLabel>
+                          </Tag>
+                        </Grid>
+                      </Stack>
+                    </Flex>
+                  </Flex>
+                </GridItem>
+              );
+            })}
+            <Flex align="end" justify="end" gap={5}>
+              <Button
+                bg="#CE1567"
+                color="#FFFFFF"
+                fontSize="1.2rem"
+                p="1.5rem"
+                _hover={{ bg: '#bf0055' }}
+                onClick={handleAddItems}
+              >
+                Add Items
+              </Button>
+              <Button
+                bg="#CE1567"
+                color="#FFFFFF"
+                fontSize="1.2rem"
+                p="1.5rem"
+                _hover={{ bg: '#bf0055' }}
+                rightIcon={<HiArrowLongRight size={32} />}
+              >
+                Proceed
+              </Button>
+            </Flex>
+          </Grid>
+        </Stack>
       </Flex>
-    </Flex>
+      {/* <TableContainer>
+        <Table variant="simple">
+          <Thead>
+            <Tr>
+              <Th>Item Name</Th>
+              <Th>Quantity</Th>
+              <Th>Wash Type</Th>
+              <Th>Price</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {order.items.map((item, index) => (
+              <Tr key={index}>
+                <Td>{item.name}</Td>
+                <Td>{item.quantity}</Td>
+                <Td>{item.washType}</Td>
+                <Td>{item.pricePerItem}</Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+      </TableContainer> */}
+    </>
   );
 }
 

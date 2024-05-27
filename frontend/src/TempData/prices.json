@@ -1,0 +1,47 @@
+[
+  {
+    "name": "Shirt",
+    "image": "shirt.png",
+    "prices": {
+      "simple_wash": 5,
+      "power_clean": 7,
+      "dry_clean": 10
+    }
+  },
+  {
+    "name": "T-shirt",
+    "image": "tshirt.png",
+    "prices": {
+      "simple_wash": 6,
+      "power_clean": 8,
+      "dry_clean": 12
+    }
+  },
+  {
+    "name": "Pant",
+    "image": "pant.png",
+    "prices": {
+      "simple_wash": 8,
+      "power_clean": 10,
+      "dry_clean": 15
+    }
+  },
+  {
+    "name": "Jacket",
+    "image": "jacket.png",
+    "prices": {
+      "simple_wash": 12,
+      "power_clean": 18,
+      "dry_clean": 25
+    }
+  },
+  {
+    "name": "Blanket",
+    "image": "blanket.png",
+    "prices": {
+      "simple_wash": 15,
+      "power_clean": 20,
+      "dry_clean": 30
+    }
+  }
+]
