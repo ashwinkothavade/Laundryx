@@ -63,6 +63,14 @@ const orderSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    laundererName: {
+      type: String,
+      required: true,
+    },
+    laundererPhone: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,

@@ -33,7 +33,12 @@ const createUser = async (req, resp) => {
     });
 
     await user.save();
-    const token = authUtils.createToken(user.username, user.role, user._id);
+    const token = authUtils.createToken(
+      user.username,
+      user.role,
+      user._id,
+      user.hostel
+    );
     // Always set the headers before sending the response
     resp.cookie('jwt', token, {
       httpOnly: true,
@@ -43,7 +48,8 @@ const createUser = async (req, resp) => {
     }); // Set the cookie
 
     resp.status(201).json({
-      user,
+      newUser: user,
+      token: token,
     });
   } catch (err) {
     const errors = authUtils.handleSignUpError(err);
@@ -62,7 +68,12 @@ const loginUser = async (req, resp) => {
     if (user) {
       const auth = await bcrypt.compare(password, user.password);
       if (auth) {
-        const token = authUtils.createToken(user.username, user.role, user._id);
+        const token = authUtils.createToken(
+          user.username,
+          user.role,
+          user._id,
+          user.hostel
+        );
 
         resp.cookie('jwt', token, {
           httpOnly: true,
@@ -74,7 +85,7 @@ const loginUser = async (req, resp) => {
         resp.status(200).json({
           username: user.username,
           role: user.role,
-          token,
+          token: token,
         });
       } else {
         throw new Error('Incorrect password!!');
@@ -99,7 +110,9 @@ const logoutUser = (req, resp) => {
     sameSite: 'none',
   }); // negative maxAge so that the cookie expires immediately
 
-  resp.status(200).json('User logged out successfully');
+  resp.status(200).json({
+    message: 'User logged out successfully',
+  });
 };
 
 module.exports = {

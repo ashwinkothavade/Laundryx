@@ -2,16 +2,25 @@ const { Router } = require('express');
 
 const router = Router();
 const studentOrderController = require('../controllers/studentOrderController');
-const { verifyUser } = require('../middlewares/authMiddleware');
+const {
+  verifyUser,
+  verifyStudentDetails,
+} = require('../middlewares/authMiddleware');
 
 router.get(
   '/student/myorders',
   verifyUser,
   studentOrderController.getStudentOrders
 );
+router.get(
+  '/student/launderers',
+  verifyUser,
+  studentOrderController.getAllLaunderers
+);
 router.post(
   '/student/createorder',
   verifyUser,
+  verifyStudentDetails,
   studentOrderController.createStudentOrder
 );
 router.put(
