@@ -25,7 +25,7 @@ const verifyUser = (req, resp, next) => {
     resp.status(500).json({ message: 'Internal Server Error' });
   }
 };
-const verifyStudentDetails = async (req, resp, next) => {
+const verifyStudentDetails = (req, resp, next) => {
   try {
     const token = req.cookies.jwt;
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);

@@ -8,7 +8,6 @@ const getStudentOrders = async (req, resp) => {
   try {
     const token = req.cookies.jwt;
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    console.log(decodedToken);
     const studentId = decodedToken.user_id; // avoiding database call by storing the user_id in the token
     const result = await Order.find({
       user: studentId,
