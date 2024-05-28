@@ -33,6 +33,7 @@ module.exports = {
     'no-alert': 0,
     'consistent-return': 0,
     'no-underscore-dangle': 0,
+    'object-shorthand': 0,
   },
   settings: {},
 };

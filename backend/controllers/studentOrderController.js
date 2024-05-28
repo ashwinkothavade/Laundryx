@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const Order = require('../models/orderModel');
-
+const User = require('../models/userModel');
 // @desc    Get all orders of a student
 // @route   GET /student/myorders
 // @access  Private
@@ -8,6 +8,7 @@ const getStudentOrders = async (req, resp) => {
   try {
     const token = req.cookies.jwt;
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    console.log(decodedToken);
     const studentId = decodedToken.user_id; // avoiding database call by storing the user_id in the token
     const result = await Order.find({
       user: studentId,
@@ -51,7 +52,7 @@ const createStudentOrder = async (req, resp) => {
     });
     await order.save();
     resp.status(201).json({
-      order,
+      order: order,
     });
   } catch (err) {
     console.error(err);
@@ -88,7 +89,7 @@ const updatePickupStatus = async (req, resp) => {
     order.save();
     resp.status(200).json({
       message: 'Pickup status updated successfully',
-      order,
+      updatedOrder: order,
     });
   } catch (err) {
     console.error(err);
@@ -152,12 +153,35 @@ const updateDeliveryStatus = async (req, resp) => {
     order.save();
     resp.status(200).json({
       message: 'Delivery status updated successfully',
-      order,
+      updatedOrder: order,
     });
   } catch (err) {
     console.error(err);
     resp.status(500).json({
       message: 'Error updating the delivery status',
+      error: err,
+    });
+  }
+};
+
+// @desc    Get the launderers
+// @route   GET /student/launderers
+// @access  Private
+const getAllLaunderers = async (req, resp) => {
+  try {
+    const launderers = await User.find({ role: 'launderer' });
+    const laundererDetails = launderers.map((launderer) => {
+      return {
+        username: launderer.username,
+        phone_number: launderer.phone_number,
+      };
+    });
+    resp.status(200).json({
+      launderers: laundererDetails,
+    });
+  } catch (err) {
+    resp.status(500).json({
+      message: 'Error fetching the launderers',
       error: err,
     });
   }
@@ -169,4 +193,5 @@ module.exports = {
   updatePickupStatus,
   deleteOrder,
   updateDeliveryStatus,
+  getAllLaunderers,
 };
