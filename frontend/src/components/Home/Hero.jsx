@@ -1,5 +1,13 @@
 import React from 'react';
-import { Text, Heading, Box, Image, Flex, chakra } from '@chakra-ui/react';
+import {
+  Text,
+  Heading,
+  Box,
+  Image,
+  Flex,
+  chakra,
+  useToast,
+} from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import Landing from '../../../public/assets/LandingImg.svg';
 import useAuthStore from '../Store/AuthStore';
@@ -25,6 +33,7 @@ const LandingButton = chakra('button', {
 });
 function Hero() {
   const navigate = useNavigate();
+  const toast = useToast();
   const isAuth = useAuthStore((state) => state.isAuth);
   return (
     <Flex
@@ -54,8 +63,18 @@ function Hero() {
 
         <LandingButton
           onClick={() => {
-            // eslint-disable-next-line no-unused-expressions
-            isAuth ? navigate('/OrderList') : navigate('/login');
+            if (isAuth) {
+              navigate('/OrderList');
+            } else {
+              toast({
+                title: 'Please login to place an order',
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+                position: 'top',
+              });
+              navigate('/login');
+            }
           }}
         >
           Place Order
