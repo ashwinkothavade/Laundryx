@@ -26,11 +26,14 @@ export default function LoginForm() {
     password: '',
   });
 
-  const { addAuth, setUserName, setUserRole } = useAuthStore((state) => ({
-    addAuth: state.addAuth,
-    setUserName: state.setUserName,
-    setUserRole: state.setUserRole,
-  }));
+  const { addAuth, setUserName, setUserRole, setUserEmail, setUserPhone } =
+    useAuthStore((state) => ({
+      addAuth: state.addAuth,
+      setUserName: state.setUserName,
+      setUserRole: state.setUserRole,
+      setUserEmail: state.setUserEmail,
+      setUserPhone: state.setUserPhone,
+    }));
   // password global state mein store nahi karna hai imo.
   const { username, password } = loginData;
 
@@ -68,9 +71,8 @@ export default function LoginForm() {
       console.log(response);
       setUserName(username);
       setUserRole(response.data.role);
-      sessionStorage.setItem('isAuth', true);
-      sessionStorage.setItem('username', username);
-      sessionStorage.setItem('userrole', response.data.role);
+      setUserEmail(response.data.email);
+      setUserPhone(response.data.phone_number);
       toast({
         title: 'Success',
         description: 'Successfully logged in!',

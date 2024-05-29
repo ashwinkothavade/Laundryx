@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { BiHide, BiShow } from 'react-icons/bi';
 import { HiArrowLongRight } from 'react-icons/hi2';
 import { Link, useNavigate } from 'react-router-dom';
-// import Cookies from 'universal-cookie';
 import {
   Box,
   Button,
@@ -96,9 +95,6 @@ export default function SignupForm() {
       setUserEmail(email);
       setUserPhone(phone_number);
       setUserRole(role);
-      sessionStorage.setItem('isAuth', true);
-      sessionStorage.setItem('username', username);
-      sessionStorage.setItem('userrole', role);
       toast({
         title: 'Account Created',
         description: 'You have successfully created an account',

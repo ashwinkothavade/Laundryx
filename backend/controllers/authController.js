@@ -44,12 +44,14 @@ const createUser = async (req, resp) => {
       httpOnly: true,
       maxAge: maxAge * 1000,
       secure: true, // set to true if your using https
-      sameSite: 'none',
+      sameSite: 'strict',
     }); // Set the cookie
 
     resp.status(201).json({
       newUser: user,
-      token: token,
+      role: user.role,
+      email: user.email,
+      phone_number: user.phone_number,
     });
   } catch (err) {
     const errors = authUtils.handleSignUpError(err);
@@ -79,13 +81,14 @@ const loginUser = async (req, resp) => {
           httpOnly: true,
           maxAge: maxAge * 1000,
           secure: true, // set to true if your using https
-          sameSite: 'none',
+          sameSite: 'strict',
         }); // Set the cookie
 
         resp.status(200).json({
           username: user.username,
           role: user.role,
-          token: token,
+          email: user.email,
+          phone_number: user.phone_number,
         });
       } else {
         throw new Error('Incorrect password!!');

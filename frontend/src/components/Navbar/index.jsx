@@ -15,29 +15,27 @@ import { BiUserCheck, BiUserPlus, BiLogOut } from 'react-icons/bi';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useEffect } from 'react';
 import useAuthStore from '../Store/AuthStore';
 
 function Navbar() {
-  const { isAuth, addAuth, removeAuth, userName, setUserRole, setUserName } =
-    useAuthStore((state) => ({
-      isAuth: state.isAuth,
-      addAuth: state.addAuth,
-      removeAuth: state.removeAuth,
-      userName: state.userName,
-      setUserName: state.setUserName,
-      setUserEmail: state.setUserEmail,
-      setUserPhone: state.setUserPhone,
-      setUserRole: state.setUserRole,
-    }));
-
-  useEffect(() => {
-    if (sessionStorage.getItem('isAuth')) {
-      addAuth();
-      setUserName(sessionStorage.getItem('username'));
-      setUserRole(sessionStorage.getItem('userrole'));
-    }
-  }, []);
+  const {
+    isAuth,
+    removeAuth,
+    userName,
+    setUserRole,
+    setUserName,
+    setUserPhone,
+    setUserEmail,
+  } = useAuthStore((state) => ({
+    isAuth: state.isAuth,
+    userName: state.userName,
+    addAuth: state.addAuth,
+    removeAuth: state.removeAuth,
+    setUserName: state.setUserName,
+    setUserRole: state.setUserRole,
+    setUserEmail: state.setUserEmail,
+    setUserPhone: state.setUserPhone,
+  }));
 
   const navigate = useNavigate();
   const toast = useToast();
@@ -57,9 +55,8 @@ function Navbar() {
       removeAuth();
       setUserName(null);
       setUserRole(null);
-      sessionStorage.removeItem('isAuth');
-      sessionStorage.removeItem('username');
-      sessionStorage.removeItem('userrole');
+      setUserEmail(null);
+      setUserPhone(null);
       navigate('/');
     } catch (err) {
       toast({
