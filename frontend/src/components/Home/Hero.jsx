@@ -2,6 +2,7 @@ import React from 'react';
 import { Text, Heading, Box, Image, Flex, chakra } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import Landing from '../../../public/assets/LandingImg.svg';
+import useAuthStore from '../Store/AuthStore';
 
 const LandingButton = chakra('button', {
   baseStyle: {
@@ -24,6 +25,7 @@ const LandingButton = chakra('button', {
 });
 function Hero() {
   const navigate = useNavigate();
+  const isAuth = useAuthStore((state) => state.isAuth);
   return (
     <Flex
       alignItems="center"
@@ -52,7 +54,8 @@ function Hero() {
 
         <LandingButton
           onClick={() => {
-            navigate('/OrderList');
+            // eslint-disable-next-line no-unused-expressions
+            isAuth ? navigate('/OrderList') : navigate('/login');
           }}
         >
           Place Order
