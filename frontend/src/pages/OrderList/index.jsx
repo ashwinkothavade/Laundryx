@@ -1,8 +1,7 @@
 import { Box } from '@chakra-ui/react';
 import React from 'react';
 import Navbar from '../../components/Navbar';
-// import OrderCard from '../../components/OrderCard/OrderCard';
-import OrderCard2 from '../../components/OrderCard2/OrderCard2';
+import OrderCard2 from '../../components/OrderCard2';
 
 function OrderList() {
   console.log('this is order card 2');

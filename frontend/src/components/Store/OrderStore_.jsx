@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-// Create the Zustand store
+
 const useGeneralOrderStore = create(
   persist(
     (set) => ({
@@ -33,23 +33,16 @@ const useGeneralOrderStore = create(
               updatedItems.push(newItem);
             }
           });
-
+          // Calculate the order total
+          const updatedOrderTotal = updatedItems.reduce(
+            (acc, item) => acc + item.quantity * item.pricePerItem,
+            0
+          );
           return {
             order: {
               ...state.order,
               items: updatedItems,
-            },
-          };
-        });
-      },
-
-      // Action to update OrderTotal
-      updateOrderTotal: (newOrderTotal) => {
-        set((state) => {
-          return {
-            order: {
-              ...state.order,
-              orderTotal: newOrderTotal,
+              orderTotal: updatedOrderTotal,
             },
           };
         });
@@ -61,10 +54,15 @@ const useGeneralOrderStore = create(
           let newPickupDate;
           let newDeliveryDate;
 
-          if (value === 'Today') {
+          if (value === '') {
+            newPickupDate = '';
+            newDeliveryDate = '-- -- --';
+          } else if (value === moment().format('ddd, D MMM YYYY')) {
             newPickupDate = moment().format('Do MMM YYYY');
             newDeliveryDate = moment().add(2, 'days').format('ddd, D MMM YYYY');
-          } else if (value === 'Tomorrow') {
+          } else if (
+            value === moment().add(1, 'days').format('ddd, D MMM YYYY')
+          ) {
             newPickupDate = moment().add(1, 'days').format('ddd, D MMM YYYY');
             newDeliveryDate = moment().add(3, 'days').format('ddd, D MMM YYYY');
           } else {
@@ -136,7 +134,7 @@ const useGeneralOrderStore = create(
     }),
     {
       name: 'general-order-store',
-      getStorage: () => localStorage,
+      getStorage: () => sessionStorage,
     }
   )
 );

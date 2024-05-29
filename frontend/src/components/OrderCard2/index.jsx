@@ -19,11 +19,13 @@ import {
   TagLabel,
   TagLeftIcon,
   Text,
+  useToast,
 } from '@chakra-ui/react';
 import { DotLottiePlayer } from '@dotlottie/react-player';
 import '@dotlottie/react-player/dist/index.css';
 import React, { useRef } from 'react';
 import { HiArrowLongRight, HiMiniCurrencyRupee } from 'react-icons/hi2';
+import { useNavigate } from 'react-router-dom';
 import prices from '../../TempData/prices.json';
 import useGeneralOrderStore from '../Store/OrderStore_';
 
@@ -32,6 +34,8 @@ function OrderCard2() {
   const { order, updateItems } = useGeneralOrderStore();
   const quantityRefs = useRef(prices.map(() => 0));
   const washTypeRefs = useRef(prices.map(() => ''));
+  const navigate = useNavigate();
+  const toast = useToast();
 
   const handleAddItems = () => {
     const newItems = [];
@@ -47,24 +51,41 @@ function OrderCard2() {
           washType,
           pricePerItem,
         });
+        updateItems(newItems);
+        console.log('items: ', order.items);
       }
     });
     if (newItems.length > 0) {
-      updateItems(newItems);
-      console.log('items: ', order.items);
+      toast({
+        position: 'top',
+        title: 'Items added in the order.',
+        description: '',
+        status: 'success',
+        isClosable: true,
+        duration: 2000,
+      });
+    } else {
+      toast({
+        position: 'top',
+        title: 'Please fill quantity and wash type before adding any item.',
+        description: '',
+        status: 'error',
+        isClosable: true,
+        duration: 2000,
+      });
     }
   };
 
   return (
     <>
       <Center>
-        <Text mt="5rem" fontWeight={600} fontSize="2.2rem">
+        <Text mt="6rem" fontWeight={600} fontSize="2rem">
           Select & Add Items
         </Text>
       </Center>
       <Flex
         flexDirection={{ base: 'column', xl: 'row' }}
-        gap={{ base: '3rem', xl: '5rem' }}
+        gap={{ base: '3rem', xl: '4rem' }}
         mt="2rem"
         justifyContent="center"
         alignItems="center"
@@ -77,11 +98,7 @@ function OrderCard2() {
           playMode="bounce"
         />
         <Stack>
-          {/* <Alert status="info" variant="left-accent">
-            <AlertIcon />
-            Select wash type to view price per item.
-          </Alert> */}
-          <Grid templateColumns="repeat(2, 1fr)" rowGap={8} columnGap={6}>
+          <Grid templateColumns="repeat(2, 1fr)" gap={8}>
             {prices.map((element, index) => {
               return (
                 <GridItem key={index}>
@@ -89,10 +106,10 @@ function OrderCard2() {
                     boxShadow="0px 4px 4px 0px rgba(0, 0, 0, 0.25)"
                     borderRadius="0.5rem"
                     py="1.5rem"
-                    px="2rem"
+                    px="2.5rem"
                     alignItems="center"
                   >
-                    <Flex align="center" gap="3rem">
+                    <Flex align="center" gap="4rem">
                       <Stack align="center" gap="1rem">
                         <Text fontWeight={600} fontSize="1.3rem" as="u">
                           {element.name}
@@ -107,7 +124,7 @@ function OrderCard2() {
                           src={`/assets/${element.image}`}
                         />
                       </Stack>
-                      <Stack gap={4}>
+                      <Stack gap={5}>
                         <Flex gap="2rem">
                           <Box>
                             <FormControl isRequired>
@@ -116,6 +133,7 @@ function OrderCard2() {
                                 isRequired
                                 allowMouseWheel
                                 min={0}
+                                w="5rem"
                                 defaultValue={0}
                                 onChange={(value) => {
                                   quantityRefs.current[index] =
@@ -123,7 +141,6 @@ function OrderCard2() {
                                 }}
                               >
                                 <NumberInputField
-                                  w="6rem"
                                   border="2px solid #CE1567"
                                   _hover={{ border: '2px solid #CE1567' }}
                                   _focus={{ border: '2px solid #CE1567' }}
@@ -159,51 +176,67 @@ function OrderCard2() {
                         </Flex>
                         <Grid
                           templateColumns="repeat(2, 1fr)"
+                          columnGap={4}
                           rowGap={2}
-                          columnGap={1}
+                          boxSize="fit-content"
                         >
-                          <Tag
-                            w="fit-content"
-                            color="#CE1567"
-                            border="2px solid #CE1567"
-                            borderRadius="full"
-                          >
-                            <TagLeftIcon
-                              boxSize="1.2rem"
-                              as={HiMiniCurrencyRupee}
-                            />
-                            <TagLabel>
-                              {`${prices[index].prices.simple_wash} - Simple Wash`}
-                            </TagLabel>
-                          </Tag>
-                          <Tag
-                            w="fit-content"
-                            color="#CE1567"
-                            border="2px solid #CE1567"
-                            borderRadius="full"
-                          >
-                            <TagLeftIcon
-                              boxSize="1.2rem"
-                              as={HiMiniCurrencyRupee}
-                            />
-                            <TagLabel>
-                              {`${prices[index].prices.power_clean} - Power Clean`}
-                            </TagLabel>
-                          </Tag>
-                          <Tag
-                            w="fit-content"
-                            color="#CE1567"
-                            border="2px solid #CE1567"
-                            borderRadius="full"
-                          >
-                            <TagLeftIcon
-                              boxSize="1.2rem"
-                              as={HiMiniCurrencyRupee}
-                            />
-                            <TagLabel>
-                              {`${prices[index].prices.dry_clean} - Dry Clean`}
-                            </TagLabel>
-                          </Tag>
+                          <GridItem>
+                            <Tag
+                              w="fit-content"
+                              bg="#CE1567"
+                              variant="solid"
+                              size="sm"
+                              px={1}
+                              border="2px solid #CE1567"
+                              borderRadius="full"
+                            >
+                              <TagLeftIcon
+                                boxSize="1rem"
+                                as={HiMiniCurrencyRupee}
+                              />
+                              <TagLabel>
+                                {`${prices[index].prices.simple_wash} - Simple Wash`}
+                              </TagLabel>
+                            </Tag>
+                          </GridItem>
+                          <GridItem>
+                            <Tag
+                              w="fit-content"
+                              bg="#CE1567"
+                              variant="solid"
+                              size="sm"
+                              px={1}
+                              border="2px solid #CE1567"
+                              borderRadius="full"
+                            >
+                              <TagLeftIcon
+                                boxSize="1rem"
+                                as={HiMiniCurrencyRupee}
+                              />
+                              <TagLabel>
+                                {`${prices[index].prices.power_clean} - Power Clean`}
+                              </TagLabel>
+                            </Tag>
+                          </GridItem>
+                          <GridItem>
+                            <Tag
+                              w="fit-content"
+                              bg="#CE1567"
+                              variant="solid"
+                              size="sm"
+                              px={1}
+                              border="2px solid #CE1567"
+                              borderRadius="full"
+                            >
+                              <TagLeftIcon
+                                boxSize="1rem"
+                                as={HiMiniCurrencyRupee}
+                              />
+                              <TagLabel>
+                                {`${prices[index].prices.dry_clean} - Dry Clean`}
+                              </TagLabel>
+                            </Tag>
+                          </GridItem>
                         </Grid>
                       </Stack>
                     </Flex>
@@ -216,7 +249,7 @@ function OrderCard2() {
                 bg="#CE1567"
                 color="#FFFFFF"
                 fontSize="1.2rem"
-                p="1.5rem"
+                size="lg"
                 _hover={{ bg: '#bf0055' }}
                 onClick={handleAddItems}
               >
@@ -226,9 +259,10 @@ function OrderCard2() {
                 bg="#CE1567"
                 color="#FFFFFF"
                 fontSize="1.2rem"
-                p="1.5rem"
+                size="lg"
                 _hover={{ bg: '#bf0055' }}
                 rightIcon={<HiArrowLongRight size={32} />}
+                onClick={() => navigate('/CheckoutPage')}
               >
                 Proceed
               </Button>
@@ -236,28 +270,6 @@ function OrderCard2() {
           </Grid>
         </Stack>
       </Flex>
-      {/* <TableContainer>
-        <Table variant="simple">
-          <Thead>
-            <Tr>
-              <Th>Item Name</Th>
-              <Th>Quantity</Th>
-              <Th>Wash Type</Th>
-              <Th>Price</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {order.items.map((item, index) => (
-              <Tr key={index}>
-                <Td>{item.name}</Td>
-                <Td>{item.quantity}</Td>
-                <Td>{item.washType}</Td>
-                <Td>{item.pricePerItem}</Td>
-              </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      </TableContainer> */}
     </>
   );
 }
