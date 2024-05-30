@@ -21,12 +21,12 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react';
-import { DotLottiePlayer } from '@dotlottie/react-player';
 import '@dotlottie/react-player/dist/index.css';
 import React, { useRef } from 'react';
 import { HiArrowLongRight, HiMiniCurrencyRupee } from 'react-icons/hi2';
 import { useNavigate } from 'react-router-dom';
 import prices from '../../TempData/prices.json';
+import OrderItemsAccordion from '../OrderItemsAccordion';
 import useGeneralOrderStore from '../Store/OrderStore_';
 
 function OrderCard2() {
@@ -85,18 +85,19 @@ function OrderCard2() {
       </Center>
       <Flex
         flexDirection={{ base: 'column', xl: 'row' }}
-        gap={{ base: '3rem', xl: '4rem' }}
+        gap={{ base: '3rem', xl: '6rem' }}
         mt="2rem"
         justifyContent="center"
         alignItems="center"
       >
-        <DotLottiePlayer
+        {/* <DotLottiePlayer
           src="Child.lottie"
           style={{ height: '40rem', width: '40rem' }}
           autoplay
           loop
           playMode="bounce"
-        />
+        /> */}
+        <OrderItemsAccordion />
         <Stack>
           <Grid templateColumns="repeat(2, 1fr)" gap={8}>
             {prices.map((element, index) => {
@@ -183,11 +184,12 @@ function OrderCard2() {
                           <GridItem>
                             <Tag
                               w="fit-content"
-                              bg="#CE1567"
+                              bg="#FFFFFF"
+                              color="#CE1567"
+                              border="2px solid #CE1567"
                               variant="solid"
                               size="sm"
                               px={1}
-                              border="2px solid #CE1567"
                               borderRadius="full"
                             >
                               <TagLeftIcon
@@ -202,11 +204,12 @@ function OrderCard2() {
                           <GridItem>
                             <Tag
                               w="fit-content"
-                              bg="#CE1567"
+                              bg="#FFFFFF"
+                              color="#CE1567"
+                              border="2px solid #CE1567"
                               variant="solid"
                               size="sm"
                               px={1}
-                              border="2px solid #CE1567"
                               borderRadius="full"
                             >
                               <TagLeftIcon
@@ -221,11 +224,12 @@ function OrderCard2() {
                           <GridItem>
                             <Tag
                               w="fit-content"
-                              bg="#CE1567"
+                              bg="#FFFFFF"
+                              color="#CE1567"
+                              border="2px solid #CE1567"
                               variant="solid"
                               size="sm"
                               px={1}
-                              border="2px solid #CE1567"
                               borderRadius="full"
                             >
                               <TagLeftIcon
@@ -248,8 +252,6 @@ function OrderCard2() {
               <Button
                 bg="#CE1567"
                 color="#FFFFFF"
-                fontSize="1.2rem"
-                size="lg"
                 _hover={{ bg: '#bf0055' }}
                 onClick={handleAddItems}
               >
@@ -258,10 +260,8 @@ function OrderCard2() {
               <Button
                 bg="#CE1567"
                 color="#FFFFFF"
-                fontSize="1.2rem"
-                size="lg"
                 _hover={{ bg: '#bf0055' }}
-                rightIcon={<HiArrowLongRight size={32} />}
+                rightIcon={<HiArrowLongRight size={30} />}
                 onClick={() => navigate('/CheckoutPage')}
               >
                 Proceed

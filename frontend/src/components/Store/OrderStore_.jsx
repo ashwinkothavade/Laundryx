@@ -48,6 +48,18 @@ const useGeneralOrderStore = create(
         });
       },
 
+      clearItems: () => {
+        set((state) => {
+          return {
+            order: {
+              ...state.order,
+              items: [],
+              orderTotal: 0,
+            },
+          };
+        });
+      },
+
       // Action to update PickupDate and DeliveryDate
       setPickupDate: (value) => {
         set((state) => {

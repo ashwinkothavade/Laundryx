@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Cookies from 'universal-cookie';
-import PreLoader from './Animation/PreLoader';
 import './App.css';
 import useOrderStore from './components/Store/OrderStore';
 import CheckoutPage from './pages/CheckoutPage';
@@ -40,22 +39,30 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={isLoading ? <PreLoader /> : <LandingPage />} />
+      <Route
+        path="/"
+        element={<LandingPage />}
+        // element={isLoading ? <PreLoader /> : <LandingPage />}
+      />
       <Route
         path="/OrderList"
-        element={isLoading ? <PreLoader /> : <OrderList />}
+        element={<OrderList />}
+        // element={isLoading ? <PreLoader /> : <OrderList />}
       />
       <Route
         path="/CheckoutPage"
-        element={isLoading ? <PreLoader /> : <CheckoutPage />}
+        element={<CheckoutPage />}
+        // element={isLoading ? <PreLoader /> : <CheckoutPage />}
       />
       <Route
         path="/OrderConfirmationPage"
-        element={isLoading ? <PreLoader /> : <OrderConfirmationPage />}
+        element={<OrderConfirmationPage />}
+        // element={isLoading ? <PreLoader /> : <OrderConfirmationPage />}
       />
       <Route
         path="/OrderHistoryPage"
-        element={isLoading ? <PreLoader /> : <OrderHistoryPage />}
+        element={<OrderHistoryPage />}
+        // element={isLoading ? <PreLoader /> : <OrderHistoryPage />}
       />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
