@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
-<<<<<<< HEAD
-import Cookies from 'universal-cookie';
-=======
 import PreLoader from './Animation/PreLoader';
->>>>>>> 39851e1 (add: Student Dashboard and patch method)
 import './App.css';
 import CheckoutPage from './pages/CheckoutPage';
 import DumyPayment from './pages/DumyPayment';
