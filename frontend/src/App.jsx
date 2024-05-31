@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
+<<<<<<< HEAD
 import Cookies from 'universal-cookie';
+=======
+import PreLoader from './Animation/PreLoader';
+>>>>>>> 39851e1 (add: Student Dashboard and patch method)
 import './App.css';
-import useOrderStore from './components/Store/OrderStore';
 import CheckoutPage from './pages/CheckoutPage';
 import DumyPayment from './pages/DumyPayment';
 import LandingPage from './pages/LandingPage';
@@ -11,30 +14,15 @@ import OrderConfirmationPage from './pages/OrderConfirmation';
 import OrderHistoryPage from './pages/OrderHistoryPage';
 import OrderList from './pages/OrderList';
 import Signup from './pages/Signup';
+import StudentDashBoard from './pages/DashBoard/Student';
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
-  const cookies = new Cookies();
-
-  const { addAuth, setUserName, setUserEmail, setUserPhone } = useOrderStore(
-    (state) => ({
-      addAuth: state.addAuth,
-      setUserName: state.setUserName,
-      setUserEmail: state.setUserEmail,
-      setUserPhone: state.setUserPhone,
-    })
-  );
 
   useEffect(() => {
     setTimeout(() => {
       setIsLoading(false);
     }, 4000);
-    if (cookies.get('token')) {
-      addAuth();
-      setUserName(cookies.get('userName'));
-      setUserEmail(cookies.get('userEmail'));
-      setUserPhone(cookies.get('userPhone'));
-    }
   }, []);
 
   return (
@@ -67,6 +55,7 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/payment" element={<DumyPayment />} />
+      <Route path="/dashboard/student" element={<StudentDashBoard />} />
     </Routes>
   );
 }
