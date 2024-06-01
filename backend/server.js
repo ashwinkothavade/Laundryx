@@ -13,6 +13,7 @@ const studentRoutes = require('./routes/studentRoutes');
 const razorpayRoutes = require('./routes/razorpayRoutes');
 
 const app = express();
+
 const port = process.env.PORT || 4000;
 const corsOptions = {
   origin: ['http://localhost:5173'],
@@ -22,8 +23,9 @@ const corsOptions = {
 };
 
 DB.connect();
+app.set('view engine', 'ejs');
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: false }));
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(authRoutes);

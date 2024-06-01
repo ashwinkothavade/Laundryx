@@ -1,4 +1,6 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 const User = require('../models/userModel');
 const authUtils = require('../utils/authUtils');
 
@@ -105,7 +107,7 @@ const loginUser = async (req, resp) => {
 // @desc    Log out a user
 // @route   GET /logout
 // @access  Public
-const logoutUser = (req, resp) => {
+const logoutUser = async (req, resp) => {
   resp.cookie('jwt', '', {
     httpOnly: true,
     maxAge: -1,
@@ -118,9 +120,128 @@ const logoutUser = (req, resp) => {
   });
 };
 
+// @desc    Accepts the user email and sends a reset password link
+// @route   POST /forgotpassword
+// @access  Public
+const forgotPassword = async (req, resp) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw new Error('User not found');
+    } else {
+      const secret = process.env.JWT_SECRET + user.password;
+      const token = jwt.sign(
+        {
+          email: user.email,
+          username: user.username,
+          user_id: user._id,
+          role: user.role,
+          hostel: user.hostel,
+        },
+        secret,
+        { expiresIn: '35m' }
+      );
+      const url = `http://localhost:4000/resetpassword/${user._id}/${token}`;
+      // console.log(url);
+
+      // eslint-disable-next-line no-unused-vars
+      const testAccount = await nodemailer.createTestAccount();
+      // connect with smtp
+      const transporter = await nodemailer.createTransport({
+        service: 'gmail',
+        host: 'smtp.gmail.com',
+        auth: {
+          user: process.env.GMAIL_ADDRESS,
+          pass: process.env.GMAIL_PASSWORD,
+        },
+      });
+
+      const info = await transporter.sendMail({
+        from: '"LaundriX" <laundrix5@gmail.com>',
+        to: email,
+        subject: 'Reset Password link from LaundriX',
+        text: `Click on this link to reset your password: ${url}`,
+        html: `<b>Click on this link to reset your password: <a href="${url}">Reset Password</a></b>`,
+      });
+      console.log('Message sent: %s', info.messageId);
+      resp.status(200).json(info);
+    }
+  } catch (err) {
+    console.log(err);
+    resp.status(404).json({ message: err.message });
+  }
+};
+
+// @desc    Reset the user password (Gets the password from input)
+// @route   GET /resetpassword/:id/:token
+// @access  Public
+const getResetPassword = async (req, resp) => {
+  const { id, token } = req.params;
+  const user = await User.findById(id);
+  if (!user) {
+    throw new Error('User not found');
+  }
+  const secret = process.env.JWT_SECRET + user.password;
+  try {
+    // eslint-disable-next-line no-unused-vars
+    const verify = jwt.verify(token, secret);
+    resp.render('index', {
+      status: 'not verified',
+      error: '',
+    });
+  } catch (err) {
+    console.log(err);
+    resp.status(401).send(err.message);
+  }
+};
+
+// @desc    Reset the user password
+// @route   POST /forgotpassword
+// @access  Public
+const postResetPassword = async (req, resp) => {
+  const { id, token } = req.params;
+  const { password } = req.body;
+  const user = await User.findById(id);
+  if (!user) {
+    throw new Error('User not found');
+  }
+  if (!password) {
+    return resp.status(401).render('index', {
+      status: 'not verified',
+      error: 'Password cannot be empty',
+    });
+  }
+  if (
+    !password.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/)
+  ) {
+    return resp.status(401).render('index', {
+      status: 'not verified',
+      error:
+        'Password must be at least 8 characters long and must contain at least one lowercase letter, one uppercase letter, one numeric digit, and one special character',
+    });
+  }
+
+  const secret = process.env.JWT_SECRET + user.password;
+  try {
+    // eslint-disable-next-line no-unused-vars
+    const verify = jwt.verify(token, secret);
+    user.password = password;
+    user.save();
+    resp.status(200).render('index', { status: 'verified', error: '' });
+  } catch (err) {
+    console.log(err);
+    alert(err.message);
+    resp.status(401).send(err.message);
+  }
+};
+
 module.exports = {
   getAllUsers,
   createUser,
   loginUser,
   logoutUser,
+  forgotPassword,
+  getResetPassword,
+  postResetPassword,
 };

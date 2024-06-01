@@ -3,16 +3,26 @@ import {
   Button,
   Center,
   Flex,
+  FormControl,
+  FormLabel,
   Input,
   InputGroup,
   InputRightElement,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
   Spinner,
   Stack,
   Text,
+  useDisclosure,
   useToast,
 } from '@chakra-ui/react';
 import axios from 'axios';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { BiHide, BiShow } from 'react-icons/bi';
 import { HiArrowLongRight } from 'react-icons/hi2';
 import { Link, useNavigate } from 'react-router-dom';
@@ -25,6 +35,8 @@ export default function LoginForm() {
     username: '',
     password: '',
   });
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const initialRef = useRef();
 
   const { addAuth, setUserName, setUserRole, setUserEmail, setUserPhone } =
     useAuthStore((state) => ({
@@ -102,6 +114,48 @@ export default function LoginForm() {
     }
   };
 
+  // Method to handle forgot password
+  const handleForgotPassword = (e) => {
+    e.preventDefault();
+    const email = initialRef.current.value;
+    try {
+      if (email) {
+        // eslint-disable-next-line no-unused-vars
+        const response = axios.post(
+          'http://localhost:4000/forgotpassword',
+          { email },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+              'Access-Control-Allow-Origin': '*',
+            },
+          }
+        );
+        toast({
+          title: 'Success',
+          description: 'Password reset link is sent to your email',
+          status: 'success',
+          duration: 2000,
+          isClosable: true,
+          position: 'top',
+        });
+      } else {
+        throw new Error('Please enter your email');
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error.message,
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+        position: 'top',
+      });
+    }
+    onClose();
+  };
+
   return (
     <Center m={0} p={0}>
       <Stack>
@@ -124,9 +178,9 @@ export default function LoginForm() {
           mb="1rem"
         >
           <form onSubmit={onSubmit}>
-            <Box mb={['1rem', '2rem']}>
-              <Text mb="0.5rem" fontSize={['1.1rem', '1.2rem']}>
-                Username:{' '}
+            <Box mb={['1rem', '1.5rem']}>
+              <Text mb="0.5rem" fontSize={['1.1rem', '1.1rem']}>
+                Username
               </Text>
               <Box bg="#ffffff" borderRadius="0.4rem">
                 <Input
@@ -141,11 +195,11 @@ export default function LoginForm() {
                 />
               </Box>
             </Box>
-            <Box mb={['1rem', '2rem']}>
-              <Text mb="0.5rem" fontSize={['1.1rem', '1.2rem']}>
-                Password:{' '}
+            <Box mb="1rem">
+              <Text mb="0.5rem" fontSize={['1.1rem', '1.1rem']}>
+                Password
               </Text>
-              <Box bg="#ffffff" borderRadius="0.4rem">
+              <Box bg="#ffffff" borderRadius="0.4rem" mb={1}>
                 <InputGroup>
                   <Input
                     type={showPassword ? 'text' : 'password'}
@@ -176,6 +230,43 @@ export default function LoginForm() {
                   </InputRightElement>
                 </InputGroup>
               </Box>
+              <Text color="#CE1567" as="u" cursor="pointer" onClick={onOpen}>
+                Forgot Password?
+              </Text>
+              <Modal
+                isOpen={isOpen}
+                onClose={onClose}
+                initialFocusRef={initialRef}
+              >
+                <ModalOverlay />
+                <ModalContent border="2px solid #ce1567" borderRadius="1rem">
+                  <ModalHeader>Forgot Password?</ModalHeader>
+                  <ModalCloseButton />
+                  <ModalBody>
+                    <FormControl>
+                      <FormLabel fontSize="1.1rem">Email Address:</FormLabel>
+                      <Input
+                        type="email"
+                        placeholder="Enter your email"
+                        ref={initialRef}
+                      />
+                    </FormControl>
+                  </ModalBody>
+
+                  <ModalFooter justifyContent="center">
+                    <Button
+                      bg="#CE1567"
+                      color="#FFFFFF"
+                      _hover={{
+                        bg: '',
+                      }}
+                      onClick={(e) => handleForgotPassword(e)}
+                    >
+                      Send Request
+                    </Button>
+                  </ModalFooter>
+                </ModalContent>
+              </Modal>
             </Box>
             <Center>
               {loading ? (
@@ -183,12 +274,10 @@ export default function LoginForm() {
               ) : (
                 <Button
                   type="submit"
-                  letterSpacing={1}
                   mt={['1rem', '']}
-                  px="4rem"
-                  fontSize="1rem"
-                  bg="#ce1567"
-                  color="white"
+                  px="2rem"
+                  bg="#CE1567"
+                  color="#FFFFFF"
                   _hover={{
                     bg: '',
                   }}
@@ -201,15 +290,10 @@ export default function LoginForm() {
           </form>
         </Flex>
         <Text textAlign="center" fontSize={['1.1rem', '1.2rem']}>
-          Don't have an account?
-        </Text>
-        <Text
-          textAlign="center"
-          fontSize={['1.1rem', '1.2rem']}
-          color="#ce1567"
-          fontWeight="600"
-        >
-          <Link to="/signup">Register</Link>
+          Don't have an account?{' '}
+          <span style={{ color: '#CE1567', fontWeight: 600 }}>
+            <Link to="/signup">Register</Link>
+          </span>
         </Text>
       </Stack>
     </Center>
