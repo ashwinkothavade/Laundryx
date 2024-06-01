@@ -38,14 +38,25 @@ export default function LoginForm() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const initialRef = useRef();
 
-  const { addAuth, setUserName, setUserRole, setUserEmail, setUserPhone } =
-    useAuthStore((state) => ({
-      addAuth: state.addAuth,
-      setUserName: state.setUserName,
-      setUserRole: state.setUserRole,
-      setUserEmail: state.setUserEmail,
-      setUserPhone: state.setUserPhone,
-    }));
+  const {
+    addAuth,
+    setUserName,
+    setUserRole,
+    setUserEmail,
+    setUserPhone,
+    setUserHostel,
+    setUserRoomNumber,
+    setUserRollNumber,
+  } = useAuthStore((state) => ({
+    addAuth: state.addAuth,
+    setUserName: state.setUserName,
+    setUserRole: state.setUserRole,
+    setUserEmail: state.setUserEmail,
+    setUserPhone: state.setUserPhone,
+    setUserHostel: state.setUserHostel,
+    setUserRoomNumber: state.setUserRoomNumber,
+    setUserRollNumber: state.setUserRollNumber,
+  }));
   // password global state mein store nahi karna hai imo.
   const { username, password } = loginData;
 
@@ -64,7 +75,7 @@ export default function LoginForm() {
     if (!(username && password)) {
       toast({
         title: 'Incomplete Entries',
-        description: 'Please enter both email and password',
+        description: 'Please enter both username and password',
         status: 'error',
         duration: 2000,
         isClosable: true,
@@ -85,6 +96,9 @@ export default function LoginForm() {
       setUserRole(response.data.role);
       setUserEmail(response.data.email);
       setUserPhone(response.data.phone_number);
+      setUserHostel(response.data.hostel);
+      setUserRoomNumber(response.data.room_number);
+      setUserRollNumber(response.data.roll_number);
       toast({
         title: 'Success',
         description: 'Successfully logged in!',

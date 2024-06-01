@@ -61,6 +61,29 @@ const createUser = async (req, resp) => {
   }
 };
 
+// @desc    Create a new user
+// @route   PATCH /user
+// @access  Private
+const updateUser = async (req, resp) => {
+  const updates = req.body;
+  const token = req.cookies.jwt;
+  try {
+    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const user = await User.findByIdAndUpdate(decodedToken.user_id, updates, {
+      new: true,
+      runValidators: true,
+    });
+    resp.status(200).json(user);
+    if (!user) {
+      throw new Error('User not found');
+    }
+  } catch (err) {
+    resp
+      .status(500)
+      .json({ message: 'Error updating the user details', error: err });
+  }
+};
+
 // @desc    Log in a user
 // @route   POST /login
 // @access  Public
@@ -91,6 +114,9 @@ const loginUser = async (req, resp) => {
           role: user.role,
           email: user.email,
           phone_number: user.phone_number,
+          hostel: user.hostel,
+          room_number: user.room_number,
+          roll_number: user.roll_number,
         });
       } else {
         throw new Error('Incorrect password!!');
@@ -239,6 +265,7 @@ const postResetPassword = async (req, resp) => {
 module.exports = {
   getAllUsers,
   createUser,
+  updateUser,
   loginUser,
   logoutUser,
   forgotPassword,
