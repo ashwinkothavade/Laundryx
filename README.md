@@ -1,6 +1,6 @@
 #  <img src="https://github.com/NightFury742/LaundriX/assets/119070798/5afc3cc0-69c9-45d9-83ff-faafbc888a8d" height="40px"> LaundriX
 
-A laundry booking system allowing users to book hassle free laundry appointments through an online website. This will save the time to get laundry done and make the experience seamless.
+A laundry booking system for our institute hostels allowing students to book hassle free laundry appointments through an online website. This will save the time to get laundry done and make the experience seamless.
 <Br>
 
 Users will be able to book and place order for their preferred service, select convenient date and time slots and locations, and complete the process with secure payment methods.
@@ -12,7 +12,7 @@ Users will be able to book and place order for their preferred service, select c
 * Choose between our services: Wash & Iron, PowerClean and DryClean.
 * Add different clothing items.
 * Select pickup date and location at convenience.
-* Make secure online payments.
+* Make secure online payments with Razorpay.
 * View and review your past orders.
 <Br><Br>
 
@@ -24,50 +24,34 @@ Users will be able to book and place order for their preferred service, select c
 # <img src="https://github.com/NightFury742/LaundriX/assets/119070798/6f622e92-9e0d-492c-a901-c5969a1140c0" height="35"> Tech Stack
 
 ## Frontend
-* React (Vite)
+* React JS
 * Chakra UI
 
 ## Backend
-* Google Firebase
+* Express JS
+* Mongo DB
+* Razorpay
 
-## Others
-* Framer Motion
-* Lottie-react
-* Zustand
-* Husky
-<Br><Br>
-
-# <img height="35px" src="https://github.com/NightFury742/LaundriX/assets/119070798/a573e013-ec6c-43f3-a6a9-aaa080be7731"> Prerequisites
-To run the project locally on your sysmtem , the following softwares must be installed .
-* **Npm 8.x**
-* **Node.js 16.x**
 <Br><Br>
 
 # <img height="37px" src="https://github.com/NightFury742/LaundriX/assets/119070798/6c1290e3-d35c-4828-8023-ba99194b3991"> Project Initialization
-1. Fork this repository which will create a copy of this repository in your GitHub account.
+1. Fork this repository.
 
-2. Clone the forked repository. Steps to clone :-<Br>
-   - On your forked repository page, click on the "Code" button and copy the repository's URL.
-     
-   - Use the git clone command followed by the repository URL to clone the repository to your local machine.<Br>
-   * in bash
-     ```
-     git clone https://github.com/<your_username>/LaundriX.git
-     ```
+2. Clone the forked repository locally into your system.
 3.  Navigate to the project directory.
      ```
      cd LaundriX
      ```
-4. Open the terminal and type.
+4. For running the backend, open terminal and run following commands in the given order.
      ```
      cd backend
      npm i
-     cd src
-     npm start
+     npm run server
      ```
      
-5. Open another terminal and type.
+5. For running the frontend, open terminal and run following commands in the given order.
    ```
+   cd frontend
    npm i
    npm run dev
    ```
