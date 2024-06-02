@@ -15,6 +15,7 @@ import { FaLocationCrosshairs, FaLocationDot } from 'react-icons/fa6';
 import { TbTruckDelivery } from 'react-icons/tb';
 
 import useGeneralOrderStore from '../Store/OrderStore_';
+import useAuthStore from '../Store/AuthStore';
 
 function ScheduleCard() {
   const {
@@ -24,7 +25,9 @@ function ScheduleCard() {
     setPickupAddress,
     setDeliveryAddress,
   } = useGeneralOrderStore();
-
+  const { userHostel } = useAuthStore((state) => ({
+    userHostel: state.userHostel,
+  }));
   const pickupDateRef = useRef();
   const pickupTimeRef = useRef();
   const deliveryTimeRef = useRef();
@@ -44,6 +47,14 @@ function ScheduleCard() {
   };
 
   const handleConfirmOrder = () => {
+    if (userHostel === '') {
+      handleToast(
+        'Incomplete Details',
+        'Please complete your profile to place an order.',
+        'error'
+      );
+      return;
+    }
     if (
       !pickupDateRef.current.value ||
       !pickupTimeRef.current.value ||
