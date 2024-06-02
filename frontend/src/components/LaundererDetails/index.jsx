@@ -19,6 +19,8 @@ import {
   ModalCloseButton,
   useDisclosure,
   Icon,
+  Grid,
+  useMediaQuery,
 } from '@chakra-ui/react';
 import axios from 'axios';
 import { FaUser, FaPhone, FaEnvelope } from 'react-icons/fa';
@@ -122,53 +124,97 @@ function LaundererDetails() {
       handleToast('Error while updating student data', '', 'error');
     }
   };
+  const [isLargerThan768px] = useMediaQuery('(min-width: 768px)');
   return (
     <>
-      {' '}
+      {/* {' '} */}
       <Center m={0} p={0}>
         <Stack align="center" justify="center" spacing={4}>
-          <Text
-            textAlign="center"
-            color="#584BAC"
-            fontSize={['1.7rem', '2.2rem']}
-            fontWeight="600"
-            mb="1rem"
-          >
-            User Details
-          </Text>
           <Box
             borderRadius="1.2rem"
-            px={['1rem', '2rem']}
-            py={['1rem', '2rem']}
+            px={['2rem', '3rem']}
+            py={['2rem', '3rem']}
             shadow="md"
-            w="auto"
-            mb="1rem"
-            bg="#f0f0f0"
-            border="2px solid gray"
+            w={['auto', 'auto', 'auto', '40rem', '40rem', '45rem']}
+            mb="2rem"
+            bg="#ffffff"
+            border="1px solid #ce1567"
+
             boxShadow="0px 0px 20px 0px rgba(0, 0, 0, 0.20)"
+            mx="auto"
           >
-            <Flex align="center" mb="0.5rem">
-              <Icon as={FaUser} mr="0.5rem" />
-              <Text fontSize={['1rem', '1.2rem']} fontWeight="500">
-                <strong>Username:</strong> {userName}
+            <Flex
+              align="center"
+              justify={isLargerThan768px ? 'space-between' : 'center'}
+              mb="1rem"
+              direction={isLargerThan768px ? 'row' : 'column'}
+            >
+              <Text
+                textAlign="center"
+                color="#292929"
+                fontSize={['1.5rem', '1.8rem']}
+                fontWeight="100"
+                mb={isLargerThan768px ? '0' : '1rem'}
+              >
+                User Details
               </Text>
+              {isLargerThan768px && (
+                <Button
+                  onClick={onOpen}
+                  bgColor="#ce1567"
+                  color="#ffff"
+                  textAlign="center"
+                  width="7rem"
+                  _hover={{
+                    color: '#292929',
+                    bgColor: '#ce1567',
+                  }}
+                  mb="1rem"
+                >
+                  Edit
+                </Button>
+              )}
             </Flex>
-            <Flex align="center" mb="0.5rem">
-              <Icon as={FaPhone} mr="0.5rem" />
-              <Text fontSize={['1rem', '1.2rem']} fontWeight="500">
-                <strong>Phone:</strong> {Phone}
-              </Text>
-            </Flex>
-            <Flex align="center" mb="0.5rem">
-              <Icon as={FaEnvelope} mr="0.5rem" />
-              <Text fontSize={['1rem', '1.2rem']} fontWeight="500">
-                <strong>Email:</strong> {userEmail}
-              </Text>
-            </Flex>
+            <Grid templateColumns="1fr" gap={4} mb="1rem">
+              <Flex align="center" mb="0.5rem">
+                <Icon as={FaUser} mr="0.5rem" />
+                <Text fontSize={['1rem', '1.2rem']} fontWeight="500">
+                  <strong>Username:</strong> {userName}
+                </Text>
+              </Flex>
+
+              <Flex align="center" mb="0.5rem">
+                <Icon as={FaPhone} mr="0.5rem" />
+                <Text fontSize={['1rem', '1.2rem']} fontWeight="500">
+                  <strong>Phone:</strong> {Phone}
+                </Text>
+              </Flex>
+              <Flex align="center" mb="0.5rem">
+                <Icon as={FaEnvelope} mr="0.5rem" />
+                <Text fontSize={['1rem', '1.2rem']} fontWeight="500">
+                  <strong>Email:</strong> {userEmail}
+                </Text>
+              </Flex>
+            </Grid>
+            {!isLargerThan768px && (
+              <Button
+                onClick={onOpen}
+                bgColor="#ce1567"
+                color="#ffff"
+                textAlign="center"
+                width="7rem"
+                _hover={{
+                  color: '#292929',
+                  bgColor: '#ce1567',
+                }}
+                mt="2rem"
+                mx="auto"
+                display="block"
+              >
+                Edit
+              </Button>
+            )}
           </Box>
-          <Button onClick={onOpen} colorScheme="blue" width="5rem">
-            Update
-          </Button>
 
           <Modal isOpen={isOpen} onClose={onClose} isCentered>
             <ModalOverlay />
