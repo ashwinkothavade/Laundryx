@@ -1,19 +1,19 @@
 #  <img src="https://github.com/NightFury742/LaundriX/assets/119070798/5afc3cc0-69c9-45d9-83ff-faafbc888a8d" height="40px"> LaundriX
 
-A laundry booking system for our institute hostels allowing students to book hassle free laundry appointments through an online website. This will save the time to get laundry done and make the experience seamless.
-<Br>
-
-Users will be able to book and place order for their preferred service, select convenient date and time slots and locations, and complete the process with secure payment methods.
+LaundriX is a laundry booking system designed for our institute hostels, allowing students to book hassle-free laundry appointments through an online platform. This system streamlines the process of getting laundry done, making the experience seamless and efficient.
 <Br><Br>
 
 # <img src="https://github.com/NightFury742/LaundriX/assets/119070798/ec2ddfa4-c318-4a76-9296-872e8d5fab3f" height="30px"> Features
 
-* Authenticate using your Gmail account.
-* Choose between our services: Wash & Iron, PowerClean and DryClean.
-* Add different clothing items.
-* Select pickup date and location at convenience.
-* Make secure online payments with Razorpay.
-* View and review your past orders.
+* **User Authentication:** Sign in using your Gmail account.
+* **Service Selection**: Choose from our range of services: Wash & Iron, PowerClean, and DryClean.
+* **Item Specification:** Add various clothing items to your order.
+* **Convenient Scheduling**: Select your preferred pickup date, time slot, and location.
+* **Secure Payments**: Complete transactions securely with Razorpay.
+* **Order Management**: View and review your past orders.
+* **Role-Based Access:**
+     - **Students:** Place, check and view laundry orders.
+     - **Launderers:** Accept, reject and process laundry orders.
 <Br><Br>
 
 # <img src="https://github.com/NightFury742/LaundriX/assets/119070798/28a131bf-d93f-44a2-b368-7eaa1476685b" height="30px"> Design
@@ -36,25 +36,38 @@ Users will be able to book and place order for their preferred service, select c
 
 # <img height="37px" src="https://github.com/NightFury742/LaundriX/assets/119070798/6c1290e3-d35c-4828-8023-ba99194b3991"> Project Initialization
 1. Fork this repository.
-
-2. Clone the forked repository locally into your system.
-3.  Navigate to the project directory.
+2. Clone the forked repository locally.
      ```
+     git clone https://github.com/your-username/LaundriX.git
      cd LaundriX
      ```
-4. For running the backend, open terminal and run following commands in the given order.
+3. Backend Setup
+     1. Navigate to the backend directory:
      ```
      cd backend
+     ```
+     2. Install dependencies:
+     ```
      npm i
+     ```
+     3. Start the backend server:
+     ```
      npm run server
      ```
      
-5. For running the frontend, open terminal and run following commands in the given order.
-   ```
-   cd frontend
-   npm i
-   npm run dev
-   ```
+5. Frontend Setup
+     1. Navigate to the frontend directory:
+     ```
+     cd frontend
+     ```
+     2. Install dependencies:
+     ```
+     npm i
+     ```
+     3. Start the frontend development server:
+     ```
+     npm run dev
+     ```
 
 
 # <img height="40px" src="https://github.com/NightFury742/LaundriX/assets/119070798/143a52c0-b60d-4f57-b38f-3e5156e124d9"> License
