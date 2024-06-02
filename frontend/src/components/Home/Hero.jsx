@@ -34,7 +34,10 @@ const LandingButton = chakra('button', {
 function Hero() {
   const navigate = useNavigate();
   const toast = useToast();
-  const isAuth = useAuthStore((state) => state.isAuth);
+  const { isAuth, userRole } = useAuthStore((state) => ({
+    isAuth: state.isAuth,
+    userRole: state.userRole,
+  }));
   return (
     <Flex
       alignItems="center"
@@ -61,24 +64,46 @@ function Hero() {
           ridiculously simple.
         </Text>
 
-        <LandingButton
-          onClick={() => {
-            if (isAuth) {
-              navigate('/OrderList');
-            } else {
-              toast({
-                title: 'Please login to place an order',
-                status: 'error',
-                duration: 3000,
-                isClosable: true,
-                position: 'top',
-              });
-              navigate('/login');
-            }
-          }}
-        >
-          Place Order
-        </LandingButton>
+        {userRole === 'student' ? (
+          <LandingButton
+            onClick={() => {
+              if (isAuth) {
+                navigate('/OrderList');
+              } else {
+                toast({
+                  title: 'Please login to place an order',
+                  status: 'error',
+                  duration: 3000,
+                  isClosable: true,
+                  position: 'top',
+                });
+                navigate('/login');
+              }
+            }}
+          >
+            Place Order
+          </LandingButton>
+        ) : (
+          <LandingButton
+            onClick={() => {
+              if (isAuth) {
+                navigate('/dashboard');
+              } else {
+                toast({
+                  title: 'Login required',
+                  status: 'error',
+                  duration: 3000,
+                  isClosable: true,
+                  position: 'top',
+                });
+                navigate('/login');
+              }
+            }}
+            w="auto"
+          >
+            Go to Dashboard
+          </LandingButton>
+        )}
       </Box>
       <Box>
         <Image src={Landing} alt="Landing Image" />
