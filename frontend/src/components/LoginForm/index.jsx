@@ -31,13 +31,10 @@ import useAuthStore from '../Store/AuthStore';
 export default function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [loginData, setLoginData] = useState({
-    username: '',
-    password: '',
-  });
   const { isOpen, onOpen, onClose } = useDisclosure();
   const initialRef = useRef();
-
+  const usernameRef = useRef(null);
+  const passwordRef = useRef(null);
   const {
     addAuth,
     setUserName,
@@ -57,21 +54,13 @@ export default function LoginForm() {
     setUserRoomNumber: state.setUserRoomNumber,
     setUserRollNumber: state.setUserRollNumber,
   }));
-  // password global state mein store nahi karna hai imo.
-  const { username, password } = loginData;
-
   const navigate = useNavigate();
   const toast = useToast();
 
-  const onChange = (e) => {
-    setLoginData((prevState) => ({
-      ...prevState,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
   const onSubmit = async (e) => {
     e.preventDefault();
+    const username = usernameRef.current.value;
+    const password = passwordRef.current.value;
     if (!(username && password)) {
       toast({
         title: 'Incomplete Entries',
@@ -86,12 +75,11 @@ export default function LoginForm() {
 
     setLoading(true);
     try {
-      const response = await axios.post(
-        'http://localhost:4000/login',
-        loginData
-      );
+      const response = await axios.post('http://localhost:4000/login', {
+        username,
+        password,
+      });
       addAuth();
-      console.log(response);
       setUserName(username);
       setUserRole(response.data.role);
       setUserEmail(response.data.email);
@@ -203,9 +191,8 @@ export default function LoginForm() {
                   bg="#ecedf6"
                   id="username"
                   name="username"
-                  value={username}
+                  ref={usernameRef}
                   placeholder="Enter your username  ..."
-                  onChange={onChange}
                 />
               </Box>
             </Box>
@@ -221,9 +208,8 @@ export default function LoginForm() {
                     bg="#ecedf6"
                     id="password"
                     name="password"
-                    value={password}
+                    ref={passwordRef}
                     placeholder="Enter your password..."
-                    onChange={onChange}
                   />
                   <InputRightElement
                     onClick={() => {
