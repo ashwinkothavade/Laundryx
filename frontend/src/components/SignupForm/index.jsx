@@ -155,7 +155,7 @@ export default function SignupForm() {
             <Flex gap="2rem">
               <Box mb={['1rem', '2rem']}>
                 <Text mb="0.5rem" fontSize={['1.1rem', '1.2rem']}>
-                  Name:{' '}
+                  Username
                 </Text>
                 <Box bg="#ffffff" borderRadius="0.4rem">
                   <Input
@@ -172,7 +172,7 @@ export default function SignupForm() {
               </Box>
               <Box mb={['1rem', '2rem']}>
                 <Text mb="0.5rem" fontSize={['1.1rem', '1.2rem']}>
-                  Phone:{' '}
+                  Phone
                 </Text>
                 <Box bg="#ffffff" borderRadius="0.4rem">
                   <Input
@@ -191,7 +191,7 @@ export default function SignupForm() {
             {/* Email */}
             <Box mb={['1rem', '2rem']}>
               <Text mb="0.5rem" fontSize={['1.1rem', '1.2rem']}>
-                Email:{' '}
+                Email
               </Text>
               <Box bg="#ffffff" borderRadius="0.4rem">
                 <Input
@@ -209,7 +209,7 @@ export default function SignupForm() {
             {/* Password */}
             <Box mb={['1rem', '2rem']}>
               <Text mb="0.5rem" fontSize={['1.1rem', '1.2rem']}>
-                Password:{' '}
+                Password
               </Text>
               <Box bg="#ffffff" borderRadius="0.4rem">
                 <InputGroup>
@@ -246,7 +246,7 @@ export default function SignupForm() {
             {/* Confirm Password */}
             <Box mb={['1rem', '2rem']}>
               <Text mb="0.5rem" fontSize={['1.1rem', '1.2rem']}>
-                Confirm Password:{' '}
+                Confirm Password
               </Text>
               <Box bg="#ffffff" borderRadius="0.4rem">
                 <InputGroup>
@@ -282,7 +282,7 @@ export default function SignupForm() {
             </Box>
             <Box mb={['1rem', '2rem']}>
               <Text mb="0.5rem" fontSize={['1.1rem', '1.2rem']}>
-                Select Role:{' '}
+                Select Role
               </Text>
               <Box bg="#ffffff" borderRadius="0.4rem">
                 <Select

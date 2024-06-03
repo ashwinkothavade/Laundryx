@@ -8,25 +8,37 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react';
+import axios from 'axios';
 import moment from 'moment';
 import React, { useRef } from 'react';
 import { FaTruckPickup } from 'react-icons/fa';
 import { FaLocationCrosshairs, FaLocationDot } from 'react-icons/fa6';
 import { TbTruckDelivery } from 'react-icons/tb';
 
-import useGeneralOrderStore from '../Store/OrderStore_';
 import useAuthStore from '../Store/AuthStore';
+import useGeneralOrderStore from '../Store/OrderStore_';
 
 function ScheduleCard() {
   const {
+    clearSchedule,
+    order,
     setPickupDate,
     setPickupTime,
     setDeliveryTime,
     setPickupAddress,
     setDeliveryAddress,
-  } = useGeneralOrderStore();
-  const { userHostel } = useAuthStore((state) => ({
+  } = useGeneralOrderStore((state) => ({
+    clearSchedule: state.clearSchedule,
+    order: state.order,
+    setPickupDate: state.setPickupDate,
+    setPickupTime: state.setPickupTime,
+    setDeliveryTime: state.setDeliveryTime,
+    setPickupAddress: state.setPickupAddress,
+    setDeliveryAddress: state.setDeliveryAddress,
+  }));
+  const { userHostel, userRollNumber } = useAuthStore((state) => ({
     userHostel: state.userHostel,
+    userRollNumber: state.userRollNumber,
   }));
   const pickupDateRef = useRef();
   const pickupTimeRef = useRef();
@@ -42,12 +54,14 @@ function ScheduleCard() {
       title,
       description,
       status,
+      duration: 2000,
       isClosable: true,
     });
   };
 
-  const handleConfirmOrder = () => {
-    if (userHostel === '') {
+  const handleConfirmOrder = async (e) => {
+    e.preventDefault();
+    if (userHostel === '' || userRollNumber === '') {
       handleToast(
         'Incomplete Details',
         'Please complete your profile to place an order.',
@@ -62,7 +76,7 @@ function ScheduleCard() {
       !pickupAddressRef.current.value ||
       !deliveryAddressRef.current.value
     ) {
-      handleToast('Please fill all the fields.', '', 'error');
+      handleToast('Please add all the fields for order schedule.', '', 'error');
       return;
     }
     setPickupDate(pickupDateRef.current.value);
@@ -70,6 +84,32 @@ function ScheduleCard() {
     setDeliveryTime(deliveryTimeRef.current.value);
     setPickupAddress(pickupAddressRef.current.value);
     setDeliveryAddress(deliveryAddressRef.current.value);
+
+    try {
+      if (order.items.length === 0) {
+        handleToast('', 'Please add items before placing the order!', 'error');
+        return;
+      }
+      console.log(order);
+      const response = await axios.post(
+        'http://localhost:4000/student/createorder',
+        order,
+        { withCredentials: true }
+      );
+      handleToast(
+        'Order placed successfully',
+        'Wait for launderer to accept your order',
+        'success'
+      );
+      console.log(response);
+    } catch (err) {
+      handleToast('Some ', err.message, 'error');
+    }
+  };
+
+  const handleClearSchedule = () => {
+    clearSchedule();
+    handleToast('Order Schedule cleared', '', 'info');
   };
 
   return (
@@ -83,7 +123,7 @@ function ScheduleCard() {
         px="2.5rem"
         gap={8}
       >
-        <Flex direction="column" justify="start" align="center" gap={4}>
+        <Flex direction="column" justify="space-between" align="start">
           <Flex align="center" gap={2}>
             <FaTruckPickup color="#CE1567" size="25" />
             <Text color="#CE1567" fontWeight={600}>
@@ -91,7 +131,7 @@ function ScheduleCard() {
             </Text>
           </Flex>
           <Select
-            placeholder="Select Pickup Date"
+            placeholder="Select Date"
             border="2px solid #584BAC"
             w="auto"
             ref={pickupDateRef}
@@ -109,7 +149,7 @@ function ScheduleCard() {
             </option>
           </Select>
           <Select
-            placeholder="Select Pickup Time"
+            placeholder="Select Time"
             border="2px solid #584BAC"
             w="auto"
             ref={pickupTimeRef}
@@ -122,13 +162,14 @@ function ScheduleCard() {
           </Select>
         </Flex>
         <Divider orientation="vertical" border="1px solid gray" height="9rem" />
-        <Flex direction="column" justify="start" align="center" gap={4}>
+        <Flex direction="column" justify="space-between" align="start ">
           <Flex align="center" gap={2}>
             <TbTruckDelivery color="#CE1567" size="25" />
             <Text color="#CE1567" fontWeight={600}>
               Delivery Schedule
             </Text>
           </Flex>
+          <Text>{order.deliveryDate}</Text>
           <Select
             placeholder="Select Time"
             border="2px solid #584BAC"
@@ -199,14 +240,24 @@ function ScheduleCard() {
           </Select>
         </Flex>
       </Stack>
-      <Button
-        bg="#CE1567"
-        color="#FFFFFF"
-        _hover={{ bg: '#bf0055' }}
-        onClick={handleConfirmOrder}
-      >
-        Confirm Order
-      </Button>
+      <HStack gap={8}>
+        <Button
+          bg="#CE1567"
+          color="#FFFFFF"
+          _hover={{ bg: '#bf0055' }}
+          onClick={handleClearSchedule}
+        >
+          Clear Schedule
+        </Button>
+        <Button
+          bg="#CE1567"
+          color="#FFFFFF"
+          _hover={{ bg: '#bf0055' }}
+          onClick={handleConfirmOrder}
+        >
+          Confirm Order
+        </Button>
+      </HStack>
     </Stack>
   );
 }

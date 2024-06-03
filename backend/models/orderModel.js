@@ -33,7 +33,15 @@ const orderSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    pickupTime: {
+      type: String,
+      required: true,
+    },
     deliveryDate: {
+      type: String,
+      required: true,
+    },
+    deliveryTime: {
       type: String,
       required: true,
     },
@@ -45,7 +53,7 @@ const orderSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    totalAmount: Number,
+    orderTotal: Number,
     // accept -> pickup -> delivered -> pay (for security concerns, we can add a payment gateway to the app to make sure the payment is done before the delivery is made)
     acceptedStatus: {
       type: Boolean,
@@ -62,14 +70,6 @@ const orderSchema = new mongoose.Schema(
     paid: {
       type: Boolean,
       default: false,
-    },
-    laundererName: {
-      type: String,
-      required: true,
-    },
-    laundererPhone: {
-      type: String,
-      required: true,
     },
   },
   {

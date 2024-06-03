@@ -70,7 +70,7 @@ const useGeneralOrderStore = create(
             newPickupDate = '';
             newDeliveryDate = '-- -- --';
           } else if (value === moment().format('ddd, D MMM YYYY')) {
-            newPickupDate = moment().format('Do MMM YYYY');
+            newPickupDate = moment().format('ddd, D MMM YYYY');
             newDeliveryDate = moment().add(2, 'days').format('ddd, D MMM YYYY');
           } else if (
             value === moment().add(1, 'days').format('ddd, D MMM YYYY')
@@ -86,8 +86,8 @@ const useGeneralOrderStore = create(
             ...state,
             order: {
               ...state.order,
-              pickupDate: newPickupDate,
-              deliveryDate: newDeliveryDate,
+              pickupDate: String(newPickupDate),
+              deliveryDate: String(newDeliveryDate),
             },
           };
         });
@@ -139,6 +139,23 @@ const useGeneralOrderStore = create(
             order: {
               ...state.order,
               deliveryAddress: value,
+            },
+          };
+        });
+      },
+
+      clearSchedule: () => {
+        set((state) => {
+          return {
+            ...state,
+            order: {
+              ...state.order,
+              pickupDate: '',
+              deliveryDate: '-- -- --',
+              pickupTime: '',
+              deliveryTime: '',
+              pickupAddress: '',
+              deliveryAddress: '',
             },
           };
         });
