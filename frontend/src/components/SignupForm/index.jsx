@@ -41,7 +41,15 @@ export default function SignupForm() {
 
   const navigate = useNavigate();
   const toast = useToast();
-
+  const handleToast = (title, description, status) => {
+    toast({
+      position: 'top',
+      title,
+      description,
+      status,
+      isClosable: true,
+    });
+  };
   useEffect(() => {
     // eslint-disable-next-line
     if (loading) {
@@ -50,58 +58,53 @@ export default function SignupForm() {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    const username = usernameRef.current.value;
-    const password = passwordRef.current.value;
-    const email = emailRef.current.value;
-    const phone_number = phoneRef.current.value;
-    const role = roleRef.current.value;
-    const confirmPassword = confirmPasswordRef.current.value;
-    if (!(email && password && username && phone_number && role)) {
-      toast({
-        title: 'Incomplete Entries',
-        description: 'Please enter all the fields',
-        status: 'error',
-        duration: 2000,
-        isClosable: true,
-        position: 'top',
-      });
+    const credentials = {
+      username: usernameRef.current.value,
+      email: emailRef.current.value,
+      password: passwordRef.current.value,
+      role: roleRef.current.value,
+      phone_number: phoneRef.current.value,
+      confirmPassword: confirmPasswordRef.current.value,
+    };
+
+    if (
+      !(
+        credentials.email &&
+        credentials.password &&
+        credentials.username &&
+        credentials.phone_number &&
+        credentials.role
+      )
+    ) {
+      handleToast('Incomplete Entries', 'Please enter all the fields', 'error');
       return;
     }
-    if (password !== confirmPassword) {
-      toast({
-        title: 'Password Mismatch',
-        description: 'Password and Confirm Password do not match',
-        status: 'error',
-        duration: 2000,
-        isClosable: true,
-        position: 'top',
-      });
+    if (credentials.password !== credentials.confirmPassword) {
+      handleToast(
+        'Password Mismatch',
+        'Password and Confirm Password do not match',
+        'error'
+      );
       return;
     }
     setLoading(true);
     try {
       // eslint-disable-next-line no-unused-vars
-      const response = await axios.post('http://localhost:4000/signup', {
-        username,
-        email,
-        password,
-        role,
-        phone_number,
-      });
+      const response = await axios.post(
+        'http://localhost:4000/signup',
+        credentials
+      );
 
       addAuth();
-      setUserName(username);
-      setUserEmail(email);
-      setUserPhone(phone_number);
-      setUserRole(role);
-      toast({
-        title: 'Account Created',
-        description: 'You have successfully created an account',
-        status: 'success',
-        duration: 2000,
-        isClosable: true,
-        position: 'top',
-      });
+      setUserName(credentials.username);
+      setUserEmail(credentials.email);
+      setUserPhone(credentials.phone_number);
+      setUserRole(credentials.role);
+      handleToast(
+        'Account Created',
+        'You have successfully created an account',
+        'success'
+      );
       navigate('/');
       setLoading(false);
     } catch (err) {
@@ -118,14 +121,7 @@ export default function SignupForm() {
       } else if (err.response.data.errors.phone_number) {
         errorDescription += err.response.data.errors.phone_number;
       }
-      toast({
-        title: 'Error',
-        description: errorDescription,
-        status: 'error',
-        duration: 2000,
-        isClosable: true,
-        position: 'top',
-      });
+      handleToast('Error', errorDescription, 'error');
     }
   };
 
