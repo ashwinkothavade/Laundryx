@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { BiHide, BiShow } from 'react-icons/bi';
 import { HiArrowLongRight } from 'react-icons/hi2';
 import { Link, useNavigate } from 'react-router-dom';
@@ -24,15 +24,12 @@ export default function SignupForm() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [signupData, setSignupData] = useState({
-    username: '',
-    phone_number: '',
-    email: '',
-    role: '',
-    password: '',
-  });
-  const { username, phone_number, email, role, password } = signupData;
+  const usernameRef = useRef(null);
+  const passwordRef = useRef(null);
+  const emailRef = useRef(null);
+  const phoneRef = useRef(null);
+  const roleRef = useRef(null);
+  const confirmPasswordRef = useRef(null);
   const { addAuth, setUserName, setUserEmail, setUserPhone, setUserRole } =
     useAuthStore((state) => ({
       addAuth: state.addAuth,
@@ -44,14 +41,15 @@ export default function SignupForm() {
 
   const navigate = useNavigate();
   const toast = useToast();
-
-  const onChange = (e) => {
-    setSignupData((prevState) => ({
-      ...prevState,
-      [e.target.name]: e.target.value,
-    }));
+  const handleToast = (title, description, status) => {
+    toast({
+      position: 'top',
+      title,
+      description,
+      status,
+      isClosable: true,
+    });
   };
-
   useEffect(() => {
     // eslint-disable-next-line
     if (loading) {
@@ -60,49 +58,53 @@ export default function SignupForm() {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!(email && password && username && phone_number && role)) {
-      toast({
-        title: 'Incomplete Entries',
-        description: 'Please enter all the fields',
-        status: 'error',
-        duration: 2000,
-        isClosable: true,
-        position: 'top',
-      });
+    const credentials = {
+      username: usernameRef.current.value,
+      email: emailRef.current.value,
+      password: passwordRef.current.value,
+      role: roleRef.current.value,
+      phone_number: phoneRef.current.value,
+      confirmPassword: confirmPasswordRef.current.value,
+    };
+
+    if (
+      !(
+        credentials.email &&
+        credentials.password &&
+        credentials.username &&
+        credentials.phone_number &&
+        credentials.role
+      )
+    ) {
+      handleToast('Incomplete Entries', 'Please enter all the fields', 'error');
       return;
     }
-    if (password !== confirmPassword) {
-      toast({
-        title: 'Password Mismatch',
-        description: 'Password and Confirm Password do not match',
-        status: 'error',
-        duration: 2000,
-        isClosable: true,
-        position: 'top',
-      });
+    if (credentials.password !== credentials.confirmPassword) {
+      handleToast(
+        'Password Mismatch',
+        'Password and Confirm Password do not match',
+        'error'
+      );
       return;
     }
     setLoading(true);
     try {
+      // eslint-disable-next-line no-unused-vars
       const response = await axios.post(
         'http://localhost:4000/signup',
-        signupData
+        credentials
       );
 
       addAuth();
-      console.log(response);
-      setUserName(username);
-      setUserEmail(email);
-      setUserPhone(phone_number);
-      setUserRole(role);
-      toast({
-        title: 'Account Created',
-        description: 'You have successfully created an account',
-        status: 'success',
-        duration: 2000,
-        isClosable: true,
-        position: 'top',
-      });
+      setUserName(credentials.username);
+      setUserEmail(credentials.email);
+      setUserPhone(credentials.phone_number);
+      setUserRole(credentials.role);
+      handleToast(
+        'Account Created',
+        'You have successfully created an account',
+        'success'
+      );
       navigate('/');
       setLoading(false);
     } catch (err) {
@@ -119,14 +121,7 @@ export default function SignupForm() {
       } else if (err.response.data.errors.phone_number) {
         errorDescription += err.response.data.errors.phone_number;
       }
-      toast({
-        title: 'Error',
-        description: errorDescription,
-        status: 'error',
-        duration: 2000,
-        isClosable: true,
-        position: 'top',
-      });
+      handleToast('Error', errorDescription, 'error');
     }
   };
 
@@ -164,9 +159,8 @@ export default function SignupForm() {
                     bg="#ecedf6"
                     id="username"
                     name="username"
-                    value={username}
+                    ref={usernameRef}
                     placeholder="Name..."
-                    onChange={onChange}
                   />
                 </Box>
               </Box>
@@ -181,9 +175,8 @@ export default function SignupForm() {
                     bg="#ecedf6"
                     id="phone_number"
                     name="phone_number"
-                    value={phone_number}
+                    ref={phoneRef}
                     placeholder="Phone..."
-                    onChange={onChange}
                   />
                 </Box>
               </Box>
@@ -200,9 +193,8 @@ export default function SignupForm() {
                   bg="#ecedf6"
                   id="email"
                   name="email"
-                  value={email}
+                  ref={emailRef}
                   placeholder="Email..."
-                  onChange={onChange}
                 />
               </Box>
             </Box>
@@ -219,9 +211,8 @@ export default function SignupForm() {
                     bg="#ecedf6"
                     id="password"
                     name="password"
-                    value={password}
+                    ref={passwordRef}
                     placeholder="Password..."
-                    onChange={onChange}
                   />
                   <InputRightElement
                     onClick={() => {
@@ -256,9 +247,8 @@ export default function SignupForm() {
                     bg="#ecedf6"
                     id="confirmPassword"
                     name="confirmPassword"
-                    value={confirmPassword}
+                    ref={confirmPasswordRef}
                     placeholder="Confirm Password..."
-                    onChange={(e) => setConfirmPassword(e.target.value)}
                   />
                   <InputRightElement
                     onClick={() => {
@@ -290,8 +280,7 @@ export default function SignupForm() {
                   bg="#ecedf6"
                   id="role"
                   name="role"
-                  value={role}
-                  onChange={onChange}
+                  ref={roleRef}
                 >
                   <option value="" disabled selected>
                     Select Role

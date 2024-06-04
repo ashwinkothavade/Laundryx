@@ -35,6 +35,7 @@ export default function LoginForm() {
   const initialRef = useRef();
   const usernameRef = useRef(null);
   const passwordRef = useRef(null);
+
   const {
     addAuth,
     setUserName,
@@ -57,44 +58,43 @@ export default function LoginForm() {
   const navigate = useNavigate();
   const toast = useToast();
 
+  const handleToast = (title, description, status) => {
+    toast({
+      position: 'top',
+      title,
+      description,
+      status,
+      isClosable: true,
+    });
+  };
   const onSubmit = async (e) => {
     e.preventDefault();
-    const username = usernameRef.current.value;
-    const password = passwordRef.current.value;
-    if (!(username && password)) {
-      toast({
-        title: 'Incomplete Entries',
-        description: 'Please enter both username and password',
-        status: 'error',
-        duration: 2000,
-        isClosable: true,
-        position: 'top',
-      });
+    const credentials = {
+      username: usernameRef.current.value,
+      password: passwordRef.current.value,
+    };
+
+    if (!(credentials.username && credentials.password)) {
+      handleToast('Incomplete Entries', 'Please fill all the fields', 'error');
       return;
     }
 
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:4000/login', {
-        username,
-        password,
-      });
+      const response = await axios.post(
+        'http://localhost:4000/login',
+        credentials
+      );
       addAuth();
-      setUserName(username);
+      setUserName(credentials.username);
       setUserRole(response.data.role);
       setUserEmail(response.data.email);
       setUserPhone(response.data.phone_number);
       setUserHostel(response.data.hostel);
       setUserRoomNumber(response.data.room_number);
       setUserRollNumber(response.data.roll_number);
-      toast({
-        title: 'Success',
-        description: 'Successfully logged in!',
-        status: 'success',
-        duration: 2000,
-        isClosable: true,
-        position: 'top',
-      });
+
+      handleToast('Success', 'Successfully logged in!', 'success');
       navigate('/');
       setLoading(false);
     } catch (err) {
@@ -105,14 +105,7 @@ export default function LoginForm() {
       } else if (err.response.data.errors.password) {
         errorDescription += err.response.data.errors.password;
       }
-      toast({
-        title: 'Error',
-        description: errorDescription,
-        status: 'error',
-        duration: 2000,
-        isClosable: true,
-        position: 'top',
-      });
+      handleToast('Error', errorDescription, 'error');
     }
   };
 
@@ -134,26 +127,16 @@ export default function LoginForm() {
             },
           }
         );
-        toast({
-          title: 'Success',
-          description: 'Password reset link is sent to your email',
-          status: 'success',
-          duration: 2000,
-          isClosable: true,
-          position: 'top',
-        });
+        handleToast(
+          'Success',
+          'Password reset link is sent to your email',
+          'success'
+        );
       } else {
         throw new Error('Please enter your email');
       }
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: error.message,
-        status: 'error',
-        duration: 2000,
-        isClosable: true,
-        position: 'top',
-      });
+      handleToast('Error', error.message, 'error');
     }
     onClose();
   };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Box,
   Button,
@@ -61,20 +61,11 @@ function StudentDetails() {
     setUserHostel: state.setUserHostel,
     setUserRollNumber: state.setUserRollNumber,
   }));
-  const [formData, setFormData] = useState({
-    username: userName,
-    phone_number: Phone,
-    email: userEmail,
-    password: '',
-    hostel: userHostel,
-    room_number: userRoomNumber,
-    roll_number: userRollNumber,
-  });
 
   const getChangedData = (initialData, currentData) => {
     const changedData = {};
     const changedFields = [];
-    // eslint-disable-next-line no-restricted-syntax
+    // eslint-disable-next-line
     for (const key in currentData) {
       if (currentData[key] !== initialData[key]) {
         changedData[key] = currentData[key];
@@ -94,16 +85,18 @@ function StudentDetails() {
     roll_number: userRollNumber,
   };
 
+  const usernameRef = useRef(null);
+  const phoneRef = useRef(null);
+  const emailRef = useRef(null);
+  const hostelRef = useRef(null);
+  const roomRef = useRef(null);
+  const rollRef = useRef(null);
+
   const [isEditMode, setIsEditMode] = useState(true);
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
+  const [isLargerThan768px] = useMediaQuery('(min-width: 768px)');
+
   const handleToast = (title, description, status) => {
     toast({
       position: 'top',
@@ -116,13 +109,19 @@ function StudentDetails() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const currentData = {
+      username: usernameRef.current.value,
+      phone_number: phoneRef.current.value,
+      email: emailRef.current.value,
+      hostel: hostelRef.current.value,
+      room_number: roomRef.current.value,
+      roll_number: rollRef.current.value,
+    };
+    console.log(usernameRef.current.value);
     const { changedData, changedFields } = getChangedData(
       initialData,
-      formData
+      currentData
     );
-    // get the keys for the changed fields
-    console.log(changedFields);
-    console.log(changedData);
     if (changedFields.length === 0) {
       handleToast('No changes made', '', 'info');
       return;
@@ -132,6 +131,7 @@ function StudentDetails() {
         'http://localhost:4000/user',
         changedData
       );
+      console.log(response);
       changedFields.forEach((field) => {
         switch (field) {
           case 'username':
@@ -156,14 +156,39 @@ function StudentDetails() {
             break;
         }
       });
-      console.log(response);
       handleToast('Updated', 'Student details updated', 'success');
       setIsEditMode(false);
     } catch (err) {
-      handleToast('Error while updating student data', '', 'error');
+      let errorDescription = '';
+      if (err.response.data.errors.username) {
+        errorDescription += err.response.data.errors.username;
+      } else if (err.response.data.errors.email) {
+        errorDescription += err.response.data.errors.email;
+      } else if (err.response.data.errors.role) {
+        errorDescription += err.response.data.errors.role;
+      } else if (err.response.data.errors.phone_number) {
+        errorDescription += err.response.data.errors.phone_number;
+      }
+      handleToast(
+        'Error while updating student data',
+        errorDescription,
+        'error'
+      );
     }
   };
-  const [isLargerThan768px] = useMediaQuery('(min-width: 768px)');
+
+  const handleOpen = () => {
+    onOpen();
+    setTimeout(() => {
+      if (usernameRef.current) usernameRef.current.value = userName || '';
+      if (phoneRef.current) phoneRef.current.value = Phone || '';
+      if (emailRef.current) emailRef.current.value = userEmail || '';
+      if (hostelRef.current) hostelRef.current.value = userHostel || '';
+      if (roomRef.current) roomRef.current.value = userRoomNumber || '';
+      if (rollRef.current) rollRef.current.value = userRollNumber || '';
+    }, 0);
+  };
+
   return (
     <Center m={0} p={0}>
       <Stack align="center" justify="center" spacing={4}>
@@ -196,7 +221,7 @@ function StudentDetails() {
             </Text>
             {isLargerThan768px && (
               <Button
-                onClick={onOpen}
+                onClick={handleOpen}
                 bgColor="#ce1567"
                 color="#ffff"
                 textAlign="center"
@@ -255,7 +280,7 @@ function StudentDetails() {
           </Grid>
           {!isLargerThan768px && (
             <Button
-              onClick={onOpen}
+              onClick={handleOpen}
               bgColor="#ce1567"
               color="#ffff"
               textAlign="center"
@@ -296,8 +321,7 @@ function StudentDetails() {
                       <Input
                         type="text"
                         name="username"
-                        value={formData.username}
-                        onChange={handleChange}
+                        ref={usernameRef}
                         isDisabled={!isEditMode}
                       />
                     </FormControl>
@@ -307,8 +331,7 @@ function StudentDetails() {
                       <Input
                         type="tel"
                         name="phone_number"
-                        value={formData.phone_number}
-                        onChange={handleChange}
+                        ref={phoneRef}
                         isDisabled={!isEditMode}
                       />
                     </FormControl>
@@ -317,8 +340,7 @@ function StudentDetails() {
                       <Input
                         type="email"
                         name="email"
-                        value={formData.email}
-                        onChange={handleChange}
+                        ref={emailRef}
                         isDisabled={!isEditMode}
                       />
                     </FormControl>
@@ -327,8 +349,7 @@ function StudentDetails() {
                       <Input
                         type="text"
                         name="hostel"
-                        value={formData.hostel}
-                        onChange={handleChange}
+                        ref={hostelRef}
                         isDisabled={!isEditMode}
                       />
                     </FormControl>
@@ -338,8 +359,7 @@ function StudentDetails() {
                       <Input
                         type="text"
                         name="roll_number"
-                        value={formData.roll_number}
-                        onChange={handleChange}
+                        ref={rollRef}
                         isDisabled={!isEditMode}
                       />
                     </FormControl>
@@ -348,8 +368,7 @@ function StudentDetails() {
                       <Input
                         type="text"
                         name="room_number"
-                        value={formData.room_number}
-                        onChange={handleChange}
+                        ref={roomRef}
                         isDisabled={!isEditMode}
                       />
                     </FormControl>
