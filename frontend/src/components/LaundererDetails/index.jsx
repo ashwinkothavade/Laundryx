@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Box,
   Button,
@@ -42,12 +42,13 @@ function LaundererDetails() {
     setUserEmail: state.setUserEmail,
     setUserPhone: state.setUserPhone,
   }));
-  const [formData, setFormData] = useState({
-    username: userName,
-    phone_number: Phone,
-    email: userEmail,
-    password: '',
-  });
+  const usernameRef = useRef(null);
+  const phoneRef = useRef(null);
+  const emailRef = useRef(null);
+
+  const [isEditMode, setIsEditMode] = useState(true);
+  const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const getChangedData = (initialData, currentData) => {
     const changedData = {};
     const changedFields = [];
@@ -60,23 +61,13 @@ function LaundererDetails() {
     }
     return { changedData, changedFields };
   };
+
   const initialData = {
     username: userName,
     phone_number: Phone,
     email: userEmail,
-    password: '',
   };
 
-  const [isEditMode, setIsEditMode] = useState(true);
-  const toast = useToast();
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
   const handleToast = (title, description, status) => {
     toast({
       position: 'top',
@@ -89,10 +80,18 @@ function LaundererDetails() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const currentData = {
+      username: usernameRef.current.value,
+      phone_number: phoneRef.current.value,
+      email: emailRef.current.value,
+    };
+
     const { changedData, changedFields } = getChangedData(
       initialData,
-      formData
+      currentData
     );
+
     if (changedFields.length === 0) {
       handleToast('No changes made', '', 'info');
       return;
@@ -121,9 +120,33 @@ function LaundererDetails() {
       handleToast('Updated', 'Student details updated', 'success');
       setIsEditMode(false);
     } catch (err) {
-      handleToast('Error while updating student data', '', 'error');
+      let errorDescription = '';
+      if (err.response.data.errors.username) {
+        errorDescription += err.response.data.errors.username;
+      } else if (err.response.data.errors.email) {
+        errorDescription += err.response.data.errors.email;
+      } else if (err.response.data.errors.role) {
+        errorDescription += err.response.data.errors.role;
+      } else if (err.response.data.errors.phone_number) {
+        errorDescription += err.response.data.errors.phone_number;
+      }
+      handleToast(
+        'Error while updating launderer data',
+        errorDescription,
+        'error'
+      );
     }
   };
+
+  const handleOpen = () => {
+    onOpen();
+    setTimeout(() => {
+      if (usernameRef.current) usernameRef.current.value = userName || '';
+      if (phoneRef.current) phoneRef.current.value = Phone || '';
+      if (emailRef.current) emailRef.current.value = userEmail || '';
+    }, 0);
+  };
+
   const [isLargerThan768px] = useMediaQuery('(min-width: 768px)');
   return (
     <>
@@ -139,7 +162,6 @@ function LaundererDetails() {
             mb="2rem"
             bg="#ffffff"
             border="1px solid #ce1567"
-
             boxShadow="0px 0px 20px 0px rgba(0, 0, 0, 0.20)"
             mx="auto"
           >
@@ -160,7 +182,7 @@ function LaundererDetails() {
               </Text>
               {isLargerThan768px && (
                 <Button
-                  onClick={onOpen}
+                  onClick={handleOpen}
                   bgColor="#ce1567"
                   color="#ffff"
                   textAlign="center"
@@ -239,8 +261,7 @@ function LaundererDetails() {
                         <Input
                           type="text"
                           name="username"
-                          value={formData.username}
-                          onChange={handleChange}
+                          ref={usernameRef}
                           isDisabled={!isEditMode}
                         />
                       </FormControl>
@@ -250,8 +271,7 @@ function LaundererDetails() {
                         <Input
                           type="tel"
                           name="phone_number"
-                          value={formData.phone_number}
-                          onChange={handleChange}
+                          ref={phoneRef}
                           isDisabled={!isEditMode}
                         />
                       </FormControl>
@@ -260,8 +280,7 @@ function LaundererDetails() {
                         <Input
                           type="email"
                           name="email"
-                          value={formData.email}
-                          onChange={handleChange}
+                          ref={emailRef}
                           isDisabled={!isEditMode}
                         />
                       </FormControl>

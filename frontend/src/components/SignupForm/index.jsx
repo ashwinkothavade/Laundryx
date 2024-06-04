@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { BiHide, BiShow } from 'react-icons/bi';
 import { HiArrowLongRight } from 'react-icons/hi2';
 import { Link, useNavigate } from 'react-router-dom';
@@ -24,15 +24,12 @@ export default function SignupForm() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [signupData, setSignupData] = useState({
-    username: '',
-    phone_number: '',
-    email: '',
-    role: '',
-    password: '',
-  });
-  const { username, phone_number, email, role, password } = signupData;
+  const usernameRef = useRef(null);
+  const passwordRef = useRef(null);
+  const emailRef = useRef(null);
+  const phoneRef = useRef(null);
+  const roleRef = useRef(null);
+  const confirmPasswordRef = useRef(null);
   const { addAuth, setUserName, setUserEmail, setUserPhone, setUserRole } =
     useAuthStore((state) => ({
       addAuth: state.addAuth,
@@ -45,13 +42,6 @@ export default function SignupForm() {
   const navigate = useNavigate();
   const toast = useToast();
 
-  const onChange = (e) => {
-    setSignupData((prevState) => ({
-      ...prevState,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
   useEffect(() => {
     // eslint-disable-next-line
     if (loading) {
@@ -60,6 +50,12 @@ export default function SignupForm() {
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    const username = usernameRef.current.value;
+    const password = passwordRef.current.value;
+    const email = emailRef.current.value;
+    const phone_number = phoneRef.current.value;
+    const role = roleRef.current.value;
+    const confirmPassword = confirmPasswordRef.current.value;
     if (!(email && password && username && phone_number && role)) {
       toast({
         title: 'Incomplete Entries',
@@ -84,13 +80,16 @@ export default function SignupForm() {
     }
     setLoading(true);
     try {
-      const response = await axios.post(
-        'http://localhost:4000/signup',
-        signupData
-      );
+      // eslint-disable-next-line no-unused-vars
+      const response = await axios.post('http://localhost:4000/signup', {
+        username,
+        email,
+        password,
+        role,
+        phone_number,
+      });
 
       addAuth();
-      console.log(response);
       setUserName(username);
       setUserEmail(email);
       setUserPhone(phone_number);
@@ -164,9 +163,8 @@ export default function SignupForm() {
                     bg="#ecedf6"
                     id="username"
                     name="username"
-                    value={username}
+                    ref={usernameRef}
                     placeholder="Name..."
-                    onChange={onChange}
                   />
                 </Box>
               </Box>
@@ -181,9 +179,8 @@ export default function SignupForm() {
                     bg="#ecedf6"
                     id="phone_number"
                     name="phone_number"
-                    value={phone_number}
+                    ref={phoneRef}
                     placeholder="Phone..."
-                    onChange={onChange}
                   />
                 </Box>
               </Box>
@@ -200,9 +197,8 @@ export default function SignupForm() {
                   bg="#ecedf6"
                   id="email"
                   name="email"
-                  value={email}
+                  ref={emailRef}
                   placeholder="Email..."
-                  onChange={onChange}
                 />
               </Box>
             </Box>
@@ -219,9 +215,8 @@ export default function SignupForm() {
                     bg="#ecedf6"
                     id="password"
                     name="password"
-                    value={password}
+                    ref={passwordRef}
                     placeholder="Password..."
-                    onChange={onChange}
                   />
                   <InputRightElement
                     onClick={() => {
@@ -256,9 +251,8 @@ export default function SignupForm() {
                     bg="#ecedf6"
                     id="confirmPassword"
                     name="confirmPassword"
-                    value={confirmPassword}
+                    ref={confirmPasswordRef}
                     placeholder="Confirm Password..."
-                    onChange={(e) => setConfirmPassword(e.target.value)}
                   />
                   <InputRightElement
                     onClick={() => {
@@ -290,8 +284,7 @@ export default function SignupForm() {
                   bg="#ecedf6"
                   id="role"
                   name="role"
-                  value={role}
-                  onChange={onChange}
+                  ref={roleRef}
                 >
                   <option value="" disabled selected>
                     Select Role

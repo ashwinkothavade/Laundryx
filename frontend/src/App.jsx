@@ -5,8 +5,6 @@ import CheckoutPage from './pages/CheckoutPage';
 import DumyPayment from './pages/DumyPayment';
 import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
-import OrderConfirmationPage from './pages/OrderConfirmation';
-import OrderHistoryPage from './pages/OrderHistoryPage';
 import OrderList from './pages/OrderList';
 import Signup from './pages/Signup';
 import StudentDashBoard from './pages/DashBoard/Student';
@@ -36,16 +34,6 @@ function App() {
         path="/CheckoutPage"
         element={<CheckoutPage />}
         // element={isLoading ? <PreLoader /> : <CheckoutPage />}
-      />
-      <Route
-        path="/OrderConfirmationPage"
-        element={<OrderConfirmationPage />}
-        // element={isLoading ? <PreLoader /> : <OrderConfirmationPage />}
-      />
-      <Route
-        path="/OrderHistoryPage"
-        element={<OrderHistoryPage />}
-        // element={isLoading ? <PreLoader /> : <OrderHistoryPage />}
       />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />

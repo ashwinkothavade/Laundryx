@@ -78,9 +78,8 @@ const updateUser = async (req, resp) => {
       throw new Error('User not found');
     }
   } catch (err) {
-    resp
-      .status(500)
-      .json({ message: 'Error updating the user details', error: err });
+    const errors = authUtils.handleSignUpError(err);
+    resp.status(500).json({ errors });
   }
 };
 
