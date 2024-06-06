@@ -28,7 +28,7 @@ const useGeneralOrderStore = create(
             );
 
             if (existingItemIndex > -1) {
-              updatedItems[existingItemIndex].quantity = newItem.quantity;
+              updatedItems[existingItemIndex].quantity += newItem.quantity;
             } else {
               updatedItems.push(newItem);
             }

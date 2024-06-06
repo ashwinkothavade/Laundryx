@@ -39,6 +39,8 @@ module.exports = {
     camelcase: 0,
     'no-alert': 0,
     'react/button-has-type': 0,
+    'no-underscore-dangle': 0,
+    'no-nested-ternary': 0,
   },
   settings: {
     react: {

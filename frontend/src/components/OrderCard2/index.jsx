@@ -22,7 +22,7 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import '@dotlottie/react-player/dist/index.css';
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { HiArrowLongRight, HiMiniCurrencyRupee } from 'react-icons/hi2';
 import { useNavigate } from 'react-router-dom';
 import prices from '../../TempData/prices.json';
@@ -31,11 +31,17 @@ import useGeneralOrderStore from '../Store/OrderStore_';
 
 function OrderCard2() {
   console.log('order card rendered');
-  const { order, updateItems } = useGeneralOrderStore();
+  const { order, updateItems } = useGeneralOrderStore((state) => ({
+    order: state.order,
+    updateItems: state.updateItems,
+    clearItems: state.clearItems,
+  }));
   const quantityRefs = useRef(prices.map(() => 0));
   const washTypeRefs = useRef(prices.map(() => ''));
   const navigate = useNavigate();
   const toast = useToast();
+  // eslint-disable-next-line no-unused-vars
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleAddItems = () => {
     const newItems = [];
@@ -64,6 +70,10 @@ function OrderCard2() {
         isClosable: true,
         duration: 2000,
       });
+      setIsLoading(true);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } else {
       toast({
         position: 'top',
