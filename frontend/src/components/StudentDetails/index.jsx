@@ -236,11 +236,7 @@ function StudentDetails() {
               </Button>
             )}
           </Flex>
-          <Grid
-            templateColumns={isLargerThan768px ? 'auto 1fr' : '1fr'}
-            gap={4}
-            mb="1rem"
-          >
+          <Grid templateColumns="1fr" gap={4} mb="1rem">
             <Flex align="center" mb="0.5rem">
               <Icon as={FaUser} mr="0.5rem" />
               <Text fontSize={['1rem', '1.2rem']} fontWeight="500">

@@ -5,6 +5,7 @@ import { MdKeyboardArrowRight } from 'react-icons/md';
 import { RiAccountBoxLine, RiSettingsLine } from 'react-icons/ri';
 import Navbar from '../../../components/Navbar';
 import StudentDetails from '../../../components/StudentDetails';
+import OrderDetail from '../../../components/OrderDetail';
 
 function StudentDashBoard() {
   const [isActive, setIsActive] = useState(0);
@@ -72,7 +73,7 @@ function StudentDashBoard() {
         mt={['50px', '55px', '70px']}
         pt="10rem"
       >
-        {!isActive ? <StudentDetails /> : ''}
+        {!isActive ? <StudentDetails /> : <OrderDetail />}
       </Flex>
     </>
   );

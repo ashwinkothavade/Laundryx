@@ -15,6 +15,7 @@ import { FaTruckPickup } from 'react-icons/fa';
 import { FaLocationCrosshairs, FaLocationDot } from 'react-icons/fa6';
 import { TbTruckDelivery } from 'react-icons/tb';
 
+import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../Store/AuthStore';
 import useGeneralOrderStore from '../Store/OrderStore_';
 
@@ -27,6 +28,7 @@ function ScheduleCard() {
     setDeliveryTime,
     setPickupAddress,
     setDeliveryAddress,
+    clearItems,
   } = useGeneralOrderStore((state) => ({
     clearSchedule: state.clearSchedule,
     order: state.order,
@@ -35,6 +37,7 @@ function ScheduleCard() {
     setDeliveryTime: state.setDeliveryTime,
     setPickupAddress: state.setPickupAddress,
     setDeliveryAddress: state.setDeliveryAddress,
+    clearItems: state.clearItems,
   }));
   const { userHostel, userRollNumber } = useAuthStore((state) => ({
     userHostel: state.userHostel,
@@ -47,6 +50,7 @@ function ScheduleCard() {
   const deliveryAddressRef = useRef();
 
   const toast = useToast();
+  const navigate = useNavigate();
 
   const handleToast = (title, description, status) => {
     toast({
@@ -101,6 +105,9 @@ function ScheduleCard() {
         'Wait for launderer to accept your order',
         'success'
       );
+      clearSchedule();
+      clearItems();
+      navigate('/OrderList');
       console.log(response);
     } catch (err) {
       handleToast('Some ', err.message, 'error');
