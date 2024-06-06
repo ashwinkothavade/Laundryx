@@ -1,3 +1,4 @@
+import axios from 'axios';
 import {
   Button,
   Divider,
@@ -8,7 +9,6 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react';
-import axios from 'axios';
 import moment from 'moment';
 import React, { useRef } from 'react';
 import { FaTruckPickup } from 'react-icons/fa';
@@ -63,6 +63,25 @@ function ScheduleCard() {
     });
   };
 
+  const handleConfirmSchedule = () => {
+    if (
+      !pickupDateRef.current.value ||
+      !pickupTimeRef.current.value ||
+      !deliveryTimeRef.current.value ||
+      !pickupAddressRef.current.value ||
+      !deliveryAddressRef.current.value
+    ) {
+      handleToast('Please confirm all schedule details.', '', 'error');
+      return;
+    }
+    setPickupDate(pickupDateRef.current.value);
+    setPickupTime(pickupTimeRef.current.value);
+    setDeliveryTime(deliveryTimeRef.current.value);
+    setPickupAddress(pickupAddressRef.current.value);
+    setDeliveryAddress(deliveryAddressRef.current.value);
+    handleToast('All schedule details are added.', 'Order can now be confirmed and placed.', 'success');
+  }
+
   const handleConfirmOrder = async (e) => {
     e.preventDefault();
     if (userHostel === '' || userRollNumber === '') {
@@ -73,27 +92,22 @@ function ScheduleCard() {
       );
       return;
     }
-    if (
-      !pickupDateRef.current.value ||
-      !pickupTimeRef.current.value ||
-      !deliveryTimeRef.current.value ||
-      !pickupAddressRef.current.value ||
-      !deliveryAddressRef.current.value
-    ) {
-      handleToast('Please add all the fields for order schedule.', '', 'error');
+    if (order.items.length === 0) {
+      handleToast('Please add items before placing the order.', '', 'error');
       return;
     }
-    setPickupDate(pickupDateRef.current.value);
-    setPickupTime(pickupTimeRef.current.value);
-    setDeliveryTime(deliveryTimeRef.current.value);
-    setPickupAddress(pickupAddressRef.current.value);
-    setDeliveryAddress(deliveryAddressRef.current.value);
+    if (
+      !order.pickupDate ||
+      !order.pickupTime ||
+      !order.deliveryTime ||
+      !order.pickupAddress ||
+      !order.deliveryAddress
+    ) {
+      handleToast('Please confirm all schedule details.', '', 'error');
+      return;
+    }
 
     try {
-      if (order.items.length === 0) {
-        handleToast('', 'Please add items before placing the order!', 'error');
-        return;
-      }
       console.log(order);
       const response = await axios.post(
         'http://localhost:4000/student/createorder',
@@ -110,13 +124,10 @@ function ScheduleCard() {
       navigate('/OrderList');
       console.log(response);
     } catch (err) {
+      console.log(err);
+      console.log(err.message);
       handleToast('Some ', err.message, 'error');
     }
-  };
-
-  const handleClearSchedule = () => {
-    clearSchedule();
-    handleToast('Order Schedule cleared', '', 'info');
   };
 
   return (
@@ -252,9 +263,9 @@ function ScheduleCard() {
           bg="#CE1567"
           color="#FFFFFF"
           _hover={{ bg: '#bf0055' }}
-          onClick={handleClearSchedule}
+          onClick={handleConfirmSchedule}
         >
-          Clear Schedule
+          Confirm Schedule
         </Button>
         <Button
           bg="#CE1567"
