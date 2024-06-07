@@ -1,4 +1,3 @@
-import React, { useState, useRef } from 'react';
 import {
   Box,
   Button,
@@ -6,24 +5,25 @@ import {
   Flex,
   FormControl,
   FormLabel,
+  Grid,
+  Icon,
   Input,
-  Stack,
-  useToast,
-  Text,
   Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
   ModalBody,
   ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Stack,
+  Text,
   useDisclosure,
-  Icon,
-  Grid,
   useMediaQuery,
+  useToast,
 } from '@chakra-ui/react';
 import axios from 'axios';
-import { FaUser, FaPhone, FaEnvelope } from 'react-icons/fa';
+import React, { useRef, useState } from 'react';
+import { FaEnvelope, FaPhone, FaUser } from 'react-icons/fa';
 import useAuthStore from '../Store/AuthStore';
 
 function LaundererDetails() {
@@ -75,6 +75,7 @@ function LaundererDetails() {
       description,
       status,
       isClosable: true,
+      duration: 2000,
     });
   };
 
@@ -288,9 +289,13 @@ function LaundererDetails() {
                     {isEditMode && (
                       <Button
                         type="submit"
-                        colorScheme="blue"
                         width="full"
-                        mt="1rem"
+                        mt="2rem"
+                        bgColor="#ce1567"
+                        color="#ffffff"
+                        _hover={{
+                          bgColor: '#b50055',
+                        }}
                       >
                         Save
                       </Button>
@@ -300,12 +305,22 @@ function LaundererDetails() {
               </ModalBody>
 
               <ModalFooter justifyContent="flex-end">
-                <Button colorScheme="red" onClick={onClose} mr={3}>
+                <Button
+                  color="#ffffff"
+                  bgColor="red"
+                  _hover={{ bgColor: 'red' }}
+                  onClick={onClose}
+                  mr={3}
+                >
                   Close
                 </Button>
                 <Button
                   onClick={() => setIsEditMode(!isEditMode)}
-                  colorScheme={isEditMode ? 'red' : 'blue'}
+                  bgColor={isEditMode ? 'red' : '#ce1567'}
+                  color="#ffffff"
+                  _hover={{
+                    bgColor: `${isEditMode ? 'red' : '#b50055'}`,
+                  }}
                 >
                   {isEditMode ? 'Cancel' : 'Edit Details'}
                 </Button>

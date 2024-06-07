@@ -21,7 +21,6 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react';
-import '@dotlottie/react-player/dist/index.css';
 import React, { useRef, useState } from 'react';
 import { HiArrowLongRight, HiMiniCurrencyRupee } from 'react-icons/hi2';
 import { useNavigate } from 'react-router-dom';
@@ -30,7 +29,6 @@ import OrderItemsAccordion from '../OrderItemsAccordion';
 import useGeneralOrderStore from '../Store/OrderStore_';
 
 function OrderCard2() {
-  console.log('order card rendered');
   const { order, updateItems } = useGeneralOrderStore((state) => ({
     order: state.order,
     updateItems: state.updateItems,
@@ -42,6 +40,17 @@ function OrderCard2() {
   const toast = useToast();
   // eslint-disable-next-line no-unused-vars
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleToast = (title, description, status) => {
+    toast({
+      position: 'top',
+      title,
+      description,
+      status,
+      isClosable: true,
+      duration: 2000,
+    });
+  };
 
   const handleAddItems = () => {
     const newItems = [];
@@ -62,27 +71,13 @@ function OrderCard2() {
       }
     });
     if (newItems.length > 0) {
-      toast({
-        position: 'top',
-        title: 'Items added in the order.',
-        description: '',
-        status: 'success',
-        isClosable: true,
-        duration: 2000,
-      });
+      handleToast('Items added in the order.', '', 'success');
       setIsLoading(true);
       setTimeout(() => {
         window.location.reload();
       }, 1000);
     } else {
-      toast({
-        position: 'top',
-        title: 'Please fill quantity and wash type before adding any item.',
-        description: '',
-        status: 'error',
-        isClosable: true,
-        duration: 2000,
-      });
+      handleToast('Please fill quantity and wash type before adding any item.', '', 'error');
     }
   };
 

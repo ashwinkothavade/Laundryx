@@ -21,8 +21,8 @@ function OrderItemsAccordion() {
     clearItems();
     toast({
       position: 'top',
-      title: 'Items cleared',
-      description: 'All items have been removed from the order.',
+      title: 'Items have been removed from the order.',
+      description: '',
       status: 'info',
       duration: 2000,
       isClosable: true,

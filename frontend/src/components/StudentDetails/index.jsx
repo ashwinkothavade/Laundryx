@@ -1,4 +1,3 @@
-import React, { useState, useRef } from 'react';
 import {
   Box,
   Button,
@@ -6,30 +5,31 @@ import {
   Flex,
   FormControl,
   FormLabel,
+  Grid,
+  Icon,
   Input,
-  Stack,
-  useToast,
-  Text,
   Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
   ModalBody,
   ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Stack,
+  Text,
   useDisclosure,
-  Icon,
-  Grid,
   useMediaQuery,
+  useToast,
 } from '@chakra-ui/react';
 import axios from 'axios';
+import React, { useRef, useState } from 'react';
 import {
-  FaUser,
-  FaPhone,
-  FaEnvelope,
   FaBuilding,
-  FaIdBadge,
   FaDoorOpen,
+  FaEnvelope,
+  FaIdBadge,
+  FaPhone,
+  FaUser,
 } from 'react-icons/fa';
 import useAuthStore from '../Store/AuthStore';
 
@@ -200,7 +200,7 @@ function StudentDetails() {
           w={['auto', 'auto', 'auto', '40rem', '40rem', '45rem']}
           mb="2rem"
           bg="#ffffff"
-          border="1px solid #ce1567"
+          border="2px solid #ce1567"
           boxShadow="0px 0px 20px 0px rgba(0, 0, 0, 0.20)"
           mx="auto"
         >
@@ -223,12 +223,11 @@ function StudentDetails() {
               <Button
                 onClick={handleOpen}
                 bgColor="#ce1567"
-                color="#ffff"
+                color="#ffffff"
                 textAlign="center"
                 width="7rem"
                 _hover={{
-                  color: '#292929',
-                  bgColor: '#ce1567',
+                  bgColor: '#b50055',
                 }}
                 mb="1rem"
               >
@@ -278,12 +277,11 @@ function StudentDetails() {
             <Button
               onClick={handleOpen}
               bgColor="#ce1567"
-              color="#ffff"
+              color="#ffffff"
               textAlign="center"
               width="7rem"
               _hover={{
-                color: '#292929',
-                bgColor: '#ce1567',
+                bgColor: '#b50055',
               }}
               mt="2rem"
               mx="auto"
@@ -372,9 +370,13 @@ function StudentDetails() {
                   {isEditMode && (
                     <Button
                       type="submit"
-                      colorScheme="blue"
                       width="full"
-                      mt="1rem"
+                      mt="2rem"
+                      bgColor="#ce1567"
+                      color="#ffffff"
+                      _hover={{
+                        bgColor: '#b50055',
+                      }}
                     >
                       Save
                     </Button>
@@ -384,12 +386,16 @@ function StudentDetails() {
             </ModalBody>
 
             <ModalFooter justifyContent="flex-end">
-              <Button colorScheme="red" onClick={onClose} mr={3}>
+              <Button color='#ffffff' bgColor='red' _hover={{bgColor: 'red'}} onClick={onClose} mr={3}>
                 Close
               </Button>
               <Button
                 onClick={() => setIsEditMode(!isEditMode)}
-                colorScheme={isEditMode ? 'red' : 'blue'}
+                bgColor={isEditMode ? 'red' : '#ce1567'}
+                color='#ffffff'
+                _hover={{
+                  bgColor: `${isEditMode ? 'red' : '#b50055'}`
+                }}
               >
                 {isEditMode ? 'Cancel' : 'Edit Details'}
               </Button>

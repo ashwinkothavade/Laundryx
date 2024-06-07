@@ -18,12 +18,6 @@ function CheckoutPage() {
         <OrderItemsAccordion />
         <ScheduleCard />
       </Flex>
-      <Text>{`pickup date: ${order.pickupDate}`}</Text>
-      <Text>{`pickup time: ${order.pickupTime}`}</Text>
-      <Text>{`delivery date: ${order.deliveryDate}`}</Text>
-      <Text>{`delivery time: ${order.deliveryTime}`}</Text>
-      <Text>{`pickup address: ${order.pickupAddress}`}</Text>
-      <Text>{`delivery address: ${order.deliveryAddress}`}</Text>
     </>
   );
 }
