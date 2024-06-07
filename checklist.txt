@@ -7,3 +7,9 @@
 
 
 7) Design appropriate data flow in the frontend for the orders and modify the existing flow.
+8) Stale orders will get deleted.
+9) Notification:
+    - order accepted.
+    - stale orders rejection and deletion
+    - order delivered
+    - delivery date changed

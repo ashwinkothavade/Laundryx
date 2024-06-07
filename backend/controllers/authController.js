@@ -165,7 +165,7 @@ const forgotPassword = async (req, resp) => {
           hostel: user.hostel,
         },
         secret,
-        { expiresIn: '35m' }
+        { expiresIn: '5m' }
       );
       const url = `http://localhost:4000/resetpassword/${user._id}/${token}`;
       // console.log(url);

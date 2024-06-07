@@ -1,39 +1,40 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import {
-  Text,
-  VStack,
-  Spinner,
-  Center,
-  useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  Button,
-  Divider,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  Select,
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
   Box,
+  Button,
+  Center,
+  Divider,
   Flex,
-  Tag,
   Grid,
   GridItem,
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionPanel,
-  AccordionIcon,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Select,
+  Spinner,
+  Table,
+  Tag,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tr,
+  VStack,
+  useDisclosure,
 } from '@chakra-ui/react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 
-function OrderDetail() {
+function LaundererOrdersDetail() {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [filter, setFilter] = useState('all');
@@ -44,12 +45,12 @@ function OrderDetail() {
   useEffect(() => {
     const getOrders = async () => {
       try {
-        const response = await axios.get(
-          'http://localhost:4000/student/myorders'
-        );
+        const response = await axios.get('http://localhost:4000/allorders', {});
         setOrders(response.data.orders);
         setLoading(false);
       } catch (err) {
+        console.log(err);
+        console.log(err.message);
         setError(err.message);
         setLoading(false);
       }
@@ -62,12 +63,8 @@ function OrderDetail() {
     onOpen();
   };
 
-  const getTotalQuantity = (items) => {
-    return items.reduce((total, item) => total + item.quantity, 0);
-  };
-
-  const handleFilterChange = (event) => {
-    setFilter(event.target.value);
+  const handleFilterChange = (e) => {
+    setFilter(e.target.value);
   };
 
   const filteredOrders = orders.filter((order) => {
@@ -100,24 +97,22 @@ function OrderDetail() {
   }
 
   return (
-    <VStack spacing={4} align="stretch">
-      <Text fontSize="2xl" fontWeight="bold">
-        Order Details:
-      </Text>
-      <Flex justify="space-between" align="center">
-        <Box>{}</Box>
-        <Box width="200px">
+    <VStack align="start" gap={14} ml="8rem">
+      <Flex justify="space-between" align="center" w="100%">
+        <Text fontSize="2rem" fontWeight="bold">
+          Order Details:
+        </Text>
+        <Box>
           <Select
-            placeholder="Filter by status"
+            placeholder="Select Filter"
             onChange={handleFilterChange}
-            borderColor="#ce1567"
-            _hover={{
-              borderColor: '#584BAC',
-            }}
+            border="2px solid #ce1567"
+            _hover={{ border: '2px solid #ce1567' }}
+            _focus={{ border: '2px solid #ce1567' }}
           >
             <option value="all">All</option>
             <option value="accepted">Accepted</option>
-            <option value="notAccepted">Not Accepted</option>
+            <option value="notaccepted">Not Accepted</option>
             <option value="delivered">Delivered</option>
             <option value="notDelivered">Not Delivered</option>
             <option value="paid">Paid</option>
@@ -127,69 +122,100 @@ function OrderDetail() {
           </Select>
         </Box>
       </Flex>
-      <Table variant="simple">
-        <Thead>
-          <Tr>
-            <Th textAlign="center">Order ID</Th>
-            <Th textAlign="center">Order Total</Th>
-            <Th textAlign="center">Pickup Date</Th>
-            <Th textAlign="center">Total Quantity</Th>
-            <Th textAlign="center">Accepted Status</Th>
-            <Th textAlign="center">Delivery Status</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {filteredOrders.map((order) => (
-            <Tr key={order._id}>
-              <Td textAlign="center">{order._id}</Td>
-              <Td textAlign="center">${order.orderTotal}</Td>
-              <Td textAlign="center">{order.pickupDate}</Td>
-              <Td textAlign="center">{getTotalQuantity(order.items)}</Td>
-              <Td textAlign="center">
-                <Tag
-                  size="lg"
-                  colorScheme={order.acceptedStatus ? 'green' : 'red'}
-                >
-                  {order.acceptedStatus ? 'Accepted' : 'Not Accepted'}
-                </Tag>
-              </Td>
-              <Td textAlign="center">
-                <Tag
-                  size="lg"
-                  colorScheme={order.deliveredStatus ? 'green' : 'red'}
-                >
-                  {order.deliveredStatus ? 'Delivered' : 'Not Delivered'}
-                </Tag>
-              </Td>
-              <Td textAlign="center">
-                <Button color="#ce1567" onClick={() => handleCardClick(order)}>
-                  View Details
-                </Button>
-              </Td>
-            </Tr>
-          ))}
-        </Tbody>
-      </Table>
+      <Box w="75vw" overflowX="auto">
+        <Box maxH="70vh" overflowY="scroll">
+          <Table variant="simple">
+            <Thead>
+              <Tr>
+                <Th textAlign="center">Order ID</Th>
+                <Th textAlign="center">Order Total</Th>
+                <Th textAlign="center">Student Username</Th>
+                <Th textAlign="center">Hostel</Th>
+                <Th textAlign="center">Delivery Date</Th>
+                <Th textAlign="center">Pickup Status</Th>
+                <Th textAlign="center">Payment Status</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {filteredOrders.map((order) => (
+                <Tr key={order._id}>
+                  <Td>{order._id}</Td>
+                  <Td textAlign="center">₹{order.orderTotal}</Td>
+                  <Td textAlign="center">{order.user.username}</Td>
+                  <Td textAlign="center">{order.user.hostel}</Td>
+                  <Td>{order.deliveryDate}</Td>
+                  <Td textAlign="center">
+                    <Tag
+                      size="lg"
+                      colorScheme={order.pickupStatus ? 'green' : 'red'}
+                    >
+                      {order.pickupStatus ? 'Picked Up' : 'Not Picked Up'}
+                    </Tag>
+                  </Td>
+                  <Td textAlign="center">
+                    <Tag
+                      size="lg"
+                      colorScheme={order.paidStatus ? 'green' : 'red'}
+                    >
+                      {order.paidStatus ? 'Paid' : 'Not Paid'}
+                    </Tag>
+                  </Td>
+                  <Td textAlign="center">
+                    <Button
+                      color="#ce1567"
+                      onClick={() => handleCardClick(order)}
+                    >
+                      View Details
+                    </Button>
+                  </Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </Box>
+      </Box>
 
       {selectedOrder && (
         <Modal isOpen={isOpen} onClose={onClose}>
           <ModalOverlay />
           <ModalContent
-            width="90%"
+            // width="90%"
             border="2px solid #ce1567"
             borderRadius="0.5rem"
           >
+            <ModalHeader />
             <ModalCloseButton />
             <ModalBody>
               <Text fontSize="xl" fontWeight="bold">
                 Order ID: {selectedOrder._id}
               </Text>
               <Divider my={2} />
-              <Text fontSize="xl" fontWeight="bold">
-                <strong>Order Total:</strong> ${selectedOrder.orderTotal}
-              </Text>
+              <Grid templateColumns="repeat(2, 1fr)" gap={2}>
+                <GridItem>
+                  <Text>
+                    <strong>Student Username:</strong>{' '}
+                    {selectedOrder.user.username}
+                  </Text>
+                </GridItem>
+                <GridItem>
+                  <Text>
+                    <strong>Contact No.:</strong>{' '}
+                    {selectedOrder.user.phone_number}
+                  </Text>
+                </GridItem>
+                <GridItem>
+                  <Text>
+                    <strong>Hostel:</strong> {selectedOrder.user.hostel}
+                  </Text>
+                </GridItem>
+                <GridItem>
+                  <Text>
+                    <strong>Room No.:</strong> {selectedOrder.user.room_number}
+                  </Text>
+                </GridItem>
+              </Grid>
               <Divider my={2} />
-              <Grid templateColumns="repeat(2, 1fr)" gap={4}>
+              <Grid templateColumns="repeat(2, 1fr)" gap={2}>
                 <GridItem>
                   <Text>
                     <strong>Pickup Address:</strong>{' '}
@@ -300,6 +326,10 @@ function OrderDetail() {
                 </AccordionItem>
               </Accordion>
               <Divider my={2} />
+              <Text fontSize="lg">
+                <strong>Order Total: </strong>₹{selectedOrder.orderTotal}
+              </Text>
+              <Divider my={2} />
               <Text fontSize="lg" fontWeight="bold">
                 Items:
               </Text>
@@ -364,7 +394,13 @@ function OrderDetail() {
               <Divider my={2} />
             </ModalBody>
             <ModalFooter>
-              <Button colorScheme="blue" mr={3} onClick={onClose}>
+              <Button
+                bg="#ce1567"
+                color="#ffffff"
+                _hover={{ bg: '#bf0055' }}
+                mr={3}
+                onClick={onClose}
+              >
                 Close
               </Button>
             </ModalFooter>
@@ -375,4 +411,4 @@ function OrderDetail() {
   );
 }
 
-export default OrderDetail;
+export default LaundererOrdersDetail;

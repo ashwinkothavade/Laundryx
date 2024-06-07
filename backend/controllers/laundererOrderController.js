@@ -16,9 +16,9 @@ const getAllOrders = async (req, resp) => {
       });
     } else {
       // the role is launderer, and the route can now be accessed.
-      const result = await Order.find();
+      const orders = await Order.find().populate('user', '-password -__v');
       resp.status(200).json({
-        orders: result,
+        orders,
       });
     }
   } catch (err) {

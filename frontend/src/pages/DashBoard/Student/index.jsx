@@ -5,7 +5,7 @@ import { MdKeyboardArrowRight } from 'react-icons/md';
 import { RiAccountBoxLine, RiSettingsLine } from 'react-icons/ri';
 import Navbar from '../../../components/Navbar';
 import StudentDetails from '../../../components/StudentDetails';
-import OrderDetail from '../../../components/OrderDetail';
+import OrderDetail from '../../../components/StudentOrdersDetail';
 
 function StudentDashBoard() {
   const [isActive, setIsActive] = useState(0);
