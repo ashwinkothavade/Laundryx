@@ -21,7 +21,7 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react';
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { HiArrowLongRight, HiMiniCurrencyRupee } from 'react-icons/hi2';
 import { useNavigate } from 'react-router-dom';
 import prices from '../../TempData/prices.json';
@@ -32,14 +32,12 @@ function OrderCard2() {
   const { order, updateItems } = useGeneralOrderStore((state) => ({
     order: state.order,
     updateItems: state.updateItems,
-    clearItems: state.clearItems,
   }));
   const quantityRefs = useRef(prices.map(() => 0));
   const washTypeRefs = useRef(prices.map(() => ''));
   const navigate = useNavigate();
   const toast = useToast();
   // eslint-disable-next-line no-unused-vars
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleToast = (title, description, status) => {
     toast({
@@ -66,18 +64,20 @@ function OrderCard2() {
           washType,
           pricePerItem,
         });
-        updateItems(newItems);
-        console.log('items: ', order.items);
       }
     });
     if (newItems.length > 0) {
+      updateItems(newItems);
       handleToast('Items added in the order.', '', 'success');
-      setIsLoading(true);
       setTimeout(() => {
         window.location.reload();
       }, 1000);
     } else {
-      handleToast('Please fill quantity and wash type before adding any item.', '', 'error');
+      handleToast(
+        'Please fill quantity and wash type before adding any item.',
+        '',
+        'error'
+      );
     }
   };
 
@@ -95,13 +95,6 @@ function OrderCard2() {
         justifyContent="center"
         alignItems="center"
       >
-        {/* <DotLottiePlayer
-          src="Child.lottie"
-          style={{ height: '40rem', width: '40rem' }}
-          autoplay
-          loop
-          playMode="bounce"
-        /> */}
         <OrderItemsAccordion />
         <Stack>
           <Grid templateColumns="repeat(2, 1fr)" gap={8}>
