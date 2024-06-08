@@ -31,6 +31,11 @@ const createStudentOrder = async (req, resp) => {
     const token = req.cookies.jwt;
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     const studentId = decodedToken.user_id; // avoiding database call by storing the user_id in the token
+    if (decodedToken.role !== 'student') {
+      return resp.status(401).json({
+        message: 'User does not have access rights',
+      });
+    }
     const {
       items,
       deliveryDate,
@@ -40,8 +45,17 @@ const createStudentOrder = async (req, resp) => {
       orderTotal,
       pickupDate,
       pickupTime,
+      launderer,
     } = req.body;
     // all the items validation is done in the frontend without any anomaly.
+    const result = await User.find({
+      username: launderer,
+    });
+    if (result.length === 0) {
+      return resp.status(404).json({
+        message: 'Launderer not found',
+      });
+    }
     const order = new Order({
       user: studentId,
       items,
@@ -52,6 +66,7 @@ const createStudentOrder = async (req, resp) => {
       orderTotal,
       pickupDate,
       pickupTime,
+      launderer,
     });
     await order.save();
     resp.status(201).json({
