@@ -17,7 +17,7 @@ import { TbTruckDelivery } from 'react-icons/tb';
 
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../Store/AuthStore';
-import useGeneralOrderStore from '../Store/OrderStore_';
+import useOrderStore from '../Store/OrderStore';
 
 function ScheduleCard() {
   const {
@@ -29,7 +29,7 @@ function ScheduleCard() {
     setPickupAddress,
     setDeliveryAddress,
     clearItems,
-  } = useGeneralOrderStore((state) => ({
+  } = useOrderStore((state) => ({
     clearSchedule: state.clearSchedule,
     order: state.order,
     setPickupDate: state.setPickupDate,
@@ -79,8 +79,12 @@ function ScheduleCard() {
     setDeliveryTime(deliveryTimeRef.current.value);
     setPickupAddress(pickupAddressRef.current.value);
     setDeliveryAddress(deliveryAddressRef.current.value);
-    handleToast('All schedule details are added.', 'Order can now be confirmed and placed.', 'success');
-  }
+    handleToast(
+      'All schedule details are added.',
+      'Order can now be confirmed and placed.',
+      'success'
+    );
+  };
 
   const handleConfirmOrder = async (e) => {
     e.preventDefault();

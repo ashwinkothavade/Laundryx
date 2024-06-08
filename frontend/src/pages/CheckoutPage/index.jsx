@@ -2,10 +2,8 @@ import { Center, Flex, Text } from '@chakra-ui/react';
 import Navbar from '../../components/Navbar';
 import OrderItemsAccordion from '../../components/OrderItemsAccordion';
 import ScheduleCard from '../../components/ScheduleForm';
-import useGeneralOrderStore from '../../components/Store/OrderStore_';
 
 function CheckoutPage() {
-  const { order } = useGeneralOrderStore();
   return (
     <>
       <Navbar />

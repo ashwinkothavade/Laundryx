@@ -26,10 +26,10 @@ import { HiArrowLongRight, HiMiniCurrencyRupee } from 'react-icons/hi2';
 import { useNavigate } from 'react-router-dom';
 import prices from '../../TempData/prices.json';
 import OrderItemsAccordion from '../OrderItemsAccordion';
-import useGeneralOrderStore from '../Store/OrderStore_';
+import useOrderStore from '../Store/OrderStore';
 
-function OrderCard2() {
-  const { order, updateItems } = useGeneralOrderStore((state) => ({
+function OrderCard() {
+  const { order, updateItems } = useOrderStore((state) => ({
     order: state.order,
     updateItems: state.updateItems,
   }));
@@ -37,7 +37,6 @@ function OrderCard2() {
   const washTypeRefs = useRef(prices.map(() => ''));
   const navigate = useNavigate();
   const toast = useToast();
-  // eslint-disable-next-line no-unused-vars
 
   const handleToast = (title, description, status) => {
     toast({
@@ -49,7 +48,17 @@ function OrderCard2() {
       duration: 2000,
     });
   };
-
+  const handleCheckout = () => {
+    if (order.items.length === 0) {
+      handleToast(
+        'Please add items before proceeding to checkout',
+        '',
+        'error'
+      );
+    } else {
+      navigate('/CheckoutPage');
+    }
+  };
   const handleAddItems = () => {
     const newItems = [];
     prices.forEach((item, index) => {
@@ -260,7 +269,7 @@ function OrderCard2() {
                 color="#FFFFFF"
                 _hover={{ bg: '#bf0055' }}
                 rightIcon={<HiArrowLongRight size={30} />}
-                onClick={() => navigate('/CheckoutPage')}
+                onClick={handleCheckout}
               >
                 Proceed
               </Button>
@@ -272,4 +281,4 @@ function OrderCard2() {
   );
 }
 
-export default OrderCard2;
+export default OrderCard;

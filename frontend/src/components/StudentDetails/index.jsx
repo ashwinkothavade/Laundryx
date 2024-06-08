@@ -386,15 +386,21 @@ function StudentDetails() {
             </ModalBody>
 
             <ModalFooter justifyContent="flex-end">
-              <Button color='#ffffff' bgColor='red' _hover={{bgColor: 'red'}} onClick={onClose} mr={3}>
+              <Button
+                color="#ffffff"
+                bgColor="red"
+                _hover={{ bgColor: 'red' }}
+                onClick={onClose}
+                mr={3}
+              >
                 Close
               </Button>
               <Button
                 onClick={() => setIsEditMode(!isEditMode)}
                 bgColor={isEditMode ? 'red' : '#ce1567'}
-                color='#ffffff'
+                color="#ffffff"
                 _hover={{
-                  bgColor: `${isEditMode ? 'red' : '#b50055'}`
+                  bgColor: `${isEditMode ? 'red' : '#b50055'}`,
                 }}
               >
                 {isEditMode ? 'Cancel' : 'Edit Details'}
