@@ -101,12 +101,11 @@ function OrderDetail() {
   }
 
   return (
-    <VStack spacing={4} align="stretch">
-      <Text fontSize="2xl" fontWeight="bold">
-        Order Details:
-      </Text>
-      <Flex justify="space-between" align="center">
-        <Box>{}</Box>
+    <VStack align="start" gap={14} ml="8rem">
+      <Flex justify="space-between" align="center" w="100%">
+        <Text fontSize="2rem" fontWeight="bold">
+          Order Details:
+        </Text>
         <Box width="200px">
           <Select
             placeholder="Select Filter"
@@ -127,49 +126,56 @@ function OrderDetail() {
           </Select>
         </Box>
       </Flex>
-      <Table variant="simple">
-        <Thead>
-          <Tr>
-            <Th textAlign="center">Order ID</Th>
-            <Th textAlign="center">Order Total</Th>
-            <Th textAlign="center">Pickup Date</Th>
-            <Th textAlign="center">Total Items</Th>
-            <Th textAlign="center">Accepted Status</Th>
-            <Th textAlign="center">Delivery Status</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {filteredOrders.map((order) => (
-            <Tr key={order._id}>
-              <Td textAlign="center">{order._id}</Td>
-              <Td textAlign="center">₹{order.orderTotal}</Td>
-              <Td textAlign="center">{order.pickupDate}</Td>
-              <Td textAlign="center">{getTotalQuantity(order.items)}</Td>
-              <Td textAlign="center">
-                <Tag
-                  size="lg"
-                  colorScheme={order.acceptedStatus ? 'green' : 'red'}
-                >
-                  {order.acceptedStatus ? 'Accepted' : 'Not Accepted'}
-                </Tag>
-              </Td>
-              <Td textAlign="center">
-                <Tag
-                  size="lg"
-                  colorScheme={order.deliveredStatus ? 'green' : 'red'}
-                >
-                  {order.deliveredStatus ? 'Delivered' : 'Not Delivered'}
-                </Tag>
-              </Td>
-              <Td textAlign="center">
-                <Button color="#ce1567" onClick={() => handleCardClick(order)}>
-                  View Details
-                </Button>
-              </Td>
-            </Tr>
-          ))}
-        </Tbody>
-      </Table>
+      <Box w="75vw" overflowX="auto">
+        <Box maxH="70vh" overflowY="scroll">
+          <Table variant="simple">
+            <Thead>
+              <Tr>
+                <Th textAlign="center">Order ID</Th>
+                <Th textAlign="center">Order Total</Th>
+                <Th textAlign="center">Pickup Date</Th>
+                <Th textAlign="center">Total Items</Th>
+                <Th textAlign="center">Accepted Status</Th>
+                <Th textAlign="center">Delivery Status</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {filteredOrders.map((order) => (
+                <Tr key={order._id}>
+                  <Td textAlign="center">{order._id}</Td>
+                  <Td textAlign="center">₹{order.orderTotal}</Td>
+                  <Td textAlign="center">{order.pickupDate}</Td>
+                  <Td textAlign="center">{getTotalQuantity(order.items)}</Td>
+                  <Td textAlign="center">
+                    <Tag
+                      size="lg"
+                      colorScheme={order.acceptedStatus ? 'green' : 'red'}
+                    >
+                      {order.acceptedStatus ? 'Accepted' : 'Not Accepted'}
+                    </Tag>
+                  </Td>
+                  <Td textAlign="center">
+                    <Tag
+                      size="lg"
+                      colorScheme={order.deliveredStatus ? 'green' : 'red'}
+                    >
+                      {order.deliveredStatus ? 'Delivered' : 'Not Delivered'}
+                    </Tag>
+                  </Td>
+                  <Td textAlign="center">
+                    <Button
+                      color="#ce1567"
+                      onClick={() => handleCardClick(order)}
+                    >
+                      View Details
+                    </Button>
+                  </Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </Box>
+      </Box>
 
       {selectedOrder && (
         <Modal isOpen={isOpen} onClose={onClose}>
@@ -225,143 +231,124 @@ function OrderDetail() {
                 </GridItem>
               </Grid>
               <Divider my={2} />
-              <Accordion allowToggle>
-                <AccordionItem>
-                  <AccordionButton>
-                    <Box
-                      flex="1"
-                      textAlign="left"
-                      fontSize="lg"
-                      fontWeight="bold"
-                    >
-                      Status
-                    </Box>
-                    <AccordionIcon />
-                  </AccordionButton>
-                  <AccordionPanel pb={4}>
-                    <Grid templateColumns="repeat(2, 1fr)" gap={4}>
-                      <GridItem>
-                        <Text>
-                          <strong>Accepted Status:</strong>
-                        </Text>
-                        <Tag
-                          size="lg"
-                          colorScheme={
-                            selectedOrder.acceptedStatus ? 'green' : 'red'
-                          }
-                        >
-                          {selectedOrder.acceptedStatus
-                            ? 'Accepted'
-                            : 'Not Accepted'}
-                        </Tag>
-                      </GridItem>
-                      <GridItem>
-                        <Text>
-                          <strong>Delivery Status:</strong>
-                        </Text>
-                        <Tag
-                          size="lg"
-                          colorScheme={
-                            selectedOrder.deliveredStatus ? 'green' : 'red'
-                          }
-                        >
-                          {selectedOrder.deliveredStatus
-                            ? 'Delivered'
-                            : 'Not Delivered'}
-                        </Tag>
-                      </GridItem>
-                      <GridItem>
-                        <Text>
-                          <strong>Pickup Status:</strong>
-                        </Text>
-                        <Tag
-                          size="lg"
-                          colorScheme={
-                            selectedOrder.pickUpStatus ? 'green' : 'red'
-                          }
-                        >
-                          {selectedOrder.pickUpStatus
-                            ? 'Picked Up'
-                            : 'Not Picked Up'}
-                        </Tag>
-                      </GridItem>
-                      <GridItem>
-                        <Text>
-                          <strong>Payment Status:</strong>
-                        </Text>
-                        <Tag
-                          size="lg"
-                          colorScheme={selectedOrder.paid ? 'green' : 'red'}
-                        >
-                          {selectedOrder.paid ? 'Paid' : 'Pending'}
-                        </Tag>
-                      </GridItem>
-                    </Grid>
-                  </AccordionPanel>
-                </AccordionItem>
-              </Accordion>
+              <Grid templateColumns="repeat(2, 1fr)" gap={4} my={4}>
+                <GridItem>
+                  <Text>
+                    <strong>Accepted Status:</strong>
+                  </Text>
+                  <Tag
+                    size="lg"
+                    colorScheme={selectedOrder.acceptedStatus ? 'green' : 'red'}
+                  >
+                    {selectedOrder.acceptedStatus ? 'Accepted' : 'Not Accepted'}
+                  </Tag>
+                </GridItem>
+                <GridItem>
+                  <Text>
+                    <strong>Delivery Status:</strong>
+                  </Text>
+                  <Tag
+                    size="lg"
+                    colorScheme={
+                      selectedOrder.deliveredStatus ? 'green' : 'red'
+                    }
+                  >
+                    {selectedOrder.deliveredStatus
+                      ? 'Delivered'
+                      : 'Not Delivered'}
+                  </Tag>
+                </GridItem>
+                <GridItem>
+                  <Text>
+                    <strong>Pickup Status:</strong>
+                  </Text>
+                  <Tag
+                    size="lg"
+                    colorScheme={selectedOrder.pickUpStatus ? 'green' : 'red'}
+                  >
+                    {selectedOrder.pickUpStatus ? 'Picked Up' : 'Not Picked Up'}
+                  </Tag>
+                </GridItem>
+                <GridItem>
+                  <Text>
+                    <strong>Payment Status:</strong>
+                  </Text>
+                  <Tag
+                    size="lg"
+                    colorScheme={selectedOrder.paid ? 'green' : 'red'}
+                  >
+                    {selectedOrder.paid ? 'Paid' : 'Pending'}
+                  </Tag>
+                </GridItem>
+              </Grid>
               <Divider my={2} />
-              <Text fontSize="lg" fontWeight="bold">
-                Items:
+              <Text fontSize="xl" fontWeight="bold" mb={2}>
+                Items
               </Text>
+              <Accordion allowToggle>
+                {['simple_wash', 'power_clean', 'dry_clean'].map((washType) => {
+                  const itemsByWashType = selectedOrder.items.filter(
+                    (item) => item.washType === washType
+                  );
 
-              {['simple_wash', 'power_clean', 'dry_clean'].map((washType) => {
-                const itemsByWashType = selectedOrder.items.filter(
-                  (item) => item.washType === washType
-                );
+                  if (itemsByWashType.length === 0) {
+                    return null;
+                  }
 
-                if (itemsByWashType.length === 0) {
-                  return null;
-                }
-
-                return (
-                  <Box key={washType} mt={4}>
-                    <Text
-                      fontSize="lg"
-                      fontWeight="bold"
-                      color={
-                        washType === 'simple_wash'
-                          ? 'blue.500'
-                          : washType === 'power_clean'
-                            ? 'orange.500'
-                            : 'purple.500'
-                      }
-                    >
-                      {washType === 'simple_wash'
-                        ? 'Simple Wash'
-                        : washType === 'power_clean'
-                          ? 'Power Clean'
-                          : 'Dry Clean'}
-                    </Text>
-                    <Table
-                      variant="simple"
-                      mt={2}
-                      sx={{
-                        th: { padding: '8px', textAlign: 'center' },
-                        td: { padding: '8px', textAlign: 'center' },
-                      }}
-                    >
-                      <Thead>
-                        <Tr>
-                          <Th>Name</Th>
-                          <Th>Quantity</Th>
-                          <Th>Price per Item</Th>
-                        </Tr>
-                      </Thead>
-                      <Tbody>
-                        {itemsByWashType.map((item, index) => (
-                          <Tr key={index}>
-                            <Td>{item.name}</Td>
-                            <Td>{item.quantity}</Td>
-                            <Td>${item.pricePerItem}</Td>
-                          </Tr>
-                        ))}
-                      </Tbody>
-                    </Table>
-                  </Box>
-                );
-              })}
-
+                  return (
+                    <AccordionItem key={washType}>
+                      <AccordionButton>
+                        <Box
+                          flex="1"
+                          textAlign="left"
+                          fontSize="lg"
+                          fontWeight="bold"
+                          color={
+                            washType === 'simple_wash'
+                              ? 'blue.500'
+                              : washType === 'power_clean'
+                                ? 'orange.500'
+                                : 'purple.500'
+                          }
+                        >
+                          {washType === 'simple_wash'
+                            ? 'Simple Wash'
+                            : washType === 'power_clean'
+                              ? 'Power Clean'
+                              : 'Dry Clean'}
+                        </Box>
+                        <AccordionIcon />
+                      </AccordionButton>
+                      <AccordionPanel pb={4}>
+                        <Table
+                          variant="simple"
+                          sx={{
+                            th: { padding: '8px', textAlign: 'center' },
+                            td: { padding: '8px', textAlign: 'center' },
+                          }}
+                        >
+                          <Thead>
+                            <Tr>
+                              <Th>Name</Th>
+                              <Th>Quantity</Th>
+                              <Th>Price per Item</Th>
+                            </Tr>
+                          </Thead>
+                          <Tbody>
+                            {itemsByWashType.map((item, index) => (
+                              <Tr key={index}>
+                                <Td>{item.name}</Td>
+                                <Td>{item.quantity}</Td>
+                                <Td>${item.pricePerItem}</Td>
+                              </Tr>
+                            ))}
+                          </Tbody>
+                        </Table>
+                      </AccordionPanel>
+                    </AccordionItem>
+                  );
+                })}
+              </Accordion>
               <Divider my={2} />
             </ModalBody>
             <ModalFooter>
