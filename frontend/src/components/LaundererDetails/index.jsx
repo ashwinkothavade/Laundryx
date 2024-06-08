@@ -117,7 +117,6 @@ function LaundererDetails() {
             break;
         }
       });
-      console.log(response);
       handleToast('Updated', 'Student details updated', 'success');
       setIsEditMode(false);
     } catch (err) {

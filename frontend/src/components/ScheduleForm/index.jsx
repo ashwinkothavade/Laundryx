@@ -131,12 +131,11 @@ function ScheduleCard() {
     }
 
     try {
-      console.log(order);
+      // eslint-disable-next-line no-unused-vars
       const response = await axios.post(
         'http://localhost:4000/student/createorder',
         order
       );
-      console.log(response);
       handleToast(
         'Order placed successfully',
         'Wait for launderer to accept your order',
@@ -146,7 +145,7 @@ function ScheduleCard() {
       clearItems();
       navigate('/OrderList');
     } catch (err) {
-      handleToast('Some ', err.response.data.message, 'error');
+      handleToast('Error', err.response.data.message, 'error');
     }
   };
 

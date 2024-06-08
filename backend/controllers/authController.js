@@ -180,7 +180,6 @@ const forgotPassword = async (req, resp) => {
         { expiresIn: '5m' }
       );
       const url = `http://localhost:4000/resetpassword/${user._id}/${token}`;
-      // console.log(url);
 
       // eslint-disable-next-line no-unused-vars
       const testAccount = await nodemailer.createTestAccount();
@@ -205,7 +204,6 @@ const forgotPassword = async (req, resp) => {
       resp.status(200).json(info);
     }
   } catch (err) {
-    console.log(err);
     resp.status(404).json({ message: err.message });
   }
 };
@@ -228,7 +226,6 @@ const getResetPassword = async (req, resp) => {
       error: '',
     });
   } catch (err) {
-    console.log(err);
     resp.status(401).send(err.message);
   }
 };
@@ -267,7 +264,6 @@ const postResetPassword = async (req, resp) => {
     user.save();
     resp.status(200).render('index', { status: 'verified', error: '' });
   } catch (err) {
-    console.log(err);
     alert(err.message);
     resp.status(401).send(err.message);
   }

@@ -67,8 +67,6 @@ function LaundererOrdersDetail() {
         setOrders(response.data.orders);
         setLoading(false);
       } catch (err) {
-        console.log(err);
-        console.log(err.message);
         setError(err.message);
         setLoading(false);
       }

@@ -117,7 +117,6 @@ function StudentDetails() {
       room_number: roomRef.current.value,
       roll_number: rollRef.current.value,
     };
-    console.log(usernameRef.current.value);
     const { changedData, changedFields } = getChangedData(
       initialData,
       currentData
@@ -127,11 +126,11 @@ function StudentDetails() {
       return;
     }
     try {
+      // eslint-disable-next-line
       const response = await axios.patch(
         'http://localhost:4000/user',
         changedData
       );
-      console.log(response);
       changedFields.forEach((field) => {
         switch (field) {
           case 'username':

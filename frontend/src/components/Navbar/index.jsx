@@ -51,6 +51,7 @@ function Navbar() {
 
   const logOut = async () => {
     try {
+      // eslint-disable-next-line
       const response = await axios.get('http://localhost:4000/logout');
       toast({
         title: 'Success',
@@ -60,7 +61,6 @@ function Navbar() {
         isClosable: true,
         position: 'top',
       });
-      console.log(response.data);
       removeAuth();
       setUserName(null);
       setUserRole(null);
