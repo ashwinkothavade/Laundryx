@@ -30,6 +30,7 @@ import {
   Tr,
   VStack,
   useDisclosure,
+  useToast,
 } from '@chakra-ui/react';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
@@ -41,6 +42,23 @@ function OrderDetail() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const toast = useToast();
+
+  const handleToast = (title, description, status) => {
+    toast({
+      position: 'top',
+      title,
+      description,
+      status,
+      duration: 1000,
+      isClosable: true,
+      onCloseComplete: () => {
+        if (status === 'success') {
+          window.location.reload();
+        }
+      },
+    });
+  };
 
   useEffect(() => {
     const getOrders = async () => {
@@ -69,6 +87,61 @@ function OrderDetail() {
 
   const handleFilterChange = (event) => {
     setFilter(event.target.value);
+  };
+
+  const handlePayment = async (order) => {
+    try {
+      const receipt = Math.random().toString(36).substring(7);
+      const body = { amount: order.orderTotal * 100, currency: 'INR', receipt };
+      const response = await axios.post('http://localhost:4000/payment', body);
+      const orderDetails = await response.data;
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: orderDetails.amount,
+        currency: 'INR',
+        name: 'LaundriX',
+        description: 'Order Payment',
+        image: 'http://localhost:5173/assets/favicon.svg',
+        order_id: orderDetails.id,
+        async handler(resp) {
+          try {
+            const validatePayment = await axios.put(
+              'http://localhost:4000/payment/validate',
+              { ...resp, order_id: order._id }
+              // { withCredentials: true }
+            );
+            const response = await validatePayment.data;
+            handleToast(
+              'Payment Successfully Done and Verified',
+              '',
+              'success'
+            );
+          } catch (err) {
+            handleToast('Payment Validation Failed', err.message, 'error');
+          }
+        },
+        notes: {
+          address: 'IIIT Jabalpur',
+        },
+        theme: {
+          color: '#584BAC',
+        },
+      };
+      const rzp1 = new window.Razorpay(options);
+      rzp1.on('payment.failed', function (response) {
+        alert(response.error.code);
+        alert(response.error.description);
+        alert(response.error.source);
+        alert(response.error.step);
+        alert(response.error.reason);
+        alert(response.error.metadata.order_id);
+        alert(response.error.metadata.payment_id);
+      });
+      rzp1.open();
+    } catch (err) {
+      handleToast('Payment Failed', err.message, 'error');
+    }
   };
 
   const filteredOrders = orders.filter((order) => {
@@ -137,6 +210,7 @@ function OrderDetail() {
                 <Th textAlign="center">Total Items</Th>
                 <Th textAlign="center">Accepted Status</Th>
                 <Th textAlign="center">Delivery Status</Th>
+                <Th textAlign="center">Actions</Th>
               </Tr>
             </Thead>
             <Tbody>
@@ -163,12 +237,24 @@ function OrderDetail() {
                     </Tag>
                   </Td>
                   <Td textAlign="center">
-                    <Button
-                      color="#ce1567"
-                      onClick={() => handleCardClick(order)}
-                    >
-                      View Details
-                    </Button>
+                    <Flex gap={4} w="fit-content">
+                      <Button
+                        color="#ce1567"
+                        onClick={() => handleCardClick(order)}
+                      >
+                        View Details
+                      </Button>
+                      <Button
+                        color="#ffffff"
+                        bgColor="green.500"
+                        isDisabled={order.paid}
+                        display={!order.acceptedStatus ? 'none' : 'block'}
+                        _hover={{ bgColor: 'green.600' }}
+                        onClick={() => handlePayment(order)}
+                      >
+                        Pay
+                      </Button>
+                    </Flex>
                   </Td>
                 </Tr>
               ))}
