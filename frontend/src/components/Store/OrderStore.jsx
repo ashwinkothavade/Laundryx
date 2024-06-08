@@ -2,7 +2,7 @@ import moment from 'moment';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-const useGeneralOrderStore = create(
+const useOrderStore = create(
   persist(
     (set) => ({
       order: {
@@ -167,4 +167,4 @@ const useGeneralOrderStore = create(
     }
   )
 );
-export default useGeneralOrderStore;
+export default useOrderStore;

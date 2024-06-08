@@ -11,10 +11,10 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { LuIndianRupee } from 'react-icons/lu';
-import useGeneralOrderStore from '../Store/OrderStore_';
+import useOrderStore from '../Store/OrderStore';
 
 function OrderItemsAccordion() {
-  const { order, clearItems } = useGeneralOrderStore();
+  const { order, clearItems } = useOrderStore();
   const toast = useToast();
 
   const handleClear = () => {
