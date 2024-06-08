@@ -14,6 +14,7 @@ router.post('/resetpassword/:id/:token', authController.postResetPassword);
 // protected routes
 router.get('/users', verifyUser, authController.getAllUsers);
 router.get('/logout', verifyUser, authController.logoutUser);
+router.get('/launderers', verifyUser, authController.getAllLaunderers);
 router.patch('/user', verifyUser, authController.updateUser);
 
 module.exports = router;

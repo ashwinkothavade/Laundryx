@@ -19,6 +19,18 @@ const getAllUsers = async (req, resp) => {
   }
 };
 
+// @desc    Get all launderers
+// @route   GET /launderers
+// For testing purposes
+// @access  Private
+const getAllLaunderers = async (req, resp) => {
+  try {
+    const launderers = await User.find({ role: 'launderer' });
+    resp.status(200).json(launderers);
+  } catch (err) {
+    resp.status(500).json('UserModel error');
+  }
+};
 // @desc    Create a new user
 // @route   POST /signup
 // @access  Public
@@ -263,6 +275,7 @@ const postResetPassword = async (req, resp) => {
 
 module.exports = {
   getAllUsers,
+  getAllLaunderers,
   createUser,
   updateUser,
   loginUser,

@@ -71,6 +71,10 @@ const orderSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    launderer: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,
