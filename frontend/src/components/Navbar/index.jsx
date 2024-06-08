@@ -78,7 +78,11 @@ function Navbar() {
         duration: 2000,
         isClosable: true,
         position: 'top',
+        onCloseComplete: () => {
+          navigate('/login');
+        },
       });
+      removeAuth();
     }
   };
   return (

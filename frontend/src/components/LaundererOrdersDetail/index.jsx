@@ -30,9 +30,11 @@ import {
   Tr,
   VStack,
   useDisclosure,
+  useToast,
 } from '@chakra-ui/react';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function LaundererOrdersDetail() {
   const [orders, setOrders] = useState([]);
@@ -41,7 +43,23 @@ function LaundererOrdersDetail() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const toast = useToast();
+  const navigate = useNavigate();
+  const handleToast = (title, description, status) => {
+    toast({
+      position: 'top',
+      title,
+      description,
+      status,
+      duration: 5000,
+      isClosable: true,
+      onCloseComplete: () => {
+        if (status === 'error') {
+          navigate('/login');
+        }
+      },
+    });
+  };
   useEffect(() => {
     const getOrders = async () => {
       try {
@@ -89,11 +107,7 @@ function LaundererOrdersDetail() {
   }
 
   if (error) {
-    return (
-      <Center>
-        <Text>Error: {error}</Text>
-      </Center>
-    );
+    return handleToast('Error', 'Please Login again', 'error');
   }
 
   return (

@@ -14,6 +14,7 @@ const useOrderStore = create(
         deliveryTime: '',
         pickupAddress: '',
         deliveryAddress: '',
+        launderer: '',
       },
 
       // Action to add or update items, and if the item already exists, update the quantity
@@ -144,6 +145,19 @@ const useOrderStore = create(
         });
       },
 
+      // Action to update Launderer
+      setLaunderer: (value) => {
+        set((state) => {
+          return {
+            ...state,
+            order: {
+              ...state.order,
+              launderer: value,
+            },
+          };
+        });
+      },
+
       clearSchedule: () => {
         set((state) => {
           return {
@@ -156,13 +170,14 @@ const useOrderStore = create(
               deliveryTime: '',
               pickupAddress: '',
               deliveryAddress: '',
+              launderer: '',
             },
           };
         });
       },
     }),
     {
-      name: 'general-order-store',
+      name: 'order-store',
       getStorage: () => sessionStorage,
     }
   )
