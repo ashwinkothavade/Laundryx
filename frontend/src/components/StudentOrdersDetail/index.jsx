@@ -109,7 +109,6 @@ function OrderDetail() {
             const validatePayment = await axios.put(
               'http://localhost:4000/payment/validate',
               { ...resp, order_id: order._id }
-              // { withCredentials: true }
             );
             const response = await validatePayment.data;
             handleToast(
