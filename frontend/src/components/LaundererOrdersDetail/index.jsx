@@ -45,7 +45,7 @@ function LaundererOrdersDetail() {
   useEffect(() => {
     const getOrders = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/allorders', {});
+        const response = await axios.get('http://localhost:4000/allorders');
         setOrders(response.data.orders);
         setLoading(false);
       } catch (err) {
@@ -112,7 +112,7 @@ function LaundererOrdersDetail() {
           >
             <option value="all">All</option>
             <option value="accepted">Accepted</option>
-            <option value="notaccepted">Not Accepted</option>
+            <option value="notAccepted">Not Accepted</option>
             <option value="delivered">Delivered</option>
             <option value="notDelivered">Not Delivered</option>
             <option value="paid">Paid</option>
@@ -139,11 +139,11 @@ function LaundererOrdersDetail() {
             <Tbody>
               {filteredOrders.map((order) => (
                 <Tr key={order._id}>
-                  <Td>{order._id}</Td>
+                  <Td textAlign="center">{order._id}</Td>
                   <Td textAlign="center">₹{order.orderTotal}</Td>
                   <Td textAlign="center">{order.user.username}</Td>
                   <Td textAlign="center">{order.user.hostel}</Td>
-                  <Td>{order.deliveryDate}</Td>
+                  <Td textAlign="center">{order.deliveryDate}</Td>
                   <Td textAlign="center">
                     <Tag
                       size="lg"
@@ -174,7 +174,7 @@ function LaundererOrdersDetail() {
           </Table>
         </Box>
       </Box>
-
+      {/* Order Details Modal */}
       {selectedOrder && (
         <Modal isOpen={isOpen} onClose={onClose}>
           <ModalOverlay />
@@ -188,6 +188,10 @@ function LaundererOrdersDetail() {
             <ModalBody>
               <Text fontSize="xl" fontWeight="bold">
                 Order ID: {selectedOrder._id}
+              </Text>
+              <Divider my={2} />
+              <Text fontSize="lg" fontWeight="bold" color="purple.500">
+                Student Details:
               </Text>
               <Divider my={2} />
               <Grid templateColumns="repeat(2, 1fr)" gap={2}>
@@ -214,6 +218,10 @@ function LaundererOrdersDetail() {
                   </Text>
                 </GridItem>
               </Grid>
+              <Divider my={2} />
+              <Text fontSize="lg" fontWeight="bold" color="orange.500">
+                Order Details:
+              </Text>
               <Divider my={2} />
               <Grid templateColumns="repeat(2, 1fr)" gap={2}>
                 <GridItem>
@@ -250,81 +258,56 @@ function LaundererOrdersDetail() {
                 </GridItem>
               </Grid>
               <Divider my={2} />
-              <Accordion allowToggle>
-                <AccordionItem>
-                  <AccordionButton>
-                    <Box
-                      flex="1"
-                      textAlign="left"
-                      fontSize="lg"
-                      fontWeight="bold"
-                    >
-                      Status
-                    </Box>
-                    <AccordionIcon />
-                  </AccordionButton>
-                  <AccordionPanel pb={4}>
-                    <Grid templateColumns="repeat(2, 1fr)" gap={4}>
-                      <GridItem>
-                        <Text>
-                          <strong>Accepted Status:</strong>
-                        </Text>
-                        <Tag
-                          size="lg"
-                          colorScheme={
-                            selectedOrder.acceptedStatus ? 'green' : 'red'
-                          }
-                        >
-                          {selectedOrder.acceptedStatus
-                            ? 'Accepted'
-                            : 'Not Accepted'}
-                        </Tag>
-                      </GridItem>
-                      <GridItem>
-                        <Text>
-                          <strong>Delivery Status:</strong>
-                        </Text>
-                        <Tag
-                          size="lg"
-                          colorScheme={
-                            selectedOrder.deliveredStatus ? 'green' : 'red'
-                          }
-                        >
-                          {selectedOrder.deliveredStatus
-                            ? 'Delivered'
-                            : 'Not Delivered'}
-                        </Tag>
-                      </GridItem>
-                      <GridItem>
-                        <Text>
-                          <strong>Pickup Status:</strong>
-                        </Text>
-                        <Tag
-                          size="lg"
-                          colorScheme={
-                            selectedOrder.pickUpStatus ? 'green' : 'red'
-                          }
-                        >
-                          {selectedOrder.pickUpStatus
-                            ? 'Picked Up'
-                            : 'Not Picked Up'}
-                        </Tag>
-                      </GridItem>
-                      <GridItem>
-                        <Text>
-                          <strong>Payment Status:</strong>
-                        </Text>
-                        <Tag
-                          size="lg"
-                          colorScheme={selectedOrder.paid ? 'green' : 'red'}
-                        >
-                          {selectedOrder.paid ? 'Paid' : 'Pending'}
-                        </Tag>
-                      </GridItem>
-                    </Grid>
-                  </AccordionPanel>
-                </AccordionItem>
-              </Accordion>
+              <Grid templateColumns="repeat(2, 1fr)" gap={4} my={4}>
+                <GridItem>
+                  <Text>
+                    <strong>Accepted Status:</strong>
+                  </Text>
+                  <Tag
+                    size="lg"
+                    colorScheme={selectedOrder.acceptedStatus ? 'green' : 'red'}
+                  >
+                    {selectedOrder.acceptedStatus ? 'Accepted' : 'Not Accepted'}
+                  </Tag>
+                </GridItem>
+                <GridItem>
+                  <Text>
+                    <strong>Delivery Status:</strong>
+                  </Text>
+                  <Tag
+                    size="lg"
+                    colorScheme={
+                      selectedOrder.deliveredStatus ? 'green' : 'red'
+                    }
+                  >
+                    {selectedOrder.deliveredStatus
+                      ? 'Delivered'
+                      : 'Not Delivered'}
+                  </Tag>
+                </GridItem>
+                <GridItem>
+                  <Text>
+                    <strong>Pickup Status:</strong>
+                  </Text>
+                  <Tag
+                    size="lg"
+                    colorScheme={selectedOrder.pickUpStatus ? 'green' : 'red'}
+                  >
+                    {selectedOrder.pickUpStatus ? 'Picked Up' : 'Not Picked Up'}
+                  </Tag>
+                </GridItem>
+                <GridItem>
+                  <Text>
+                    <strong>Payment Status:</strong>
+                  </Text>
+                  <Tag
+                    size="lg"
+                    colorScheme={selectedOrder.paid ? 'green' : 'red'}
+                  >
+                    {selectedOrder.paid ? 'Paid' : 'Pending'}
+                  </Tag>
+                </GridItem>
+              </Grid>
               <Divider my={2} />
               <Text fontSize="lg">
                 <strong>Order Total: </strong>₹{selectedOrder.orderTotal}
@@ -334,63 +317,70 @@ function LaundererOrdersDetail() {
                 Items:
               </Text>
 
-              {['simple_wash', 'power_clean', 'dry_clean'].map((washType) => {
-                const itemsByWashType = selectedOrder.items.filter(
-                  (item) => item.washType === washType
-                );
+              <Accordion allowToggle>
+                {['simple_wash', 'power_clean', 'dry_clean'].map((washType) => {
+                  const itemsByWashType = selectedOrder.items.filter(
+                    (item) => item.washType === washType
+                  );
 
-                if (itemsByWashType.length === 0) {
-                  return null;
-                }
+                  if (itemsByWashType.length === 0) {
+                    return null;
+                  }
 
-                return (
-                  <Box key={washType} mt={4}>
-                    <Text
-                      fontSize="lg"
-                      fontWeight="bold"
-                      color={
-                        washType === 'simple_wash'
-                          ? 'blue.500'
-                          : washType === 'power_clean'
-                            ? 'orange.500'
-                            : 'purple.500'
-                      }
-                    >
-                      {washType === 'simple_wash'
-                        ? 'Simple Wash'
-                        : washType === 'power_clean'
-                          ? 'Power Clean'
-                          : 'Dry Clean'}
-                    </Text>
-                    <Table
-                      variant="simple"
-                      mt={2}
-                      sx={{
-                        th: { padding: '8px', textAlign: 'center' },
-                        td: { padding: '8px', textAlign: 'center' },
-                      }}
-                    >
-                      <Thead>
-                        <Tr>
-                          <Th>Name</Th>
-                          <Th>Quantity</Th>
-                          <Th>Price per Item</Th>
-                        </Tr>
-                      </Thead>
-                      <Tbody>
-                        {itemsByWashType.map((item, index) => (
-                          <Tr key={index}>
-                            <Td>{item.name}</Td>
-                            <Td>{item.quantity}</Td>
-                            <Td>${item.pricePerItem}</Td>
-                          </Tr>
-                        ))}
-                      </Tbody>
-                    </Table>
-                  </Box>
-                );
-              })}
-
+                  return (
+                    <AccordionItem key={washType}>
+                      <AccordionButton>
+                        <Box
+                          flex="1"
+                          textAlign="left"
+                          fontSize="lg"
+                          fontWeight="bold"
+                          color={
+                            washType === 'simple_wash'
+                              ? 'blue.500'
+                              : washType === 'power_clean'
+                                ? 'orange.500'
+                                : 'purple.500'
+                          }
+                        >
+                          {washType === 'simple_wash'
+                            ? 'Simple Wash'
+                            : washType === 'power_clean'
+                              ? 'Power Clean'
+                              : 'Dry Clean'}
+                        </Box>
+                        <AccordionIcon />
+                      </AccordionButton>
+                      <AccordionPanel pb={4}>
+                        <Table
+                          variant="simple"
+                          sx={{
+                            th: { padding: '8px', textAlign: 'center' },
+                            td: { padding: '8px', textAlign: 'center' },
+                          }}
+                        >
+                          <Thead>
+                            <Tr>
+                              <Th>Name</Th>
+                              <Th>Quantity</Th>
+                              <Th>Price per Item</Th>
+                            </Tr>
+                          </Thead>
+                          <Tbody>
+                            {itemsByWashType.map((item, index) => (
+                              <Tr key={index}>
+                                <Td>{item.name}</Td>
+                                <Td>{item.quantity}</Td>
+                                <Td>${item.pricePerItem}</Td>
+                              </Tr>
+                            ))}
+                          </Tbody>
+                        </Table>
+                      </AccordionPanel>
+                    </AccordionItem>
+                  );
+                })}
+              </Accordion>
               <Divider my={2} />
             </ModalBody>
             <ModalFooter>
