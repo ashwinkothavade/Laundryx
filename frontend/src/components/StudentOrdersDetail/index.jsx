@@ -34,6 +34,7 @@ import {
 } from '@chakra-ui/react';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function OrderDetail() {
   const [orders, setOrders] = useState([]);
@@ -43,7 +44,7 @@ function OrderDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const toast = useToast();
-
+  const navigate = useNavigate();
   const handleToast = (title, description, status) => {
     toast({
       position: 'top',
@@ -110,7 +111,8 @@ function OrderDetail() {
               'http://localhost:4000/payment/validate',
               { ...resp, order_id: order._id }
             );
-            const response = await validatePayment.data;
+            // eslint-disable-next-line no-unused-vars
+            const validateResponse = await validatePayment.data;
             handleToast(
               'Payment Successfully Done and Verified',
               '',
@@ -128,14 +130,15 @@ function OrderDetail() {
         },
       };
       const rzp1 = new window.Razorpay(options);
-      rzp1.on('payment.failed', function (response) {
-        alert(response.error.code);
-        alert(response.error.description);
-        alert(response.error.source);
-        alert(response.error.step);
-        alert(response.error.reason);
-        alert(response.error.metadata.order_id);
-        alert(response.error.metadata.payment_id);
+      // eslint-disable-next-line func-names
+      rzp1.on('payment.failed', function (result) {
+        alert(result.error.code);
+        alert(result.error.description);
+        alert(result.error.source);
+        alert(result.error.step);
+        alert(result.error.reason);
+        alert(result.error.metadata.order_id);
+        alert(result.error.metadata.payment_id);
       });
       rzp1.open();
     } catch (err) {
@@ -165,11 +168,17 @@ function OrderDetail() {
   }
 
   if (error) {
-    return (
-      <Center>
-        <Text>Error: {error}</Text>
-      </Center>
-    );
+    toast({
+      position: 'top',
+      title: 'Error',
+      description: 'Please login again',
+      status: 'error',
+      duration: 1000,
+      isClosable: true,
+      onCloseComplete: () => {
+        navigate('/login');
+      },
+    });
   }
 
   return (

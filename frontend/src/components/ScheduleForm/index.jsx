@@ -10,8 +10,8 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import moment from 'moment';
-import React, { useRef } from 'react';
-import { FaTruckPickup } from 'react-icons/fa';
+import React, { useEffect, useRef, useState } from 'react';
+import { FaTruckPickup, FaUser } from 'react-icons/fa';
 import { FaLocationCrosshairs, FaLocationDot } from 'react-icons/fa6';
 import { TbTruckDelivery } from 'react-icons/tb';
 
@@ -28,6 +28,7 @@ function ScheduleCard() {
     setDeliveryTime,
     setPickupAddress,
     setDeliveryAddress,
+    setLaunderer,
     clearItems,
   } = useOrderStore((state) => ({
     clearSchedule: state.clearSchedule,
@@ -37,20 +38,39 @@ function ScheduleCard() {
     setDeliveryTime: state.setDeliveryTime,
     setPickupAddress: state.setPickupAddress,
     setDeliveryAddress: state.setDeliveryAddress,
+    setLaunderer: state.setLaunderer,
     clearItems: state.clearItems,
   }));
   const { userHostel, userRollNumber } = useAuthStore((state) => ({
     userHostel: state.userHostel,
     userRollNumber: state.userRollNumber,
   }));
+  // eslint-disable-next-line no-unused-vars
+  const [loading, setLoading] = useState(true);
+
   const pickupDateRef = useRef();
   const pickupTimeRef = useRef();
   const deliveryTimeRef = useRef();
   const pickupAddressRef = useRef();
   const deliveryAddressRef = useRef();
+  const laundererRef = useRef();
+  const launderersRef = useRef();
 
   const toast = useToast();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const getOrders = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/launderers');
+        launderersRef.current = response.data;
+        setLoading(false);
+      } catch (err) {
+        setLoading(false);
+      }
+    };
+    getOrders();
+  }, []);
 
   const handleToast = (title, description, status) => {
     toast({
@@ -69,9 +89,10 @@ function ScheduleCard() {
       !pickupTimeRef.current.value ||
       !deliveryTimeRef.current.value ||
       !pickupAddressRef.current.value ||
-      !deliveryAddressRef.current.value
+      !deliveryAddressRef.current.value ||
+      !laundererRef.current.value
     ) {
-      handleToast('Please confirm all schedule details.', '', 'error');
+      handleToast('Please confirm all the details.', '', 'error');
       return;
     }
     setPickupDate(pickupDateRef.current.value);
@@ -79,6 +100,7 @@ function ScheduleCard() {
     setDeliveryTime(deliveryTimeRef.current.value);
     setPickupAddress(pickupAddressRef.current.value);
     setDeliveryAddress(deliveryAddressRef.current.value);
+    setLaunderer(laundererRef.current.value);
     handleToast(
       'All schedule details are added.',
       'Order can now be confirmed and placed.',
@@ -96,27 +118,23 @@ function ScheduleCard() {
       );
       return;
     }
-    if (order.items.length === 0) {
-      handleToast('Please add items before placing the order.', '', 'error');
-      return;
-    }
     if (
       !order.pickupDate ||
       !order.pickupTime ||
       !order.deliveryTime ||
       !order.pickupAddress ||
-      !order.deliveryAddress
+      !order.deliveryAddress ||
+      !order.launderer
     ) {
       handleToast('Please confirm all schedule details.', '', 'error');
       return;
     }
 
     try {
-      console.log(order);
+      // eslint-disable-next-line no-unused-vars
       const response = await axios.post(
         'http://localhost:4000/student/createorder',
-        order,
-        { withCredentials: true }
+        order
       );
       handleToast(
         'Order placed successfully',
@@ -126,11 +144,8 @@ function ScheduleCard() {
       clearSchedule();
       clearItems();
       navigate('/OrderList');
-      console.log(response);
     } catch (err) {
-      console.log(err);
-      console.log(err.message);
-      handleToast('Some ', err.message, 'error');
+      handleToast('Error', err.response.data.message, 'error');
     }
   };
 
@@ -259,6 +274,29 @@ function ScheduleCard() {
             <option value="Panini">Panini</option>
             <option value="Nagarjuna">Nagarjuna</option>
             <option value="Maa Saraswati">Maa Saraswati</option>
+          </Select>
+        </Flex>
+        <Flex align="center" justify="space-between">
+          <HStack gap={2}>
+            <FaUser color="#CE1567" size="20" />
+            <Text color="#CE1567" fontWeight={600}>
+              Launderer
+            </Text>
+          </HStack>
+          <Select
+            placeholder="Select launderer"
+            border="2px solid #584BAC"
+            w="auto"
+            ref={laundererRef}
+            _hover={{ border: '2px solid #584BAC' }}
+            _focus={{ border: '2px solid #584BAC' }}
+          >
+            {launderersRef.current &&
+              launderersRef.current.map((launderer) => (
+                <option key={launderer._id} value={launderer.username}>
+                  {launderer.username}
+                </option>
+              ))}
           </Select>
         </Flex>
       </Stack>

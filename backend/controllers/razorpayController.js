@@ -30,7 +30,7 @@ const validatePayment = async (req, resp) => {
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
-      order_id
+      order_id,
     } = req.body;
     const sha = crypto.createHmac('sha256', process.env.RAZORPAY_SECRET);
     sha.update(`${razorpay_order_id}|${razorpay_payment_id}`);
