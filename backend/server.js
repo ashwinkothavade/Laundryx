@@ -16,7 +16,7 @@ const app = express();
 
 const port = process.env.PORT || 4000;
 const corsOptions = {
-  origin: ['http://localhost:5173'],
+  origin: ['http://localhost:5173', 'https://laundrix-web.vercel.app/'],
   methods: 'GET, POST, PUT, DELETE, PATCH',
   credentials: true,
   optionsSuccessStatus: 200,
