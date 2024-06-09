@@ -268,7 +268,6 @@ const postResetPassword = async (req, resp) => {
     resp.status(401).send(err.message);
   }
 };
-
 module.exports = {
   getAllUsers,
   getAllLaunderers,
