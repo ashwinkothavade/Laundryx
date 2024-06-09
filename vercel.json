@@ -1,11 +1,5 @@
 {
     "version": 2,
-    "projects": [
-      {
-        "src": "backend/",
-        "use": "@vercel/node"
-      }
-    ],
     "builds": [
       {
         "src": "backend/**/*.js",
