@@ -11,6 +11,7 @@ import {
   Flex,
   Grid,
   GridItem,
+  IconButton,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -34,6 +35,7 @@ import {
 } from '@chakra-ui/react';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
+import { MdDelete } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 
 function OrderDetail() {
@@ -53,11 +55,6 @@ function OrderDetail() {
       status,
       duration: 1000,
       isClosable: true,
-      onCloseComplete: () => {
-        if (status === 'success') {
-          window.location.reload();
-        }
-      },
     });
   };
 
@@ -118,6 +115,15 @@ function OrderDetail() {
               '',
               'success'
             );
+            // set the paid field of this order to true in the filteredOrders state
+            setOrders((prevOrders) =>
+              prevOrders.map((prevOrder) => {
+                if (prevOrder._id === order._id) {
+                  return { ...prevOrder, paid: true };
+                }
+                return prevOrder;
+              })
+            );
           } catch (err) {
             handleToast('Payment Validation Failed', err.message, 'error');
           }
@@ -143,6 +149,27 @@ function OrderDetail() {
       rzp1.open();
     } catch (err) {
       handleToast('Payment Failed', err.message, 'error');
+    }
+  };
+
+  const deleteOrder = async (order_id) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:4000/student/deleteorder/${order_id}`,
+        { withCredentials: true }
+      );
+      if (response.status === 200) {
+        handleToast('Order Deleted Successfully', '', 'success');
+        setOrders((prevOrders) =>
+          prevOrders.filter((order) => order._id !== order_id)
+        );
+      }
+    } catch (err) {
+      handleToast(
+        'Error Deleting Order',
+        err.message || err.error.message,
+        'error'
+      );
     }
   };
 
@@ -262,6 +289,17 @@ function OrderDetail() {
                       >
                         Pay
                       </Button>
+                      <IconButton
+                        colorScheme="red"
+                        aria-label="Delete Order"
+                        icon={<MdDelete size={24} />}
+                        // button should be abled either when the order is not accepted, or when the order is paid and delivered.
+                        isDisabled={
+                          order.acceptedStatus &&
+                          (!order.paid || !order.deliveredStatus)
+                        }
+                        onClick={() => deleteOrder(order._id)}
+                      />
                     </Flex>
                   </Td>
                 </Tr>
