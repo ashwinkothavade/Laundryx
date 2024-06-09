@@ -11,6 +11,7 @@ const authRoutes = require('./routes/authRoutes');
 const laundererRoutes = require('./routes/laundererRoutes');
 const studentRoutes = require('./routes/studentRoutes');
 const razorpayRoutes = require('./routes/razorpayRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.use(authRoutes);
 app.use(laundererRoutes);
 app.use(studentRoutes);
 app.use(razorpayRoutes);
+app.use(notificationRoutes);
 
 app.get('/', (req, resp) => {
   resp.status(200).json('This is the LaundriX backend API.');
