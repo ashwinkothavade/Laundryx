@@ -21,6 +21,7 @@ import {
   ModalOverlay,
   Select,
   Spinner,
+  Switch,
   Table,
   Tag,
   Tbody,
@@ -149,6 +150,29 @@ function OrderDetail() {
       rzp1.open();
     } catch (err) {
       handleToast('Payment Failed', err.message, 'error');
+    }
+  };
+
+  const handleUpdatePickupStatus = async (order_id) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:4000/student/updatepickupstatus/${order_id}`,
+        {},
+        { withCredentials: true }
+      );
+      if (response.status === 200) {
+        setOrders((prevOrders) => {
+          return prevOrders.map((order) => {
+            if (order._id === order_id) {
+              return { ...order, pickUpStatus: true };
+            }
+            return order;
+          });
+        });
+        onClose();
+      }
+    } catch (err) {
+      handleToast('Error Updating Pickup Status', err.message, 'error');
     }
   };
 
@@ -283,7 +307,11 @@ function OrderDetail() {
                         color="#ffffff"
                         bgColor="green.500"
                         isDisabled={order.paid}
-                        display={!order.acceptedStatus ? 'none' : 'block'}
+                        display={
+                          !order.acceptedStatus || !order.pickUpStatus
+                            ? 'none'
+                            : 'block'
+                        }
                         _hover={{ bgColor: 'green.600' }}
                         onClick={() => handlePayment(order)}
                       >
@@ -400,6 +428,18 @@ function OrderDetail() {
                   >
                     {selectedOrder.pickUpStatus ? 'Picked Up' : 'Not Picked Up'}
                   </Tag>
+                  <Switch
+                    size="md"
+                    ml={2}
+                    colorScheme="green"
+                    display={
+                      !selectedOrder.acceptedStatus ||
+                      selectedOrder.pickUpStatus
+                        ? 'none'
+                        : ''
+                    }
+                    onChange={() => handleUpdatePickupStatus(selectedOrder._id)}
+                  />
                 </GridItem>
                 <GridItem>
                   <Text>
