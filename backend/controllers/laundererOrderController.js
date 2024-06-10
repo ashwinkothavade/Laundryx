@@ -134,6 +134,49 @@ const updateOrderReject = async (req, resp) => {
   }
 };
 
+// @desc    Update Order Delivery Status by the launderer
+// @route   PUT /updatedeliveredstatus/:order_id
+// @access  Private
+const updateDeliveredStatus = async (req, resp) => {
+  try {
+    const token = req.cookies.jwt;
+    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    if (decodedToken.role !== 'launderer') {
+      resp.status(401).json({
+        message: 'User does not have access rights',
+      });
+    } else {
+      // the role is launderer, and the route can now be accessed.
+      // launderer can now set the delivered status of the order to be true
+      const orderId = req.params.order_id;
+      const order = await Order.findById(orderId);
+      if (order.acceptedStatus === false) {
+        resp.status(400).json({
+          message: 'Order is not accepted yet.',
+        });
+      } else if (order.pickUpStatus === false) {
+        resp.status(400).json({
+          message: 'Order is not picked up yet.',
+        });
+      } else if (order.deliveredStatus === true) {
+        resp.status(400).json({
+          message: 'Order is already delivered.',
+        });
+      } else {
+        order.deliveredStatus = true;
+        order.save();
+        resp.status(200).json({
+          updatedOrder: order,
+        });
+      }
+    }
+  } catch (err) {
+    resp.status(401).json({
+      message: err,
+    });
+  }
+};
+
 // @desc    Update Order Delivery Date by the launderer
 // @route   PUT /updatedeliverydate/:order_id
 // @access  Private
@@ -170,4 +213,5 @@ module.exports = {
   updateOrderAccept,
   updateOrderReject,
   updateOrderDeliveryDate,
+  updateDeliveredStatus,
 };

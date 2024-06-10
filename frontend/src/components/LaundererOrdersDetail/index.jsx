@@ -20,6 +20,7 @@ import {
   ModalOverlay,
   Select,
   Spinner,
+  Switch,
   Table,
   Tag,
   Tbody,
@@ -45,6 +46,7 @@ function LaundererOrdersDetail() {
   const [error, setError] = useState(null);
   const toast = useToast();
   const navigate = useNavigate();
+
   const handleToast = (title, description, status) => {
     toast({
       position: 'top',
@@ -60,6 +62,7 @@ function LaundererOrdersDetail() {
       },
     });
   };
+
   useEffect(() => {
     const getOrders = async () => {
       try {
@@ -81,6 +84,52 @@ function LaundererOrdersDetail() {
 
   const handleFilterChange = (e) => {
     setFilter(e.target.value);
+  };
+
+  const handleUpdateAcceptedStatus = async (order_id) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:4000/acceptorder/${order_id}`,
+        {},
+        { withCredentials: true }
+      );
+      if (response.status === 200) {
+        setOrders((prevOrders) => {
+          return prevOrders.map((order) => {
+            if (order._id === order_id) {
+              return { ...order, acceptedStatus: true };
+            }
+            return order;
+          });
+        });
+        onClose();
+      }
+    } catch (err) {
+      handleToast('Some Error Occurred', err.message, 'error');
+    }
+  };
+
+  const handleUpdateDeliveredStatus = async (order_id) => {
+    try {
+      const response = await axios.put(
+        `http://localhost:4000/updatedeliveredstatus/${order_id}`,
+        {},
+        { withCredentials: true }
+      );
+      if (response.status === 200) {
+        setOrders((prevOrders) => {
+          return prevOrders.map((order) => {
+            if (order._id === order_id) {
+              return { ...order, deliveredStatus: true };
+            }
+            return order;
+          });
+        });
+        onClose();
+      }
+    } catch (err) {
+      handleToast('Some Error Occurred', err.message, 'error');
+    }
   };
 
   const filteredOrders = orders.filter((order) => {
@@ -134,7 +183,7 @@ function LaundererOrdersDetail() {
           </Select>
         </Box>
       </Flex>
-      <Box w="75vw" overflowX="auto">
+      <Box w="93rem" overflowX="auto">
         <Box maxH="70vh" overflowY="scroll">
           <Table variant="simple">
             <Thead>
@@ -159,9 +208,9 @@ function LaundererOrdersDetail() {
                   <Td textAlign="center">
                     <Tag
                       size="lg"
-                      colorScheme={order.pickupStatus ? 'green' : 'red'}
+                      colorScheme={order.pickUpStatus ? 'green' : 'red'}
                     >
-                      {order.pickupStatus ? 'Picked Up' : 'Not Picked Up'}
+                      {order.pickUpStatus ? 'Picked Up' : 'Not Picked Up'}
                     </Tag>
                   </Td>
                   <Td textAlign="center">
@@ -190,11 +239,7 @@ function LaundererOrdersDetail() {
       {selectedOrder && (
         <Modal isOpen={isOpen} onClose={onClose}>
           <ModalOverlay />
-          <ModalContent
-            // width="90%"
-            border="2px solid #ce1567"
-            borderRadius="0.5rem"
-          >
+          <ModalContent border="2px solid #ce1567" borderRadius="0.5rem">
             <ModalHeader />
             <ModalCloseButton />
             <ModalBody>
@@ -281,6 +326,15 @@ function LaundererOrdersDetail() {
                   >
                     {selectedOrder.acceptedStatus ? 'Accepted' : 'Not Accepted'}
                   </Tag>
+                  <Switch
+                    size="md"
+                    ml={2}
+                    colorScheme="green"
+                    display={selectedOrder.acceptedStatus ? 'none' : ''}
+                    onChange={() =>
+                      handleUpdateAcceptedStatus(selectedOrder._id)
+                    }
+                  />
                 </GridItem>
                 <GridItem>
                   <Text>
@@ -296,6 +350,21 @@ function LaundererOrdersDetail() {
                       ? 'Delivered'
                       : 'Not Delivered'}
                   </Tag>
+                  <Switch
+                    size="md"
+                    ml={2}
+                    colorScheme="green"
+                    display={
+                      !selectedOrder.pickUpStatus ||
+                      !selectedOrder.acceptedStatus ||
+                      selectedOrder.deliveredStatus
+                        ? 'none'
+                        : ''
+                    }
+                    onChange={() =>
+                      handleUpdateDeliveredStatus(selectedOrder._id)
+                    }
+                  />
                 </GridItem>
                 <GridItem>
                   <Text>

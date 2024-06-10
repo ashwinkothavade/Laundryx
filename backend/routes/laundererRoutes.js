@@ -26,5 +26,10 @@ router.put(
   verifyUser,
   laundererOrderController.updateOrderDeliveryDate
 );
+router.put(
+  '/updatedeliveredstatus/:order_id',
+  verifyUser,
+  laundererOrderController.updateDeliveredStatus
+);
 
 module.exports = router;
