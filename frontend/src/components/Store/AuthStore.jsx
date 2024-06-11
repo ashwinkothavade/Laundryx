@@ -12,7 +12,8 @@ const useAuthStore = create(
       userHostel: '', // userCredentials
       userRoomNumber: '', // userCredentials
       userRollNumber: '', // userCredentials
-
+      userNotifications: [], // userCredentials
+      unreadCount: 0, // userCredentials
       addAuth: () => {
         set((state) => {
           return { ...state, isAuth: true };
@@ -61,6 +62,34 @@ const useAuthStore = create(
       setUserRollNumber: (value) => {
         set((state) => {
           return { ...state, userRollNumber: value };
+        });
+      },
+      updateUserNotifications: (notifications) => {
+        set((state) => {
+          return { ...state, userNotifications: notifications };
+        });
+      },
+      clearUserNotifications: () => {
+        set((state) => {
+          return {
+            ...state,
+            userNotifications: [],
+          };
+        });
+      },
+      removeUserNotification: (id) => {
+        set((state) => {
+          return {
+            ...state,
+            userNotifications: state.userNotifications.filter(
+              (notification) => notification._id !== id
+            ),
+          };
+        });
+      },
+      setUnreadCount: (value) => {
+        set((state) => {
+          return { ...state, unreadCount: value };
         });
       },
     }),

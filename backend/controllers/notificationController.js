@@ -1,7 +1,5 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/userModel');
 const Notification = require('../models/notificationModel');
-const Order = require('../models/orderModel');
 
 // @desc    Get all notifications
 // @route   GET /notifications
@@ -61,7 +59,23 @@ const createNotification = async (req, resp) => {
   }
 };
 
+// @desc  delete a notification
+// @route DELETE /notifications/:id
+// @access Private
+const deleteNotification = async (req, resp) => {
+  try {
+    const notification = await Notification.findByIdAndDelete(req.params.id);
+    if (!notification) {
+      resp.status(404).json({ message: 'Notification not found' });
+    }
+    resp.status(200).json({ message: 'Notification removed' });
+  } catch (err) {
+    resp.status(500).json({ message: 'Error removing the notification' });
+  }
+};
+
 module.exports = {
   getNotifications,
   createNotification,
+  deleteNotification,
 };

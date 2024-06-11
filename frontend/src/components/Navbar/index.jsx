@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react';
 import {
   Button,
   Flex,
@@ -13,8 +14,13 @@ import {
   TagLeftIcon,
   Tag,
   TagLabel,
+  Badge,
+  List,
+  ListItem,
+  ListIcon,
 } from '@chakra-ui/react';
-import { BiUserCheck, BiUserPlus, BiLogOut } from 'react-icons/bi';
+import { BiUserCheck, BiUserPlus, BiLogOut, BiBell } from 'react-icons/bi';
+import { IoIosClose } from 'react-icons/io';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -25,6 +31,12 @@ function Navbar() {
     isAuth,
     removeAuth,
     userName,
+    userNotifications,
+    unreadCount,
+    updateUserNotifications,
+    clearUserNotifications,
+    removeUserNotification,
+    setUnreadCount,
     setUserRole,
     setUserName,
     setUserPhone,
@@ -35,6 +47,12 @@ function Navbar() {
   } = useAuthStore((state) => ({
     isAuth: state.isAuth,
     userName: state.userName,
+    userNotifications: state.userNotifications,
+    unreadCount: state.unreadCount,
+    updateUserNotifications: state.updateUserNotifications,
+    clearUserNotifications: state.clearUserNotifications,
+    removeUserNotification: state.removeUserNotification,
+    setUnreadCount: state.setUnreadCount,
     addAuth: state.addAuth,
     removeAuth: state.removeAuth,
     setUserName: state.setUserName,
@@ -49,9 +67,32 @@ function Navbar() {
   const navigate = useNavigate();
   const toast = useToast();
 
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/notifications');
+        if (
+          !response.data.notifications ||
+          response.data.notifications.length === 0
+        ) {
+          console.log('No notifs');
+          return;
+        }
+        updateUserNotifications(response.data.notifications);
+        setUnreadCount(response.data.unreadCount);
+      } catch (error) {
+        console.error('Error fetching notifications', error);
+      }
+    };
+
+    if (isAuth) {
+      fetchNotifications();
+    }
+  }, [isAuth, updateUserNotifications, setUnreadCount]);
+
   const logOut = async () => {
     try {
-      // eslint-disable-next-line
+      // eslint-disable-next-line no-unused-vars
       const response = await axios.get('http://localhost:4000/logout');
       toast({
         title: 'Success',
@@ -62,6 +103,8 @@ function Navbar() {
         position: 'top',
       });
       removeAuth();
+      clearUserNotifications();
+      setUnreadCount(0);
       setUserName(null);
       setUserRole(null);
       setUserEmail(null);
@@ -85,6 +128,21 @@ function Navbar() {
       removeAuth();
     }
   };
+
+  const deleteNotification = async (id) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:4000/notifications/${id}`
+      );
+      if (response.status === 200) {
+        setUnreadCount((prevCount) => prevCount - 1);
+        removeUserNotification(id);
+      }
+    } catch (err) {
+      console.error('Error deleting notification', err);
+    }
+  };
+
   return (
     <Flex
       align="center"
@@ -111,6 +169,65 @@ function Navbar() {
       <Flex display={{ base: 'none', md: 'block' }}>
         {isAuth ? (
           <Flex justify="center" align="center" gap="1.5rem">
+            <Menu>
+              <MenuButton
+                as={Button}
+                borderRadius="0.5rem"
+                variant="ghost"
+                cursor="pointer"
+                position="relative"
+              >
+                <BiBell size="1.5rem" color="#584bac" />
+                {unreadCount > 0 && (
+                  <Badge
+                    colorScheme="red"
+                    borderRadius="full"
+                    position="absolute"
+                    top="0"
+                    right="0"
+                    fontSize="0.8rem"
+                    p="0.2rem 0.4rem"
+                  >
+                    {unreadCount}
+                  </Badge>
+                )}
+              </MenuButton>
+              <MenuList
+                border="2px solid #ce1584"
+                borderRadius="0.5rem"
+                p="1rem"
+              >
+                {userNotifications.length > 0 ? (
+                  <List spacing={3}>
+                    {userNotifications.map((notification, index) => (
+                      <ListItem key={index}>
+                        <Flex align="center">
+                          <ListIcon as={BiBell} color="#ce1584" />
+                          {notification.message}
+                          <Button
+                            size="md"
+                            ml="auto"
+                            onClick={() => deleteNotification(notification._id)}
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              padding: '4px 8px',
+                              borderRadius: 8,
+                              border: 'none',
+                              backgroundColor: 'transparent',
+                            }}
+                          >
+                            <IoIosClose color="red" />
+                          </Button>
+                        </Flex>
+                      </ListItem>
+                    ))}
+                  </List>
+                ) : (
+                  <MenuItem>No notifications</MenuItem>
+                )}
+              </MenuList>
+            </Menu>
             <Link to="/dashboard">
               <Tag
                 size="lg"
@@ -128,7 +245,7 @@ function Navbar() {
                   <TagLeftIcon
                     boxSize="12px"
                     // eslint-disable-next-line
-                as={() => <Avatar name={userName} size="sm" />}
+                    as={() => <Avatar name={userName} size="sm" />}
                   />
                   <TagLabel>
                     <Text
