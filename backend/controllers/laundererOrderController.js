@@ -44,7 +44,7 @@ const getOrdersByStudent = async (req, resp) => {
         message: 'User does not have access rights',
       });
     } else {
-      // the role is launderer, and the route can now be accessed.
+      // the role is launderer, and the route can now be accessed
       // Get the username of the student, search in the database for the orders with the username
       const { username } = req.params;
       const user = await User.findOne({ username });
