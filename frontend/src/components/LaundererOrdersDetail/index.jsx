@@ -7,10 +7,12 @@ import {
   Box,
   Button,
   Center,
+  Checkbox,
+  CheckboxGroup,
   Divider,
-  Flex,
   Grid,
   GridItem,
+  HStack,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -18,7 +20,6 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Select,
   Spinner,
   Switch,
   Table,
@@ -40,7 +41,7 @@ import { useNavigate } from 'react-router-dom';
 function LaundererOrdersDetail() {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [filter, setFilter] = useState('all');
+  const [selectedFilters, setSelectedFilters] = useState(['all']);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -82,8 +83,17 @@ function LaundererOrdersDetail() {
     onOpen();
   };
 
-  const handleFilterChange = (e) => {
-    setFilter(e.target.value);
+  const handleFilterChange = (value) => {
+    if (value === 'all') {
+      setSelectedFilters(['all']);
+    } else {
+      setSelectedFilters((prev) => {
+        const newFilters = prev.includes(value)
+          ? prev.filter((f) => f !== value)
+          : [...prev.filter((f) => f !== 'all'), value];
+        return newFilters.length === 0 ? ['all'] : newFilters;
+      });
+    }
   };
 
   const handleUpdateAcceptedStatus = async (order_id) => {
@@ -133,16 +143,15 @@ function LaundererOrdersDetail() {
   };
 
   const filteredOrders = orders.filter((order) => {
-    if (filter === 'all') return true;
-    if (filter === 'accepted') return order.acceptedStatus;
-    if (filter === 'notAccepted') return !order.acceptedStatus;
-    if (filter === 'delivered') return order.deliveredStatus;
-    if (filter === 'notDelivered') return !order.deliveredStatus;
-    if (filter === 'paid') return order.paid;
-    if (filter === 'notPaid') return !order.paid;
-    if (filter === 'pickedUp') return order.pickUpStatus;
-    if (filter === 'notPickedUp') return !order.pickUpStatus;
-    return true;
+    if (selectedFilters.includes('all')) return true;
+
+    return selectedFilters.every((value) => {
+      if (value === 'accepted') return order.acceptedStatus;
+      if (value === 'pickedUp') return order.pickUpStatus;
+      if (value === 'delivered') return order.deliveredStatus;
+      if (value === 'paid') return order.paid;
+      return true;
+    });
   });
 
   if (loading) {
@@ -158,32 +167,63 @@ function LaundererOrdersDetail() {
   }
 
   return (
-    <VStack align="start" gap={14} ml="8rem">
-      <Flex justify="space-between" align="center" w="100%">
-        <Text fontSize="2rem" fontWeight="bold">
-          Order Details:
-        </Text>
-        <Box>
-          <Select
-            placeholder="Select Filter"
-            onChange={handleFilterChange}
-            border="2px solid #ce1567"
-            _hover={{ border: '2px solid #ce1567' }}
-            _focus={{ border: '2px solid #ce1567' }}
+    <VStack align="start" gap={12} ml="8rem">
+      <Text fontSize="2rem" fontWeight="bold">
+        Order Details:
+      </Text>
+      <CheckboxGroup>
+        <HStack
+          gap={8}
+          overflowX="scroll"
+          css={{
+            '&::-webkit-scrollbar': {
+              display: 'none',
+            },
+            'scrollbar-width': 'none',
+          }}
+        >
+          <Checkbox
+            isChecked={selectedFilters.includes('all')}
+            onChange={() => handleFilterChange('all')}
           >
-            <option value="all">All</option>
-            <option value="accepted">Accepted</option>
-            <option value="notAccepted">Not Accepted</option>
-            <option value="delivered">Delivered</option>
-            <option value="notDelivered">Not Delivered</option>
-            <option value="paid">Paid</option>
-            <option value="notPaid">Not Paid</option>
-            <option value="pickedUp">Picked Up</option>
-            <option value="notPickedUp">Not Picked Up</option>
-          </Select>
-        </Box>
-      </Flex>
-      <Box w="93rem" overflowX="auto">
+            All
+          </Checkbox>
+          <Checkbox
+            isChecked={selectedFilters.includes('accepted')}
+            onChange={() => handleFilterChange('accepted')}
+          >
+            Accepted
+          </Checkbox>
+          <Checkbox
+            isChecked={selectedFilters.includes('pickedUp')}
+            onChange={() => handleFilterChange('pickedUp')}
+          >
+            Picked Up
+          </Checkbox>
+          <Checkbox
+            isChecked={selectedFilters.includes('delivered')}
+            onChange={() => handleFilterChange('delivered')}
+          >
+            Delivered
+          </Checkbox>
+          <Checkbox
+            onChange={() => handleFilterChange('paid')}
+            isChecked={selectedFilters.includes('paid')}
+          >
+            Paid
+          </Checkbox>
+        </HStack>
+      </CheckboxGroup>
+      <Box
+        w="93rem"
+        overflowX="scroll"
+        css={{
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
+          'scrollbar-width': 'none',
+        }}
+      >
         <Box maxH="70vh" overflowY="scroll">
           <Table variant="simple">
             <Thead>

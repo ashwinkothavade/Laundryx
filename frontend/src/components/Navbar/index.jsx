@@ -1,29 +1,28 @@
-import React, { useEffect } from 'react';
 import {
+  Avatar,
+  Badge,
   Button,
   Flex,
   IconButton,
+  List,
+  ListIcon,
+  ListItem,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
   Spacer,
-  Text,
-  Avatar,
-  useToast,
-  TagLeftIcon,
   Tag,
   TagLabel,
-  Badge,
-  List,
-  ListItem,
-  ListIcon,
+  Text,
+  useToast,
 } from '@chakra-ui/react';
-import { BiUserCheck, BiUserPlus, BiLogOut, BiBell } from 'react-icons/bi';
-import { IoIosClose } from 'react-icons/io';
-import { GiHamburgerMenu } from 'react-icons/gi';
-import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import React, { useEffect } from 'react';
+import { BiBell, BiLogOut, BiUserCheck, BiUserPlus } from 'react-icons/bi';
+import { GiHamburgerMenu } from 'react-icons/gi';
+import { IoIosClose } from 'react-icons/io';
+import { Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../Store/AuthStore';
 
 function Navbar() {
@@ -231,32 +230,21 @@ function Navbar() {
             <Link to="/dashboard">
               <Tag
                 size="lg"
-                variant="subtle"
-                bg="#edf2f7"
                 cursor="pointer"
-                borderRadius="0.5rem"
+                borderRadius="full"
                 py="0.25rem"
                 _hover={{
                   bg: '#dbdbdb',
-                  color: '#ce1567',
                 }}
+                transition="0.2s"
               >
                 <Flex align="center" my="0.025rem">
-                  <TagLeftIcon
-                    boxSize="12px"
-                    // eslint-disable-next-line
-                    as={() => <Avatar name={userName} size="sm" />}
-                  />
+                  <Avatar name={userName} size="sm" ml={-1} mr={2} />
                   <TagLabel>
                     <Text
                       color="#584BAC"
                       fontWeight="600"
                       fontSize={['0.4rem', '0.5rem', '0.8rem', '1.2rem']}
-                      ml={['12px', '15px', '15px', '20px']}
-                      _hover={{
-                        bg: '#dbdbdb',
-                        color: '#ce1567',
-                      }}
                     >
                       Account
                     </Text>
