@@ -214,11 +214,8 @@ function LaundererOrdersDetail() {
                     </Tag>
                   </Td>
                   <Td textAlign="center">
-                    <Tag
-                      size="lg"
-                      colorScheme={order.paidStatus ? 'green' : 'red'}
-                    >
-                      {order.paidStatus ? 'Paid' : 'Not Paid'}
+                    <Tag size="lg" colorScheme={order.paid ? 'green' : 'red'}>
+                      {order.paid ? 'Paid' : 'Not Paid'}
                     </Tag>
                   </Td>
                   <Td textAlign="center">
