@@ -41,7 +41,8 @@ function ScheduleCard() {
     setLaunderer: state.setLaunderer,
     clearItems: state.clearItems,
   }));
-  const { userHostel, userRollNumber } = useAuthStore((state) => ({
+  const { userName, userHostel, userRollNumber } = useAuthStore((state) => ({
+    userName: state.userName,
     userHostel: state.userHostel,
     userRollNumber: state.userRollNumber,
   }));
@@ -129,7 +130,11 @@ function ScheduleCard() {
       handleToast('Please confirm all schedule details.', '', 'error');
       return;
     }
-
+    const notification = {
+      student: userName,
+      launderer: order.launderer,
+      message: `New order placed by ${userName} of ${userHostel} with ${userRollNumber}`,
+    };
     try {
       // eslint-disable-next-line no-unused-vars
       const response = await axios.post(
@@ -141,6 +146,13 @@ function ScheduleCard() {
         'Wait for launderer to accept your order',
         'success'
       );
+      const notifResponse = await axios.post(
+        'http://localhost:4000/notifications',
+        notification
+      );
+      if (notifResponse.status !== 500) {
+        console.log(notifResponse);
+      }
       clearSchedule();
       clearItems();
       navigate('/OrderList');
