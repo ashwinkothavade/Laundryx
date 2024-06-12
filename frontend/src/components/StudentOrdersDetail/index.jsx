@@ -40,6 +40,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { MdDelete } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
+import useAuthStore from '../Store/AuthStore';
 
 function OrderDetail() {
   const [orders, setOrders] = useState([]);
@@ -50,6 +51,10 @@ function OrderDetail() {
   const [error, setError] = useState(null);
   const toast = useToast();
   const navigate = useNavigate();
+  const { userName, userHostel } = useAuthStore((state) => ({
+    userName: state.userName,
+    userHostel: state.userHostel,
+  }));
   const handleToast = (title, description, status) => {
     toast({
       position: 'top',
@@ -122,11 +127,25 @@ function OrderDetail() {
             );
             // eslint-disable-next-line no-unused-vars
             const validateResponse = await validatePayment.data;
+            const notification = {
+              student: userName,
+              launderer: order.launderer,
+              message: `Order Total of order ${order._id} of ${userName} paid successfully.`,
+              orderId: '',
+            };
+            const notifResponse = await axios.post(
+              'http://localhost:4000/notifications',
+              notification
+            );
+            if (notifResponse.status !== 500) {
+              console.log(notifResponse);
+            }
             handleToast(
               'Payment Successfully Done and Verified',
               '',
               'success'
             );
+
             // set the paid field of this order to true in the filteredOrders state
             setOrders((prevOrders) =>
               prevOrders.map((prevOrder) => {
@@ -168,10 +187,22 @@ function OrderDetail() {
     try {
       const response = await axios.put(
         `http://localhost:4000/student/updatepickupstatus/${order_id}`,
-        {},
-        { withCredentials: true }
+        {}
       );
       if (response.status === 200) {
+        const notification = {
+          student: userName,
+          launderer: selectedOrder.launderer,
+          message: `Order ${order_id} of ${userName} of ${userHostel} picked up successfully.`,
+          orderId: '',
+        };
+        const notifResponse = await axios.post(
+          'http://localhost:4000/notifications',
+          notification
+        );
+        if (notifResponse.status !== 500) {
+          console.log(notifResponse);
+        }
         setOrders((prevOrders) => {
           return prevOrders.map((order) => {
             if (order._id === order_id) {
@@ -190,8 +221,7 @@ function OrderDetail() {
   const deleteOrder = async (order_id) => {
     try {
       const response = await axios.delete(
-        `http://localhost:4000/student/deleteorder/${order_id}`,
-        { withCredentials: true }
+        `http://localhost:4000/student/deleteorder/${order_id}`
       );
       if (response.status === 200) {
         handleToast('Order Deleted Successfully', '', 'success');
