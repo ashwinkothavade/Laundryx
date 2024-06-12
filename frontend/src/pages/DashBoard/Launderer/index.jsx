@@ -1,12 +1,4 @@
-import {
-  Box,
-  Button,
-  Center,
-  Flex,
-  HStack,
-  Stack,
-  Text,
-} from '@chakra-ui/react';
+import { Box, Button, Flex, HStack, Stack, Text } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { FiBox } from 'react-icons/fi';
 import { MdKeyboardArrowRight } from 'react-icons/md';
@@ -75,9 +67,9 @@ function LaundererDashboard() {
             </Button>
           </Stack>
         </Box>
-        <Center>
+        <Flex justify="space-evenly" align="center" pt="3rem" pl="5rem">
           {!isActive ? <LaundererDetails /> : <LaundererOrdersDetail />}
-        </Center>
+        </Flex>
       </Flex>
     </>
   );

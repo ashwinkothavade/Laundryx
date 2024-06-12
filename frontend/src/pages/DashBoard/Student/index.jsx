@@ -70,8 +70,9 @@ function StudentDashBoard() {
       <Flex
         justify="space-evenly"
         align="center"
+        pt="5rem"
+        pl="5rem"
         mt={['50px', '55px', '70px']}
-        pt="10rem"
       >
         {!isActive ? <StudentDetails /> : <OrderDetail />}
       </Flex>
