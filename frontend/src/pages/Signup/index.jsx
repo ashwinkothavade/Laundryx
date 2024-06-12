@@ -1,4 +1,6 @@
 import { Box, Flex } from '@chakra-ui/react';
+import { DotLottiePlayer } from '@dotlottie/react-player';
+import '@dotlottie/react-player/dist/index.css';
 import Navbar from '../../components/Navbar';
 import SignupForm from '../../components/SignupForm';
 
@@ -6,14 +8,15 @@ export default function Signup() {
   return (
     <>
       <Navbar />
-      <Flex
-        justify="space-evenly"
-        align="center"
-        mt={['50px', '55px', '70px']}
-        pt="4rem"
-      >
-        {/* Animation from Lottie */}
-        <Box display={{ base: 'none', lg: 'block' }}>Animation</Box>
+      <Flex justify="center" align="center" gap="8rem" h="100vh">
+        <Box display={{ base: 'none', lg: 'block' }} h="50rem" w="50rem">
+          <DotLottiePlayer
+            src="/Child-with-laundry.lottie"
+            autoplay
+            loop
+            playMode="bounce"
+          />
+        </Box>
         <SignupForm />
       </Flex>
     </>

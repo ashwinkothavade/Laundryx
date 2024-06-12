@@ -142,143 +142,141 @@ export default function LoginForm() {
   };
 
   return (
-    <Center m={0} p={0}>
-      <Stack>
-        <Text
-          textAlign="center"
-          color=""
-          fontSize={['1.7rem', '2.2rem']}
-          fontWeight="600"
-          mb="1rem"
-        >
-          Log In
-        </Text>
-        <Flex
-          direction="column"
-          border="2px solid #ce1567"
-          w={['20rem', '27rem']}
-          px={['1rem', '2rem']}
-          py={['1rem', '2rem']}
-          borderRadius="0.8rem"
-          mb="1rem"
-        >
-          <form onSubmit={onSubmit}>
-            <Box mb={['1rem', '1.5rem']}>
-              <Text mb="0.5rem" fontSize={['1.1rem', '1.1rem']}>
-                Username
-              </Text>
-              <Box bg="#ffffff" borderRadius="0.4rem">
+    <Stack align="center">
+      <Text textAlign="center" fontSize={['1.7rem', '2.2rem']} fontWeight="600">
+        Log In
+      </Text>
+      <Flex
+        direction="column"
+        border="2px solid #ce1567"
+        w={['20rem', '27rem']}
+        px={['1rem', '2rem']}
+        py={['1rem', '2rem']}
+        borderRadius="0.8rem"
+        mb="1rem"
+      >
+        <form onSubmit={onSubmit}>
+          <Box mb={['1rem', '1.5rem']}>
+            <Text mb="0.5rem" fontSize="1.1rem">
+              Username
+            </Text>
+            <Box bg="#ffffff" borderRadius="0.4rem">
+              <Input
+                type="text"
+                focusBorderColor="#ce1567"
+                bg="#ecedf6"
+                id="username"
+                name="username"
+                ref={usernameRef}
+                placeholder="Enter your username  ..."
+              />
+            </Box>
+          </Box>
+          <Box mb="1rem">
+            <Text mb="0.5rem" fontSize="1.1rem">
+              Password
+            </Text>
+            <Box bg="#ffffff" borderRadius="0.4rem" mb={1}>
+              <InputGroup>
                 <Input
-                  type="text"
+                  type={showPassword ? 'text' : 'password'}
                   focusBorderColor="#ce1567"
                   bg="#ecedf6"
-                  id="username"
-                  name="username"
-                  ref={usernameRef}
-                  placeholder="Enter your username  ..."
+                  id="password"
+                  name="password"
+                  ref={passwordRef}
+                  placeholder="Enter your password..."
                 />
-              </Box>
-            </Box>
-            <Box mb="1rem">
-              <Text mb="0.5rem" fontSize={['1.1rem', '1.1rem']}>
-                Password
-              </Text>
-              <Box bg="#ffffff" borderRadius="0.4rem" mb={1}>
-                <InputGroup>
-                  <Input
-                    type={showPassword ? 'text' : 'password'}
-                    focusBorderColor="#ce1567"
-                    bg="#ecedf6"
-                    id="password"
-                    name="password"
-                    ref={passwordRef}
-                    placeholder="Enter your password..."
-                  />
-                  <InputRightElement
-                    onClick={() => {
-                      setShowPassword(!showPassword);
-                    }}
-                  >
-                    {showPassword ? (
-                      <BiHide
-                        style={{ width: '20px', height: '20px' }}
-                        color="#3d3d3d"
-                      />
-                    ) : (
-                      <BiShow
-                        style={{ width: '20px', height: '20px' }}
-                        color="#3d3d3d"
-                      />
-                    )}
-                  </InputRightElement>
-                </InputGroup>
-              </Box>
-              <Text color="#CE1567" as="u" cursor="pointer" onClick={onOpen}>
-                Forgot Password?
-              </Text>
-              <Modal
-                isOpen={isOpen}
-                onClose={onClose}
-                initialFocusRef={initialRef}
-              >
-                <ModalOverlay />
-                <ModalContent border="2px solid #ce1567" borderRadius="1rem">
-                  <ModalHeader>Forgot Password?</ModalHeader>
-                  <ModalCloseButton />
-                  <ModalBody>
-                    <FormControl>
-                      <FormLabel fontSize="1.1rem">Email Address:</FormLabel>
-                      <Input
-                        type="email"
-                        placeholder="Enter your email"
-                        ref={initialRef}
-                      />
-                    </FormControl>
-                  </ModalBody>
-
-                  <ModalFooter justifyContent="center">
-                    <Button
-                      bg="#CE1567"
-                      color="#FFFFFF"
-                      _hover={{
-                        bg: '',
-                      }}
-                      onClick={(e) => handleForgotPassword(e)}
-                    >
-                      Send Request
-                    </Button>
-                  </ModalFooter>
-                </ModalContent>
-              </Modal>
-            </Box>
-            <Center>
-              {loading ? (
-                <Spinner />
-              ) : (
-                <Button
-                  type="submit"
-                  mt={['1rem', '']}
-                  px="2rem"
-                  bg="#CE1567"
-                  color="#FFFFFF"
-                  _hover={{
-                    bg: '',
+                <InputRightElement
+                  onClick={() => {
+                    setShowPassword(!showPassword);
                   }}
-                  rightIcon={<HiArrowLongRight color="#ffffff" size="1.5rem" />}
                 >
-                  Log In
-                </Button>
-              )}
-            </Center>
-          </form>
-        </Flex>
-        <Text textAlign="center" fontSize={['1.1rem', '1.2rem']}>
-          Don't have an account?{' '}
-          <span style={{ color: '#CE1567', fontWeight: 600 }}>
-            <Link to="/signup">Register</Link>
-          </span>
-        </Text>
-      </Stack>
-    </Center>
+                  {showPassword ? (
+                    <BiHide
+                      style={{ width: '20px', height: '20px' }}
+                      color="#3d3d3d"
+                    />
+                  ) : (
+                    <BiShow
+                      style={{ width: '20px', height: '20px' }}
+                      color="#3d3d3d"
+                    />
+                  )}
+                </InputRightElement>
+              </InputGroup>
+            </Box>
+            <Text color="#CE1567" as="u" cursor="pointer" onClick={onOpen}>
+              Forgot Password?
+            </Text>
+            <Modal
+              isOpen={isOpen}
+              onClose={onClose}
+              initialFocusRef={initialRef}
+            >
+              <ModalOverlay />
+              <ModalContent border="2px solid #ce1567" borderRadius="1rem">
+                <ModalHeader>Forgot Password?</ModalHeader>
+                <ModalCloseButton />
+                <ModalBody>
+                  <FormControl>
+                    <FormLabel fontSize="1.1rem">Email Address:</FormLabel>
+                    <Input
+                      type="email"
+                      placeholder="Enter your email"
+                      ref={initialRef}
+                    />
+                  </FormControl>
+                </ModalBody>
+
+                <ModalFooter justifyContent="center">
+                  <Button
+                    bg="#CE1567"
+                    color="#FFFFFF"
+                    _hover={{
+                      bg: '',
+                    }}
+                    onClick={(e) => handleForgotPassword(e)}
+                  >
+                    Send Request
+                  </Button>
+                </ModalFooter>
+              </ModalContent>
+            </Modal>
+          </Box>
+          <Center>
+            {loading ? (
+              <Spinner />
+            ) : (
+              <Button
+                type="submit"
+                mt={['1rem', '']}
+                px="2rem"
+                bg="#CE1567"
+                color="#FFFFFF"
+                _hover={{
+                  bg: '',
+                }}
+                rightIcon={<HiArrowLongRight color="#ffffff" size="1.5rem" />}
+              >
+                Log In
+              </Button>
+            )}
+          </Center>
+        </form>
+      </Flex>
+      <Text textAlign="center" fontSize={['1.1rem', '1.2rem']}>
+        Don't have an account?{' '}
+        <span
+          style={{
+            color: '#CE1567',
+            fontWeight: 600,
+            textDecoration: 'underline',
+          }}
+        >
+          <Link to="/signup">Register</Link>
+        </span>
+      </Text>
+    </Stack>
   );
 }
