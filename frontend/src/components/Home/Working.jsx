@@ -48,6 +48,13 @@ const Circle = styled.div`
   margin: auto;
   margin-top: 2rem;
 `;
+
+const cardVariant = {
+  initial: { y: 20, opacity: 0 },
+  animate: { y: 0, opacity: 1 },
+  transition: { duration: 0.7, ease: 'easeInOut' },
+};
+
 function Working(props) {
   return (
     <Box
@@ -61,34 +68,41 @@ function Working(props) {
       pb="3rem"
     >
       <CardWrapper>
-        <Card className="box">
-          <CircleWrapper>
-            <Circle>
-              <Image
-                src={`assets/${props.procedure.image}`}
-                margin="auto"
-                w="100%"
-                pt="0.5rem"
-              />
-            </Circle>
-          </CircleWrapper>
-        </Card>
+        <motion.div variants={cardVariant} animate="animate" initial="initial">
+          <Card className="box">
+            <CircleWrapper>
+              <Circle>
+                <Image
+                  src={`assets/${props.procedure.image}`}
+                  margin="auto"
+                  w="100%"
+                  pt="0.5rem"
+                />
+              </Circle>
+            </CircleWrapper>
+          </Card>
+        </motion.div>
       </CardWrapper>
-      <Text fontWeight="semibold" fontSize="1.5rem" mt="-0.5rem" mb="1rem">
-        {props.procedure.title}
-      </Text>
-      <Text
-        color="#00000099"
-        maxWidth="15rem"
-        maxHeight="2rem"
-        textAlign="center"
-        fontWeight="semibold"
-      >
-        {props.procedure.desc}
-      </Text>
+      <motion.div variants={cardVariant} animate="animate" initial="initial">
+        <Text fontWeight="semibold" fontSize="1.5rem" mt="-0.5rem" mb="1rem">
+          {props.procedure.title}
+        </Text>
+      </motion.div>
+      <motion.div variants={cardVariant} animate="animate" initial="initial">
+        <Text
+          color="#00000099"
+          maxWidth="15rem"
+          maxHeight="2rem"
+          textAlign="center"
+          fontWeight="semibold"
+        >
+          {props.procedure.desc}
+        </Text>
+      </motion.div>
     </Box>
   );
 }
+
 Working.propTypes = {
   procedure: PropTypes.shape({
     id: PropTypes.number,

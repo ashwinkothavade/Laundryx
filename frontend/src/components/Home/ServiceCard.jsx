@@ -1,12 +1,20 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Box, Center, Divider, Text } from '@chakra-ui/react';
 import Services from '../../TempData/Services';
 import Service from './Service';
+
+const cardVariant = {
+  initial: { y: 20, opacity: 0 },
+  animate: { y: 0, opacity: 1 },
+  transition: { duration: 0.9, ease: 'easeInOut' },
+};
 
 function ServiceCard() {
   const tasks = Services.map((task) => {
     return <Service key={task.id} task={task} />;
   });
+
   return (
     <>
       <Box
@@ -23,30 +31,38 @@ function ServiceCard() {
           />
         </Center>
         <Box pt="6rem">
-          <Text fontSize="4xl" textAlign="center" fontWeight="semibold">
-            What We Offer
-          </Text>
-          <Text
-            textAlign="center"
-            fontWeight="semibold"
-            fontSize="xl"
-            color="lxPurple"
+          <motion.div
+            variants={cardVariant}
+            animate="animate"
+            initial="initial"
           >
-            Our services and prices
-          </Text>
+            <Text fontSize="4xl" textAlign="center" fontWeight="semibold">
+              What We Offer
+            </Text>
+            <Text
+              textAlign="center"
+              fontWeight="semibold"
+              fontSize="xl"
+              color="lxPurple"
+            >
+              Our services and prices
+            </Text>
+          </motion.div>
         </Box>
       </Box>
-      <Box
-        display="flex"
-        flexDirection={{ base: 'column', lg: 'row' }}
-        alignItems="center"
-        gap="3.5rem"
-        justifyContent="center"
-        px={{ base: '0rem', md: '9rem' }}
-        my={{ base: '1rem', md: '0rem' }}
-      >
-        {tasks}
-      </Box>
+      <motion.div variants={cardVariant} animate="animate" initial="initial">
+        <Box
+          display="flex"
+          flexDirection={{ base: 'column', lg: 'row' }}
+          alignItems="center"
+          gap="3.5rem"
+          justifyContent="center"
+          px={{ base: '0rem', md: '9rem' }}
+          my={{ base: '1rem', md: '0rem' }}
+        >
+          {tasks}
+        </Box>
+      </motion.div>
     </>
   );
 }
