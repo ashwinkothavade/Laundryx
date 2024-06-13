@@ -37,6 +37,7 @@ import {
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import useAuthStore from '../Store/AuthStore';
 
 function LaundererOrdersDetail() {
   const [orders, setOrders] = useState([]);
@@ -47,7 +48,9 @@ function LaundererOrdersDetail() {
   const [error, setError] = useState(null);
   const toast = useToast();
   const navigate = useNavigate();
-
+  const { userName } = useAuthStore((state) => ({
+    userName: state.userName,
+  }));
   const handleToast = (title, description, status) => {
     toast({
       position: 'top',
@@ -100,10 +103,22 @@ function LaundererOrdersDetail() {
     try {
       const response = await axios.put(
         `http://localhost:4000/acceptorder/${order_id}`,
-        {},
-        { withCredentials: true }
+        {}
       );
       if (response.status === 200) {
+        const notification = {
+          launderer: userName,
+          message: `Your order with Order ID: ${order_id} has been accepted.`,
+          student: '', // need to query the student username from the order_id
+          orderId: order_id,
+        };
+        const notifResponse = await axios.post(
+          'http://localhost:4000/notifications',
+          notification
+        );
+        if (notifResponse.status !== 500) {
+          console.log(notifResponse);
+        }
         setOrders((prevOrders) => {
           return prevOrders.map((order) => {
             if (order._id === order_id) {
@@ -112,7 +127,6 @@ function LaundererOrdersDetail() {
             return order;
           });
         });
-        onClose();
       }
     } catch (err) {
       handleToast('Some Error Occurred', err.message, 'error');
@@ -135,7 +149,6 @@ function LaundererOrdersDetail() {
             return order;
           });
         });
-        onClose();
       }
     } catch (err) {
       handleToast('Some Error Occurred', err.message, 'error');

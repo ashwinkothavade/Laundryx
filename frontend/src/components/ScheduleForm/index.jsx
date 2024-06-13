@@ -134,6 +134,7 @@ function ScheduleCard() {
       student: userName,
       launderer: order.launderer,
       message: `New order placed by ${userName} of ${userHostel} with ${userRollNumber}`,
+      orderId: '',
     };
     try {
       // eslint-disable-next-line no-unused-vars
