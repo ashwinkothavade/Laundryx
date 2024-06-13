@@ -176,7 +176,13 @@ function Navbar() {
                 cursor="pointer"
                 position="relative"
               >
-                <BiBell size="1.5rem" color="#584bac" />
+                <BiBell
+                  size="1.5rem"
+                  color="#584bac"
+                  _hover={{
+                    color: '#ce1567',
+                  }}
+                />
                 {unreadCount > 0 && (
                   <Badge
                     colorScheme="red"
@@ -232,7 +238,8 @@ function Navbar() {
                 size="lg"
                 cursor="pointer"
                 borderRadius="full"
-                py="0.25rem"
+                py="0.4rem"
+                px="1rem"
                 _hover={{
                   bg: '#dbdbdb',
                 }}
@@ -245,6 +252,10 @@ function Navbar() {
                       color="#584BAC"
                       fontWeight="600"
                       fontSize={['0.4rem', '0.5rem', '0.8rem', '1.2rem']}
+                      _hover={{
+                        bg: '#dbdbdb',
+                        color: '#ce1567',
+                      }}
                     >
                       Account
                     </Text>

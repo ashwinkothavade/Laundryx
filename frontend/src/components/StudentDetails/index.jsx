@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  Center,
   Flex,
   FormControl,
   FormLabel,
@@ -189,90 +188,35 @@ function StudentDetails() {
   };
 
   return (
-    <Center m={0} p={0}>
-      <Stack align="center" justify="center" spacing={4}>
-        <Box
-          borderRadius="1.2rem"
-          px={['2rem', '3rem']}
-          py={['2rem', '3rem']}
-          shadow="md"
-          w={['auto', 'auto', 'auto', '40rem', '40rem', '45rem']}
-          mb="2rem"
-          bg="#ffffff"
-          border="2px solid #ce1567"
-          boxShadow="0px 0px 20px 0px rgba(0, 0, 0, 0.20)"
-          mx="auto"
+    <Stack align="center" justify="center" spacing={4} pt="4rem">
+      <Box
+        borderRadius="1.2rem"
+        px={['2rem', '3rem']}
+        py={['2rem', '3rem']}
+        shadow="md"
+        w={['auto', 'auto', 'auto', '40rem', '40rem', '45rem']}
+        mb="2rem"
+        bg="#ffffff"
+        border="2px solid #ce1567"
+        boxShadow="0px 0px 20px 0px rgba(0, 0, 0, 0.20)"
+        mx="auto"
+      >
+        <Flex
+          align="center"
+          justify={isLargerThan768px ? 'space-between' : 'center'}
+          mb="1rem"
+          direction={isLargerThan768px ? 'row' : 'column'}
         >
-          <Flex
-            align="center"
-            justify={isLargerThan768px ? 'space-between' : 'center'}
-            mb="1rem"
-            direction={isLargerThan768px ? 'row' : 'column'}
+          <Text
+            textAlign="center"
+            color="#292929"
+            fontSize={['1.5rem', '1.8rem']}
+            fontWeight="100"
+            mb={isLargerThan768px ? '0' : '1rem'}
           >
-            <Text
-              textAlign="center"
-              color="#292929"
-              fontSize={['1.5rem', '1.8rem']}
-              fontWeight="100"
-              mb={isLargerThan768px ? '0' : '1rem'}
-            >
-              User Details
-            </Text>
-            {isLargerThan768px && (
-              <Button
-                onClick={handleOpen}
-                bgColor="#ce1567"
-                color="#ffffff"
-                textAlign="center"
-                width="7rem"
-                _hover={{
-                  bgColor: '#b50055',
-                }}
-                mb="1rem"
-              >
-                Edit
-              </Button>
-            )}
-          </Flex>
-          <Grid templateColumns="1fr" gap={4} mb="1rem">
-            <Flex align="center" mb="0.5rem">
-              <Icon as={FaUser} mr="0.5rem" />
-              <Text fontSize={['1rem', '1.2rem']} fontWeight="500">
-                <strong>Username:</strong> {userName}
-              </Text>
-            </Flex>
-            <Flex align="center" mb="0.5rem">
-              <Icon as={FaPhone} mr="0.5rem" />
-              <Text fontSize={['1rem', '1.2rem']} fontWeight="500">
-                <strong>Phone:</strong> {Phone}
-              </Text>
-            </Flex>
-            <Flex align="center" mb="0.5rem">
-              <Icon as={FaEnvelope} mr="0.5rem" />
-              <Text fontSize={['1rem', '1.2rem']} fontWeight="500">
-                <strong>Email:</strong> {userEmail}
-              </Text>
-            </Flex>
-            <Flex align="center" mb="0.5rem">
-              <Icon as={FaBuilding} mr="0.5rem" />
-              <Text fontSize={['1rem', '1.2rem']} fontWeight="500">
-                <strong>Hostel:</strong> {userHostel}
-              </Text>
-            </Flex>
-            <Flex align="center" mb="0.5rem">
-              <Icon as={FaIdBadge} mr="0.5rem" />
-              <Text fontSize={['1rem', '1.2rem']} fontWeight="500">
-                <strong>Roll Number:</strong> {userRollNumber}
-              </Text>
-            </Flex>
-            <Flex align="center">
-              <Icon as={FaDoorOpen} mr="0.5rem" />
-              <Text fontSize={['1rem', '1.2rem']} fontWeight="500">
-                <strong>Room Number:</strong> {userRoomNumber}
-              </Text>
-            </Flex>
-          </Grid>
-          {!isLargerThan768px && (
+            User Details
+          </Text>
+          {isLargerThan768px && (
             <Button
               onClick={handleOpen}
               bgColor="#ce1567"
@@ -282,133 +226,186 @@ function StudentDetails() {
               _hover={{
                 bgColor: '#b50055',
               }}
-              mt="2rem"
-              mx="auto"
-              display="block"
+              mb="1rem"
             >
               Edit
             </Button>
           )}
-        </Box>
+        </Flex>
+        <Grid templateColumns="1fr" gap={4} mb="1rem">
+          <Flex align="center" mb="0.5rem">
+            <Icon as={FaUser} mr="0.5rem" />
+            <Text fontSize={['1rem', '1.2rem']} fontWeight="500">
+              <strong>Username:</strong> {userName}
+            </Text>
+          </Flex>
+          <Flex align="center" mb="0.5rem">
+            <Icon as={FaPhone} mr="0.5rem" />
+            <Text fontSize={['1rem', '1.2rem']} fontWeight="500">
+              <strong>Phone:</strong> {Phone}
+            </Text>
+          </Flex>
+          <Flex align="center" mb="0.5rem">
+            <Icon as={FaEnvelope} mr="0.5rem" />
+            <Text fontSize={['1rem', '1.2rem']} fontWeight="500">
+              <strong>Email:</strong> {userEmail}
+            </Text>
+          </Flex>
+          <Flex align="center" mb="0.5rem">
+            <Icon as={FaBuilding} mr="0.5rem" />
+            <Text fontSize={['1rem', '1.2rem']} fontWeight="500">
+              <strong>Hostel:</strong> {userHostel}
+            </Text>
+          </Flex>
+          <Flex align="center" mb="0.5rem">
+            <Icon as={FaIdBadge} mr="0.5rem" />
+            <Text fontSize={['1rem', '1.2rem']} fontWeight="500">
+              <strong>Roll Number:</strong> {userRollNumber}
+            </Text>
+          </Flex>
+          <Flex align="center">
+            <Icon as={FaDoorOpen} mr="0.5rem" />
+            <Text fontSize={['1rem', '1.2rem']} fontWeight="500">
+              <strong>Room Number:</strong> {userRoomNumber}
+            </Text>
+          </Flex>
+        </Grid>
+        {!isLargerThan768px && (
+          <Button
+            onClick={handleOpen}
+            bgColor="#ce1567"
+            color="#ffffff"
+            textAlign="center"
+            width="7rem"
+            _hover={{
+              bgColor: '#b50055',
+            }}
+            mt="2rem"
+            mx="auto"
+            display="block"
+          >
+            Edit
+          </Button>
+        )}
+      </Box>
 
-        <Modal isOpen={isOpen} onClose={onClose} isCentered>
-          <ModalOverlay />
-          <ModalContent maxWidth="500px">
-            <ModalHeader textAlign="center">Student Details</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <Flex
-                direction="column"
-                border="2px solid #292929"
-                w="full"
-                px={['1rem', '2rem']}
-                py={['1rem', '2rem']}
-                borderRadius="1.2rem"
-                shadow="md"
-                bg="white"
-              >
-                <form onSubmit={handleSubmit}>
-                  <Stack spacing={4}>
-                    <FormControl id="username" isRequired>
-                      <FormLabel>Username</FormLabel>
-                      <Input
-                        type="text"
-                        name="username"
-                        ref={usernameRef}
-                        isDisabled={!isEditMode}
-                      />
-                    </FormControl>
+      <Modal isOpen={isOpen} onClose={onClose} isCentered>
+        <ModalOverlay />
+        <ModalContent maxWidth="500px">
+          <ModalHeader textAlign="center">Student Details</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Flex
+              direction="column"
+              border="2px solid #292929"
+              w="full"
+              px={['1rem', '2rem']}
+              py={['1rem', '2rem']}
+              borderRadius="1.2rem"
+              shadow="md"
+              bg="white"
+            >
+              <form onSubmit={handleSubmit}>
+                <Stack spacing={4}>
+                  <FormControl id="username" isRequired>
+                    <FormLabel>Username</FormLabel>
+                    <Input
+                      type="text"
+                      name="username"
+                      ref={usernameRef}
+                      isDisabled={!isEditMode}
+                    />
+                  </FormControl>
 
-                    <FormControl id="phone" isRequired>
-                      <FormLabel>Phone</FormLabel>
-                      <Input
-                        type="tel"
-                        name="phone_number"
-                        ref={phoneRef}
-                        isDisabled={!isEditMode}
-                      />
-                    </FormControl>
-                    <FormControl id="email" isRequired>
-                      <FormLabel>Email</FormLabel>
-                      <Input
-                        type="email"
-                        name="email"
-                        ref={emailRef}
-                        isDisabled={!isEditMode}
-                      />
-                    </FormControl>
-                    <FormControl id="hostel" isRequired>
-                      <FormLabel>Hostel</FormLabel>
-                      <Input
-                        type="text"
-                        name="hostel"
-                        ref={hostelRef}
-                        isDisabled={!isEditMode}
-                      />
-                    </FormControl>
+                  <FormControl id="phone" isRequired>
+                    <FormLabel>Phone</FormLabel>
+                    <Input
+                      type="tel"
+                      name="phone_number"
+                      ref={phoneRef}
+                      isDisabled={!isEditMode}
+                    />
+                  </FormControl>
+                  <FormControl id="email" isRequired>
+                    <FormLabel>Email</FormLabel>
+                    <Input
+                      type="email"
+                      name="email"
+                      ref={emailRef}
+                      isDisabled={!isEditMode}
+                    />
+                  </FormControl>
+                  <FormControl id="hostel" isRequired>
+                    <FormLabel>Hostel</FormLabel>
+                    <Input
+                      type="text"
+                      name="hostel"
+                      ref={hostelRef}
+                      isDisabled={!isEditMode}
+                    />
+                  </FormControl>
 
-                    <FormControl id="roll" isRequired>
-                      <FormLabel>Roll Number</FormLabel>
-                      <Input
-                        type="text"
-                        name="roll_number"
-                        ref={rollRef}
-                        isDisabled={!isEditMode}
-                      />
-                    </FormControl>
-                    <FormControl id="room" isRequired>
-                      <FormLabel>Room</FormLabel>
-                      <Input
-                        type="text"
-                        name="room_number"
-                        ref={roomRef}
-                        isDisabled={!isEditMode}
-                      />
-                    </FormControl>
-                  </Stack>
-                  {isEditMode && (
-                    <Button
-                      type="submit"
-                      width="full"
-                      mt="2rem"
-                      bgColor="#ce1567"
-                      color="#ffffff"
-                      _hover={{
-                        bgColor: '#b50055',
-                      }}
-                    >
-                      Save
-                    </Button>
-                  )}
-                </form>
-              </Flex>
-            </ModalBody>
+                  <FormControl id="roll" isRequired>
+                    <FormLabel>Roll Number</FormLabel>
+                    <Input
+                      type="text"
+                      name="roll_number"
+                      ref={rollRef}
+                      isDisabled={!isEditMode}
+                    />
+                  </FormControl>
+                  <FormControl id="room" isRequired>
+                    <FormLabel>Room</FormLabel>
+                    <Input
+                      type="text"
+                      name="room_number"
+                      ref={roomRef}
+                      isDisabled={!isEditMode}
+                    />
+                  </FormControl>
+                </Stack>
+                {isEditMode && (
+                  <Button
+                    type="submit"
+                    width="full"
+                    mt="2rem"
+                    bgColor="#ce1567"
+                    color="#ffffff"
+                    _hover={{
+                      bgColor: '#b50055',
+                    }}
+                  >
+                    Save
+                  </Button>
+                )}
+              </form>
+            </Flex>
+          </ModalBody>
 
-            <ModalFooter justifyContent="flex-end">
-              <Button
-                color="#ffffff"
-                bgColor="red"
-                _hover={{ bgColor: 'red' }}
-                onClick={onClose}
-                mr={3}
-              >
-                Close
-              </Button>
-              <Button
-                onClick={() => setIsEditMode(!isEditMode)}
-                bgColor={isEditMode ? 'red' : '#ce1567'}
-                color="#ffffff"
-                _hover={{
-                  bgColor: `${isEditMode ? 'red' : '#b50055'}`,
-                }}
-              >
-                {isEditMode ? 'Cancel' : 'Edit Details'}
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
-      </Stack>
-    </Center>
+          <ModalFooter justifyContent="flex-end">
+            <Button
+              color="#ffffff"
+              bgColor="red"
+              _hover={{ bgColor: 'red' }}
+              onClick={onClose}
+              mr={3}
+            >
+              Close
+            </Button>
+            <Button
+              onClick={() => setIsEditMode(!isEditMode)}
+              bgColor={isEditMode ? 'red' : '#ce1567'}
+              color="#ffffff"
+              _hover={{
+                bgColor: `${isEditMode ? 'red' : '#b50055'}`,
+              }}
+            >
+              {isEditMode ? 'Cancel' : 'Edit Details'}
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </Stack>
   );
 }
 
