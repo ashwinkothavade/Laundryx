@@ -51,10 +51,9 @@ function OrderDetail() {
   const [error, setError] = useState(null);
   const toast = useToast();
   const navigate = useNavigate();
-  const { userName, userHostel, userRollNumber } = useAuthStore((state) => ({
+  const { userName, userHostel } = useAuthStore((state) => ({
     userName: state.userName,
     userHostel: state.userHostel,
-    userRollNumber: state.userRollNumber,
   }));
   const handleToast = (title, description, status) => {
     toast({
@@ -128,11 +127,25 @@ function OrderDetail() {
             );
             // eslint-disable-next-line no-unused-vars
             const validateResponse = await validatePayment.data;
+            const notification = {
+              student: userName,
+              launderer: order.launderer,
+              message: `Order Total of order ${order._id} of ${userName} paid successfully.`,
+              orderId: '',
+            };
+            const notifResponse = await axios.post(
+              'http://localhost:4000/notifications',
+              notification
+            );
+            if (notifResponse.status !== 500) {
+              console.log(notifResponse);
+            }
             handleToast(
               'Payment Successfully Done and Verified',
               '',
               'success'
             );
+
             // set the paid field of this order to true in the filteredOrders state
             setOrders((prevOrders) =>
               prevOrders.map((prevOrder) => {
@@ -180,7 +193,7 @@ function OrderDetail() {
         const notification = {
           student: userName,
           launderer: selectedOrder.launderer,
-          message: `Order of ${userName} with roll: ${userRollNumber} of ${userHostel} picked up successfully.`,
+          message: `Order ${order_id} of ${userName} of ${userHostel} picked up successfully.`,
           orderId: '',
         };
         const notifResponse = await axios.post(
@@ -208,8 +221,7 @@ function OrderDetail() {
   const deleteOrder = async (order_id) => {
     try {
       const response = await axios.delete(
-        `http://localhost:4000/student/deleteorder/${order_id}`,
-        { withCredentials: true }
+        `http://localhost:4000/student/deleteorder/${order_id}`
       );
       if (response.status === 200) {
         handleToast('Order Deleted Successfully', '', 'success');

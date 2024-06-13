@@ -142,6 +142,19 @@ function LaundererOrdersDetail() {
         { withCredentials: true }
       );
       if (response.status === 200) {
+        const notification = {
+          launderer: userName,
+          message: `Your order with Order ID: ${order_id} has been delivered.`,
+          student: '', // need to query the student username from the order_id
+          orderId: order_id,
+        };
+        const notifResponse = await axios.post(
+          'http://localhost:4000/notifications',
+          notification
+        );
+        if (notifResponse.status !== 500) {
+          console.log(notifResponse);
+        }
         setOrders((prevOrders) => {
           return prevOrders.map((order) => {
             if (order._id === order_id) {
