@@ -40,6 +40,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { MdDelete } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
+import useAuthStore from '../Store/AuthStore';
 
 function OrderDetail() {
   const [orders, setOrders] = useState([]);
@@ -50,6 +51,11 @@ function OrderDetail() {
   const [error, setError] = useState(null);
   const toast = useToast();
   const navigate = useNavigate();
+  const { userName, userHostel, userRollNumber } = useAuthStore((state) => ({
+    userName: state.userName,
+    userHostel: state.userHostel,
+    userRollNumber: state.userRollNumber,
+  }));
   const handleToast = (title, description, status) => {
     toast({
       position: 'top',
@@ -168,10 +174,22 @@ function OrderDetail() {
     try {
       const response = await axios.put(
         `http://localhost:4000/student/updatepickupstatus/${order_id}`,
-        {},
-        { withCredentials: true }
+        {}
       );
       if (response.status === 200) {
+        const notification = {
+          student: userName,
+          launderer: selectedOrder.launderer,
+          message: `Order of ${userName} with roll: ${userRollNumber} of ${userHostel} picked up successfully.`,
+          orderId: '',
+        };
+        const notifResponse = await axios.post(
+          'http://localhost:4000/notifications',
+          notification
+        );
+        if (notifResponse.status !== 500) {
+          console.log(notifResponse);
+        }
         setOrders((prevOrders) => {
           return prevOrders.map((order) => {
             if (order._id === order_id) {

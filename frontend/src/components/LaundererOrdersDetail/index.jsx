@@ -127,6 +127,7 @@ function LaundererOrdersDetail() {
             return order;
           });
         });
+        onClose();
       }
     } catch (err) {
       handleToast('Some Error Occurred', err.message, 'error');
@@ -149,6 +150,7 @@ function LaundererOrdersDetail() {
             return order;
           });
         });
+        onClose();
       }
     } catch (err) {
       handleToast('Some Error Occurred', err.message, 'error');

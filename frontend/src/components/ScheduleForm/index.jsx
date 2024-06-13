@@ -133,7 +133,7 @@ function ScheduleCard() {
     const notification = {
       student: userName,
       launderer: order.launderer,
-      message: `New order placed by ${userName} of ${userHostel} with ${userRollNumber}`,
+      message: `New order placed by ${userName} of ${userHostel}, roll: ${userRollNumber}`,
       orderId: '',
     };
     try {
