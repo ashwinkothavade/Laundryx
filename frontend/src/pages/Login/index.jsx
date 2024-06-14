@@ -11,10 +11,11 @@ export default function Login() {
       <Flex justify="center" align="center" gap="8rem" h="100vh">
         <Box display={{ base: 'none', lg: 'block' }} h="50rem" w="50rem">
           <DotLottiePlayer
-            src="/Child-with-laundry.lottie"
+            src="/Launderer.lottie"
             autoplay
             loop
             playMode="bounce"
+            speed={0.75}
           />
         </Box>
         <LoginForm />

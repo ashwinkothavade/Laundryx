@@ -4,7 +4,7 @@ import Hero from './Hero';
 import ServiceCard from './ServiceCard';
 import WorkingCard from './WorkingCard';
 
-const main = () => {
+function Main() {
   return (
     <Box pt="4rem">
       <Hero />
@@ -12,6 +12,6 @@ const main = () => {
       <WorkingCard />
     </Box>
   );
-};
+}
 
-export default main;
+export default Main;
