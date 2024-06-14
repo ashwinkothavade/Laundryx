@@ -1,6 +1,8 @@
 import { Box, Button, Flex, HStack, Stack, Text } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { FiBox } from 'react-icons/fi';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { Helmet } from 'react-helmet-async';
 import { MdKeyboardArrowRight } from 'react-icons/md';
 import { RiAccountBoxLine, RiSettingsLine } from 'react-icons/ri';
 import Navbar from '../../../components/Navbar';
@@ -11,6 +13,10 @@ function StudentDashBoard() {
   const [isActive, setIsActive] = useState(0);
   return (
     <>
+      <Helmet>
+        <title>LaundriX - Dashboard</title>
+        <meta name="description" content="" />
+      </Helmet>
       <Navbar />
       <Box
         position="fixed"
