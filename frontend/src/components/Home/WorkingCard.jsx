@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Box, Center, Divider, Text } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
 import Workings from '../../TempData/Workings';
 import Working from './Working';
 
@@ -18,14 +18,6 @@ function WorkingCard() {
   return (
     <Box>
       <Box pt={{ base: '8rem', md: '6rem' }} pb={{ base: '2rem', md: '4rem' }}>
-        <Center>
-          <Divider
-            w="100%"
-            color="#AFABAB"
-            bgColor="#AFABAB"
-            css="height:3px"
-          />
-        </Center>
         <motion.div variants={cardVariant} animate="animate" initial="initial">
           <Box pt="6rem" mx="1rem">
             <Text fontSize="4xl" textAlign="center" fontWeight="semibold">
