@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Box, Center, Divider, Text } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
 import Services from '../../TempData/Services';
 import Service from './Service';
 
@@ -22,14 +22,6 @@ function ServiceCard() {
         pb={{ base: '2rem', md: '4rem' }}
         mx="1rem"
       >
-        <Center>
-          <Divider
-            w="100%"
-            color="#AFABAB"
-            bgColor="#AFABAB"
-            css="height:3px"
-          />
-        </Center>
         <Box pt="6rem">
           <motion.div
             variants={cardVariant}
