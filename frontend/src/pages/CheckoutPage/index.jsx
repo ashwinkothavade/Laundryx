@@ -3,7 +3,7 @@ import { Center, Flex, Text } from '@chakra-ui/react';
 import { Helmet } from 'react-helmet-async';
 import Navbar from '../../components/Navbar';
 import OrderItemsAccordion from '../../components/OrderItemsAccordion';
-import ScheduleCard from '../../components/ScheduleForm';
+import ScheduleCard from '../../components/ScheduleCard';
 
 function CheckoutPage() {
   return (
@@ -18,7 +18,14 @@ function CheckoutPage() {
           Schedule Your Order
         </Text>
       </Center>
-      <Flex justify="center" align="center" gap="6rem" mt="5rem">
+      <Flex
+        direction={{ base: 'column-reverse', xl: 'row' }}
+        justify="center"
+        align="center"
+        gap={{ base: '4rem', xl: '8rem' }}
+        mt={{ base: '2rem', md: '5rem' }}
+        pb={{ base: '4rem', xl: '0' }}
+      >
         <OrderItemsAccordion />
         <ScheduleCard />
       </Flex>

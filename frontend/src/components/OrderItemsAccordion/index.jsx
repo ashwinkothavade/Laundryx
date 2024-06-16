@@ -45,10 +45,10 @@ function OrderItemsAccordion() {
         Items Added
       </Text>
       <Stack
-        px="2rem"
+        px={{ base: '1rem', lg: '2rem' }}
         py="1rem"
         borderRadius="1rem"
-        w="25rem"
+        w={{ base: '22rem', lg: '25rem' }}
         border="2px solid gray"
         boxShadow="0px 0px 20px 0px rgba(0, 0, 0, 0.20)"
       >

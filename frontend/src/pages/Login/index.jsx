@@ -14,8 +14,18 @@ export default function Login() {
         <meta name="description" content="" />
       </Helmet>
       <Navbar />
-      <Flex justify="center" align="center" gap="8rem" h="100vh">
-        <Box display={{ base: 'none', lg: 'block' }} h="50rem" w="50rem">
+      <Flex
+        justify="center"
+        align="center"
+        gap={{ base: '0', xl: '4rem', '2xl': '8rem' }}
+        h="100vh"
+        px={{ base: '0', xl: '2rem', '2xl': '0' }}
+      >
+        <Box
+          display={{ base: 'none', xl: 'block' }}
+          h={{ base: '0', xl: '45rem', '2xl': '50rem' }}
+          w={{ base: '0', xl: '45rem', '2xl': '50rem' }}
+        >
           <DotLottiePlayer
             src="/Launderer.lottie"
             autoplay

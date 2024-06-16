@@ -1,5 +1,5 @@
-import axios from 'axios';
 import {
+  Box,
   Button,
   Divider,
   Flex,
@@ -9,6 +9,7 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react';
+import axios from 'axios';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
 import { FaTruckPickup, FaUser } from 'react-icons/fa';
@@ -165,15 +166,22 @@ function ScheduleCard() {
   return (
     <Stack align="center" gap={6}>
       <Flex
+        direction={{ base: 'column', md: 'row' }}
         border="2px solid gray"
         boxShadow="0px 0px 20px 0px rgba(0, 0, 0, 0.20)"
         borderRadius="1rem"
-        w="32rem"
+        justify="center"
+        w={{ base: '20rem', md: '32rem' }}
         py="2rem"
-        px="2.5rem"
-        gap={8}
+        px={{ base: '2rem', md: '2.5rem' }}
+        gap={{ base: 6, md: 8 }}
       >
-        <Flex direction="column" justify="space-between" align="start">
+        <Flex
+          direction="column"
+          justify="space-between"
+          align="start"
+          gap={{ base: 4, md: '' }}
+        >
           <Flex align="center" gap={2}>
             <FaTruckPickup color="#CE1567" size="25" />
             <Text color="#CE1567" fontWeight={600}>
@@ -211,8 +219,17 @@ function ScheduleCard() {
             <option value="07:00 PM">07:00 PM</option>
           </Select>
         </Flex>
-        <Divider orientation="vertical" border="1px solid gray" height="9rem" />
-        <Flex direction="column" justify="space-between" align="start ">
+        <Divider
+          orientation={{ base: 'horizontal', md: 'vertical' }}
+          border="1px solid gray"
+          height={{ base: '', md: '9rem' }}
+        />
+        <Flex
+          direction="column"
+          justify="space-between"
+          align="start"
+          gap={{ base: 4, md: '' }}
+        >
           <Flex align="center" gap={2}>
             <TbTruckDelivery color="#CE1567" size="25" />
             <Text color="#CE1567" fontWeight={600}>
@@ -238,14 +255,16 @@ function ScheduleCard() {
         border="2px solid gray"
         boxShadow="0px 0px 20px 0px rgba(0, 0, 0, 0.20)"
         borderRadius="1rem"
-        w="32rem"
+        w={{ base: '20rem', md: '32rem' }}
         py="2rem"
-        px="2.5rem"
+        px={{ base: '1.5rem', md: '2.5rem' }}
         gap={4}
       >
         <Flex align="center" justify="space-between">
           <HStack gap={2}>
-            <FaLocationDot color="#CE1567" size="20" />
+            <Box display={{ base: 'none', md: 'block' }}>
+              <FaLocationDot color="#CE1567" size="20" />
+            </Box>
             <Text color="#CE1567" fontWeight={600}>
               Pickup Address
             </Text>
@@ -253,7 +272,7 @@ function ScheduleCard() {
           <Select
             placeholder="Select location"
             border="2px solid #584BAC"
-            w="auto"
+            w={{ base: '11rem', md: 'auto' }}
             ref={pickupAddressRef}
             _hover={{ border: '2px solid #584BAC' }}
             _focus={{ border: '2px solid #584BAC' }}
@@ -268,7 +287,9 @@ function ScheduleCard() {
         </Flex>
         <Flex align="center" justify="space-between">
           <HStack gap={2}>
-            <FaLocationCrosshairs color="#CE1567" size="20" />
+            <Box display={{ base: 'none', md: 'block' }}>
+              <FaLocationCrosshairs color="#CE1567" size="20" />
+            </Box>
             <Text color="#CE1567" fontWeight={600}>
               Delivery Address
             </Text>
@@ -276,7 +297,7 @@ function ScheduleCard() {
           <Select
             placeholder="Select location"
             border="2px solid #584BAC"
-            w="auto"
+            w={{ base: '12rem', md: 'auto' }}
             ref={deliveryAddressRef}
             _hover={{ border: '2px solid #584BAC' }}
             _focus={{ border: '2px solid #584BAC' }}
@@ -291,7 +312,9 @@ function ScheduleCard() {
         </Flex>
         <Flex align="center" justify="space-between">
           <HStack gap={2}>
-            <FaUser color="#CE1567" size="20" />
+            <Box display={{ base: 'none', md: 'block' }}>
+              <FaUser color="#CE1567" size="20" />
+            </Box>
             <Text color="#CE1567" fontWeight={600}>
               Launderer
             </Text>
@@ -299,7 +322,7 @@ function ScheduleCard() {
           <Select
             placeholder="Select launderer"
             border="2px solid #584BAC"
-            w="auto"
+            w={{ base: '10rem', md: 'auto' }}
             ref={laundererRef}
             _hover={{ border: '2px solid #584BAC' }}
             _focus={{ border: '2px solid #584BAC' }}
@@ -313,7 +336,7 @@ function ScheduleCard() {
           </Select>
         </Flex>
       </Stack>
-      <HStack gap={8}>
+      <HStack gap={{ base: 4, sm: 6, md: 8 }}>
         <Button
           bg="#CE1567"
           color="#FFFFFF"
