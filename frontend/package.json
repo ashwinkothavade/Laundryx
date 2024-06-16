@@ -17,6 +17,7 @@
   "dependencies": {
     "@chakra-ui/react": "^2.7.1",
     "@dotlottie/react-player": "^1.6.19",
+    "@emailjs/browser": "^4.3.3",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@react-spring/parallax": "^9.7.3",

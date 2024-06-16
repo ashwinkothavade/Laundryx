@@ -7,14 +7,14 @@ import useAuthStore from '../Store/AuthStore';
 
 const LandingButton = chakra('button', {
   baseStyle: {
-    px: '3',
+    px: '6',
     mt: '2',
-    py: '2',
+    py: '3',
     bg: '#584BAC', // Adjust background color for dimmer effect
-    width: '10rem',
-    fontSize: '1.3rem',
+    fontSize: '1.2rem',
+    fontWeight: '600',
     color: 'white',
-    rounded: 'lg',
+    borderRadius: 'lg ',
     _hover: {
       bg: '#4c4196',
     },
