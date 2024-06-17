@@ -18,6 +18,7 @@ import { HiArrowLongRight } from 'react-icons/hi2';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../Store/AuthStore';
 
+const dev_env = import.meta.env.VITE_DEV_ENV;
 axios.defaults.withCredentials = true;
 
 export default function SignupForm() {
@@ -89,11 +90,19 @@ export default function SignupForm() {
     }
     setLoading(true);
     try {
-      // eslint-disable-next-line no-unused-vars
-      const response = await axios.post(
-        'http://localhost:4000/signup',
-        credentials
-      );
+      let response;
+      if (dev_env === 'development') {
+        response = await axios.post(
+          'http://localhost:4000/signup',
+          credentials
+        );
+      } else if (dev_env === 'production') {
+        // eslint-disable-next-line no-unused-vars
+        response = await axios.post(
+          'https://laundrix-api.vercel.app/signup',
+          credentials
+        );
+      }
 
       addAuth();
       setUserName(credentials.username);

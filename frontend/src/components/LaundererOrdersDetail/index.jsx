@@ -39,6 +39,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../Store/AuthStore';
 
+const dev_env = import.meta.env.VITE_DEV_ENV;
+
 function LaundererOrdersDetail() {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -70,7 +72,14 @@ function LaundererOrdersDetail() {
   useEffect(() => {
     const getOrders = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/allorders');
+        let response;
+        if (dev_env === 'development') {
+          response = await axios.get('http://localhost:4000/allorders');
+        } else if (dev_env === 'production') {
+          response = await axios.get(
+            'https://laundrix-api.vercel.app/allorders'
+          );
+        }
         setOrders(response.data.orders);
         setLoading(false);
       } catch (err) {
@@ -101,10 +110,19 @@ function LaundererOrdersDetail() {
 
   const handleUpdateAcceptedStatus = async (order_id) => {
     try {
-      const response = await axios.put(
-        `http://localhost:4000/acceptorder/${order_id}`,
-        {}
-      );
+      let response;
+      if (dev_env === 'development') {
+        response = await axios.put(
+          `http://localhost:4000/acceptorder/${order_id}`,
+          {}
+        );
+      } else if (dev_env === 'production') {
+        response = await axios.put(
+          `https://laundrix-api.vercel.app/acceptorder/${order_id}`,
+          {}
+        );
+      }
+
       if (response.status === 200) {
         const notification = {
           launderer: userName,
@@ -112,10 +130,19 @@ function LaundererOrdersDetail() {
           student: '', // need to query the student username from the order_id
           orderId: order_id,
         };
-        const notifResponse = await axios.post(
-          'http://localhost:4000/notifications',
-          notification
-        );
+        let notifResponse;
+        if (dev_env === 'development') {
+          notifResponse = await axios.post(
+            'http://localhost:4000/notifications',
+            notification
+          );
+        } else if (dev_env === 'production') {
+          notifResponse = await axios.post(
+            'https://laundrix-api.vercel.app/notifications',
+            notification
+          );
+        }
+
         if (notifResponse.status !== 500) {
           console.log(notifResponse);
         }
@@ -136,11 +163,21 @@ function LaundererOrdersDetail() {
 
   const handleUpdateDeliveredStatus = async (order_id) => {
     try {
-      const response = await axios.put(
-        `http://localhost:4000/updatedeliveredstatus/${order_id}`,
-        {},
-        { withCredentials: true }
-      );
+      let response;
+      if (dev_env === 'development') {
+        response = await axios.put(
+          `http://localhost:4000/updatedeliveredstatus/${order_id}`,
+          {},
+          { withCredentials: true }
+        );
+      } else if (dev_env === 'production') {
+        response = await axios.put(
+          `https://laundrix-api.vercel.app/updatedeliveredstatus/${order_id}`,
+          {},
+          { withCredentials: true }
+        );
+      }
+
       if (response.status === 200) {
         const notification = {
           launderer: userName,
@@ -148,10 +185,19 @@ function LaundererOrdersDetail() {
           student: '', // need to query the student username from the order_id
           orderId: order_id,
         };
-        const notifResponse = await axios.post(
-          'http://localhost:4000/notifications',
-          notification
-        );
+        let notifResponse;
+        if (dev_env === 'development') {
+          notifResponse = await axios.post(
+            'http://localhost:4000/notifications',
+            notification
+          );
+        } else if (dev_env === 'production') {
+          notifResponse = await axios.post(
+            'https://laundrix-api.vercel.app/notifications',
+            notification
+          );
+        }
+
         if (notifResponse.status !== 500) {
           console.log(notifResponse);
         }

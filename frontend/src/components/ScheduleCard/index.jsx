@@ -15,10 +15,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { FaTruckPickup, FaUser } from 'react-icons/fa';
 import { FaLocationCrosshairs, FaLocationDot } from 'react-icons/fa6';
 import { TbTruckDelivery } from 'react-icons/tb';
-
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../Store/AuthStore';
 import useOrderStore from '../Store/OrderStore';
+
+const dev_env = import.meta.env.VITE_DEV_ENV;
 
 function ScheduleCard() {
   const {
@@ -64,7 +65,14 @@ function ScheduleCard() {
   useEffect(() => {
     const getOrders = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/launderers');
+        let response;
+        if (dev_env === 'development') {
+          response = await axios.get('http://localhost:4000/launderers');
+        } else if (dev_env === 'production') {
+          response = await axios.get(
+            'https://laundrix-api.vercel.app/launderers'
+          );
+        }
         launderersRef.current = response.data;
         setLoading(false);
       } catch (err) {
@@ -138,20 +146,38 @@ function ScheduleCard() {
       orderId: '',
     };
     try {
-      // eslint-disable-next-line no-unused-vars
-      const response = await axios.post(
-        'http://localhost:4000/student/createorder',
-        order
-      );
+      let response;
+      if (dev_env === 'development') {
+        response = await axios.post(
+          'http://localhost:4000/student/createorder',
+          order
+        );
+      } else if (dev_env === 'production') {
+        // eslint-disable-next-line no-unused-vars
+        response = await axios.post(
+          'https://laundrix-api.vercel.app/student/createorder',
+          order
+        );
+      }
+
       handleToast(
         'Order placed successfully',
         'Wait for launderer to accept your order',
         'success'
       );
-      const notifResponse = await axios.post(
-        'http://localhost:4000/notifications',
-        notification
-      );
+
+      let notifResponse;
+      if (dev_env === 'development') {
+        notifResponse = await axios.post(
+          'http://localhost:4000/notifications',
+          notification
+        );
+      } else if (dev_env === 'production') {
+        notifResponse = await axios.post(
+          'https://laundrix-api.vercel.app/notifications',
+          notification
+        );
+      }
       if (notifResponse.status !== 500) {
         console.log(notifResponse);
       }

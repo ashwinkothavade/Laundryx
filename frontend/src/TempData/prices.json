@@ -9,7 +9,7 @@
     }
   },
   {
-    "name": "Tshirt",
+    "name": "T-shirt",
     "image": "tshirt.png",
     "prices": {
       "simple_wash": 6,

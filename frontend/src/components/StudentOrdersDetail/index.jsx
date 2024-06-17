@@ -42,6 +42,8 @@ import { MdDelete } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../Store/AuthStore';
 
+const dev_env = import.meta.env.VITE_DEV_ENV;
+
 function OrderDetail() {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -69,9 +71,14 @@ function OrderDetail() {
   useEffect(() => {
     const getOrders = async () => {
       try {
-        const response = await axios.get(
-          'http://localhost:4000/student/myorders'
-        );
+        let response;
+        if (dev_env === 'development') {
+          response = await axios.get('http://localhost:4000/student/myorders');
+        } else if (dev_env === 'production') {
+          response = await axios.get(
+            'https://laundrix-api.vercel.app/myorders'
+          );
+        }
         setOrders(response.data.orders);
         setLoading(false);
       } catch (err) {
@@ -108,7 +115,15 @@ function OrderDetail() {
     try {
       const receipt = Math.random().toString(36).substring(7);
       const body = { amount: order.orderTotal * 100, currency: 'INR', receipt };
-      const response = await axios.post('http://localhost:4000/payment', body);
+      let response;
+      if (dev_env === 'development') {
+        response = await axios.post('http://localhost:4000/payment', body);
+      } else if (dev_env === 'production') {
+        response = await axios.post(
+          'https://laundrix-api.vercel.app/payment',
+          body
+        );
+      }
       const orderDetails = await response.data;
 
       const options = {
@@ -121,10 +136,18 @@ function OrderDetail() {
         order_id: orderDetails.id,
         async handler(resp) {
           try {
-            const validatePayment = await axios.put(
-              'http://localhost:4000/payment/validate',
-              { ...resp, order_id: order._id }
-            );
+            let validatePayment;
+            if (dev_env === 'development') {
+              validatePayment = await axios.put(
+                'http://localhost:4000/payment/validate',
+                { ...resp, order_id: order._id }
+              );
+            } else if (dev_env === 'production') {
+              validatePayment = await axios.put(
+                'https://laundrix-api.vercel.app/payment/validate',
+                { ...resp, order_id: order._id }
+              );
+            }
             // eslint-disable-next-line no-unused-vars
             const validateResponse = await validatePayment.data;
             const notification = {
@@ -133,10 +156,18 @@ function OrderDetail() {
               message: `Order Total of order ${order._id} of ${userName} paid successfully.`,
               orderId: '',
             };
-            const notifResponse = await axios.post(
-              'http://localhost:4000/notifications',
-              notification
-            );
+            let notifResponse;
+            if (dev_env === 'development') {
+              notifResponse = await axios.post(
+                'http://localhost:4000/notifications',
+                notification
+              );
+            } else if (dev_env === 'production') {
+              notifResponse = await axios.post(
+                'https://laundrix-api.vercel.app/notifications',
+                notification
+              );
+            }
             if (notifResponse.status !== 500) {
               console.log(notifResponse);
             }
@@ -185,10 +216,18 @@ function OrderDetail() {
 
   const handleUpdatePickupStatus = async (order_id) => {
     try {
-      const response = await axios.put(
-        `http://localhost:4000/student/updatepickupstatus/${order_id}`,
-        {}
-      );
+      let response;
+      if (dev_env === 'development') {
+        response = await axios.put(
+          `http://localhost:4000/student/updatepickupstatus/${order_id}`,
+          {}
+        );
+      } else if (dev_env === 'production') {
+        response = await axios.put(
+          `https://laundrix-api.vercel.app/student/updatepickupstatus/${order_id}`,
+          {}
+        );
+      }
       if (response.status === 200) {
         const notification = {
           student: userName,
@@ -196,10 +235,18 @@ function OrderDetail() {
           message: `Order ${order_id} of ${userName} of ${userHostel} picked up successfully.`,
           orderId: '',
         };
-        const notifResponse = await axios.post(
-          'http://localhost:4000/notifications',
-          notification
-        );
+        let notifResponse;
+        if (dev_env === 'development') {
+          notifResponse = await axios.post(
+            'http://localhost:4000/notifications',
+            notification
+          );
+        } else if (dev_env === 'production') {
+          notifResponse = await axios.post(
+            'https://laundrix-api.vercel.app/notifications',
+            notification
+          );
+        }
         if (notifResponse.status !== 500) {
           console.log(notifResponse);
         }
@@ -220,9 +267,16 @@ function OrderDetail() {
 
   const deleteOrder = async (order_id) => {
     try {
-      const response = await axios.delete(
-        `http://localhost:4000/student/deleteorder/${order_id}`
-      );
+      let response;
+      if (dev_env === 'development') {
+        response = await axios.delete(
+          `http://localhost:4000/student/deleteorder/${order_id}`
+        );
+      } else if (dev_env === 'production') {
+        response = await axios.delete(
+          `https://laundrix-api.vercel.app/student/deleteorder/${order_id}`
+        );
+      }
       if (response.status === 200) {
         handleToast('Order Deleted Successfully', '', 'success');
         setOrders((prevOrders) =>

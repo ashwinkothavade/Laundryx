@@ -32,6 +32,8 @@ import {
 } from 'react-icons/fa';
 import useAuthStore from '../Store/AuthStore';
 
+const dev_env = import.meta.env.VITE_DEV_ENV;
+
 function StudentDetails() {
   const {
     userName,
@@ -125,11 +127,17 @@ function StudentDetails() {
       return;
     }
     try {
-      // eslint-disable-next-line
-      const response = await axios.patch(
-        'http://localhost:4000/user',
-        changedData
-      );
+      let response;
+      if (dev_env === 'development') {
+        response = await axios.patch('http://localhost:4000/user', changedData);
+      } else if (dev_env === 'production') {
+        // eslint-disable-next-line no-unused-vars
+        response = await axios.patch(
+          'https://laundrix-api.vercel.app/user',
+          changedData
+        );
+      }
+
       changedFields.forEach((field) => {
         switch (field) {
           case 'username':

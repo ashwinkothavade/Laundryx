@@ -28,6 +28,8 @@ import { HiArrowLongRight } from 'react-icons/hi2';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../Store/AuthStore';
 
+const dev_env = import.meta.env.VITE_DEV_ENV;
+
 export default function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -81,10 +83,16 @@ export default function LoginForm() {
 
     setLoading(true);
     try {
-      const response = await axios.post(
-        'http://localhost:4000/login',
-        credentials
-      );
+      let response;
+      if (dev_env === 'development') {
+        response = await axios.post('http://localhost:4000/login', credentials);
+      } else if (dev_env === 'production') {
+        response = await axios.post(
+          'https://laundrix-api.vercel.app/login',
+          credentials
+        );
+      }
+
       addAuth();
       setUserName(credentials.username);
       setUserRole(response.data.role);
@@ -114,19 +122,35 @@ export default function LoginForm() {
     e.preventDefault();
     const email = initialRef.current.value;
     try {
+      let response;
       if (email) {
-        // eslint-disable-next-line no-unused-vars
-        const response = axios.post(
-          'http://localhost:4000/forgotpassword',
-          { email },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Accept: 'application/json',
-              'Access-Control-Allow-Origin': '*',
-            },
-          }
-        );
+        if (dev_env === 'development') {
+          response = axios.post(
+            'http://localhost:4000/forgotpassword',
+            { email },
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                'Access-Control-Allow-Origin': '*',
+              },
+            }
+          );
+        } else if (dev_env === 'production') {
+          // eslint-disable-next-line no-unused-vars
+          response = axios.post(
+            'https://laundrix-api.vercel.app/forgotpassword',
+            { email },
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                'Access-Control-Allow-Origin': '*',
+              },
+            }
+          );
+        }
+
         handleToast(
           'Success',
           'Password reset link is sent to your email',

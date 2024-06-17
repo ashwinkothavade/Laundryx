@@ -25,6 +25,8 @@ import { IoIosClose } from 'react-icons/io';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../Store/AuthStore';
 
+const dev_env = import.meta.env.VITE_DEV_ENV;
+
 function Navbar() {
   const {
     isAuth,
@@ -69,7 +71,15 @@ function Navbar() {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/notifications');
+        let response;
+        if (dev_env === 'development') {
+          response = await axios.get('http://localhost:4000/notifications');
+        } else if (dev_env === 'production') {
+          response = await axios.get(
+            'https://laundrix-api.vercel.app/notifications'
+          );
+        }
+
         if (
           !response.data.notifications ||
           response.data.notifications.length === 0
@@ -91,8 +101,13 @@ function Navbar() {
 
   const logOut = async () => {
     try {
-      // eslint-disable-next-line no-unused-vars
-      const response = await axios.get('http://localhost:4000/logout');
+      let response;
+      if (dev_env === 'development') {
+        response = await axios.get('http://localhost:4000/logout');
+      } else if (dev_env === 'production') {
+        // eslint-disable-next-line no-unused-vars
+        response = await axios.get('https://laundrix-api.vercel.app/logout');
+      }
       toast({
         title: 'Success',
         description: 'User Logged Out Successfully',
@@ -130,9 +145,17 @@ function Navbar() {
 
   const deleteNotification = async (id) => {
     try {
-      const response = await axios.delete(
-        `http://localhost:4000/notifications/${id}`
-      );
+      let response;
+      if (dev_env === 'development') {
+        response = await axios.delete(
+          `http://localhost:4000/notifications/${id}`
+        );
+      } else if (dev_env === 'production') {
+        response = await axios.delete(
+          `https://laundrix-api.vercel.app/notifications/${id}`
+        );
+      }
+
       if (response.status === 200) {
         setUnreadCount((prevCount) => prevCount - 1);
         removeUserNotification(id);
