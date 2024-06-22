@@ -1,5 +1,5 @@
 import React from 'react';
-// eslint-disable-next-line import/no-extraneous-dependencies
+
 import { Helmet } from 'react-helmet-async';
 import Home from '../../components/Home';
 import Navbar from '../../components/Navbar';

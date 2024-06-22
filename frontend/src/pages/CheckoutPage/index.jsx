@@ -1,5 +1,5 @@
 import { Center, Flex, Text } from '@chakra-ui/react';
-// eslint-disable-next-line import/no-extraneous-dependencies
+
 import { Helmet } from 'react-helmet-async';
 import Navbar from '../../components/Navbar';
 import OrderItemsAccordion from '../../components/OrderItemsAccordion';
