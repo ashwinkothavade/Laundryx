@@ -1,7 +1,14 @@
 import {
   Avatar,
   Badge,
+  Box,
   Button,
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerHeader,
+  DrawerOverlay,
   Flex,
   IconButton,
   List,
@@ -15,6 +22,7 @@ import {
   Tag,
   TagLabel,
   Text,
+  useDisclosure,
   useToast,
 } from '@chakra-ui/react';
 import axios from 'axios';
@@ -64,7 +72,7 @@ function Navbar() {
     setUserRoomNumber: state.setUserRoomNumber,
     setUserRollNumber: state.setUserRollNumber,
   }));
-
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -200,7 +208,8 @@ function Navbar() {
                 position="relative"
               >
                 <BiBell
-                  size="1.5rem"
+                  className={unreadCount > 0 ? 'bell-icon' : ''}
+                  size={28}
                   color="#584bac"
                   _hover={{
                     color: '#ce1567',
@@ -334,19 +343,91 @@ function Navbar() {
           <MenuButton
             as={IconButton}
             aria-label="Options"
-            border="3px solid #584bac"
-            borderRadius="1.2rem"
-            icon={<GiHamburgerMenu size="1.5rem" color="#584bac" />}
+            border="none"
+            icon={<GiHamburgerMenu size={30} color="#584bac" />}
             variant="outline"
+            bg="transparent"
           />
-
           {isAuth ? (
             <MenuList fontSize="1.1rem">
-              <MenuItem>
-                <Avatar name={userName} size="sm" />
-              </MenuItem>
+              <Link to="/dashboard">
+                <MenuItem icon={<Avatar name={userName} size="sm" />}>
+                  Dashboard
+                </MenuItem>
+              </Link>
               <MenuItem
-                icon={<BiLogOut size="1.5rem" color="#584bac" />}
+                icon={
+                  <Box position="relative">
+                    <BiBell
+                      className={unreadCount > 0 ? 'bell-icon' : ''}
+                      size={24}
+                      color="#584bac"
+                      _hover={{
+                        color: '#ce1567',
+                      }}
+                    />
+                    {unreadCount > 0 && (
+                      <Badge
+                        colorScheme="red"
+                        borderRadius="full"
+                        position="absolute"
+                        top="-1"
+                        right="-1"
+                      >
+                        {unreadCount}
+                      </Badge>
+                    )}
+                  </Box>
+                }
+                onClick={onOpen}
+              >
+                Notifications
+              </MenuItem>
+
+              <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
+                <DrawerOverlay />
+                <DrawerContent>
+                  <DrawerCloseButton />
+                  <DrawerHeader>Notifications</DrawerHeader>
+
+                  <DrawerBody>
+                    {userNotifications.length > 0 ? (
+                      <List spacing={3}>
+                        {userNotifications.map((notification, index) => (
+                          <ListItem key={index}>
+                            <Flex align="center">
+                              <ListIcon as={BiBell} color="#ce1584" />
+                              {notification.message}
+                              <Button
+                                size="md"
+                                ml="auto"
+                                onClick={() =>
+                                  deleteNotification(notification._id)
+                                }
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  padding: '4px 8px',
+                                  borderRadius: 8,
+                                  border: 'none',
+                                  backgroundColor: 'transparent',
+                                }}
+                              >
+                                <IoIosClose color="red" />
+                              </Button>
+                            </Flex>
+                          </ListItem>
+                        ))}
+                      </List>
+                    ) : (
+                      <MenuItem>No notifications</MenuItem>
+                    )}
+                  </DrawerBody>
+                </DrawerContent>
+              </Drawer>
+
+              <MenuItem
+                icon={<BiLogOut size={24} color="#584bac" />}
                 onClick={() => logOut()}
               >
                 Logout
@@ -355,13 +436,13 @@ function Navbar() {
           ) : (
             <MenuList>
               <MenuItem
-                icon={<BiUserCheck size="1.7rem" color="#584bac" />}
+                icon={<BiUserCheck size={24} color="#584bac" />}
                 onClick={() => navigate('/login')}
               >
                 Log In
               </MenuItem>
               <MenuItem
-                icon={<BiUserPlus size="1.7rem" color="#584bac" />}
+                icon={<BiUserPlus size={24} color="#584bac" />}
                 onClick={() => navigate('/signup')}
               >
                 Sign Up

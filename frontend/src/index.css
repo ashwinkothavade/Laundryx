@@ -1,0 +1,12 @@
+   @keyframes skew-y-shaking{
+    0% { transform: skewY(-20deg); }
+    5% { transform: skewY(20deg); }
+    10% { transform: skewY(-20deg); }
+    15% { transform: skewY(20deg); }
+    20% { transform: skewY(0deg); }
+    100% { transform: skewY(0deg); }
+   }
+
+.bell-icon {
+    animation: skew-y-shaking 1s infinite;
+}
