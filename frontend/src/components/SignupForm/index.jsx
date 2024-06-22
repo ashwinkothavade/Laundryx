@@ -11,15 +11,12 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react';
-import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import { BiHide, BiShow } from 'react-icons/bi';
 import { HiArrowLongRight } from 'react-icons/hi2';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../Store/AuthStore';
-
-const dev_env = import.meta.env.VITE_DEV_ENV;
-axios.defaults.withCredentials = true;
+import { signup } from '../../utils/apis';
 
 export default function SignupForm() {
   const [loading, setLoading] = useState(false);
@@ -90,19 +87,8 @@ export default function SignupForm() {
     }
     setLoading(true);
     try {
-      let response;
-      if (dev_env === 'development') {
-        response = await axios.post(
-          'http://localhost:4000/signup',
-          credentials
-        );
-      } else if (dev_env === 'production') {
-        // eslint-disable-next-line no-unused-vars
-        response = await axios.post(
-          'https://laundrix-api.vercel.app/signup',
-          credentials
-        );
-      }
+      // eslint-disable-next-line
+      const response = await signup(credentials);
 
       addAuth();
       setUserName(credentials.username);

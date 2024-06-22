@@ -21,14 +21,12 @@ import {
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
-import axios from 'axios';
 import { useRef, useState } from 'react';
 import { BiHide, BiShow } from 'react-icons/bi';
 import { HiArrowLongRight } from 'react-icons/hi2';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../Store/AuthStore';
-
-const dev_env = import.meta.env.VITE_DEV_ENV;
+import { login, forgotPassword } from '../../utils/apis';
 
 export default function LoginForm() {
   const [loading, setLoading] = useState(false);
@@ -83,15 +81,7 @@ export default function LoginForm() {
 
     setLoading(true);
     try {
-      let response;
-      if (dev_env === 'development') {
-        response = await axios.post('http://localhost:4000/login', credentials);
-      } else if (dev_env === 'production') {
-        response = await axios.post(
-          'https://laundrix-api.vercel.app/login',
-          credentials
-        );
-      }
+      const response = await login(credentials);
 
       addAuth();
       setUserName(credentials.username);
@@ -122,35 +112,9 @@ export default function LoginForm() {
     e.preventDefault();
     const email = initialRef.current.value;
     try {
-      let response;
       if (email) {
-        if (dev_env === 'development') {
-          response = axios.post(
-            'http://localhost:4000/forgotpassword',
-            { email },
-            {
-              headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-                'Access-Control-Allow-Origin': '*',
-              },
-            }
-          );
-        } else if (dev_env === 'production') {
-          // eslint-disable-next-line no-unused-vars
-          response = axios.post(
-            'https://laundrix-api.vercel.app/forgotpassword',
-            { email },
-            {
-              headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-                'Access-Control-Allow-Origin': '*',
-              },
-            }
-          );
-        }
-
+        // eslint-disable-next-line
+        const response = forgotPassword(email);
         handleToast(
           'Success',
           'Password reset link is sent to your email',

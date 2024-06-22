@@ -25,15 +25,13 @@ import {
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
-import axios from 'axios';
 import React, { useEffect } from 'react';
 import { BiBell, BiLogOut, BiUserCheck, BiUserPlus } from 'react-icons/bi';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { IoIosClose } from 'react-icons/io';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../Store/AuthStore';
-
-const dev_env = import.meta.env.VITE_DEV_ENV;
+import { deleteNotif, fetchNotifs, logout } from '../../utils/apis';
 
 function Navbar() {
   const {
@@ -79,15 +77,7 @@ function Navbar() {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        let response;
-        if (dev_env === 'development') {
-          response = await axios.get('http://localhost:4000/notifications');
-        } else if (dev_env === 'production') {
-          response = await axios.get(
-            'https://laundrix-api.vercel.app/notifications'
-          );
-        }
-
+        const response = await fetchNotifs();
         if (
           !response.data.notifications ||
           response.data.notifications.length === 0
@@ -109,13 +99,8 @@ function Navbar() {
 
   const logOut = async () => {
     try {
-      let response;
-      if (dev_env === 'development') {
-        response = await axios.get('http://localhost:4000/logout');
-      } else if (dev_env === 'production') {
-        // eslint-disable-next-line no-unused-vars
-        response = await axios.get('https://laundrix-api.vercel.app/logout');
-      }
+      // eslint-disable-next-line
+      const response = await logout();
       toast({
         title: 'Success',
         description: 'User Logged Out Successfully',
@@ -153,16 +138,7 @@ function Navbar() {
 
   const deleteNotification = async (id) => {
     try {
-      let response;
-      if (dev_env === 'development') {
-        response = await axios.delete(
-          `http://localhost:4000/notifications/${id}`
-        );
-      } else if (dev_env === 'production') {
-        response = await axios.delete(
-          `https://laundrix-api.vercel.app/notifications/${id}`
-        );
-      }
+      const response = await deleteNotif(id);
 
       if (response.status === 200) {
         setUnreadCount((prevCount) => prevCount - 1);

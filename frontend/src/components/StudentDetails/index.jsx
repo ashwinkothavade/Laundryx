@@ -20,7 +20,6 @@ import {
   useMediaQuery,
   useToast,
 } from '@chakra-ui/react';
-import axios from 'axios';
 import React, { useRef, useState } from 'react';
 import {
   FaBuilding,
@@ -31,8 +30,7 @@ import {
   FaUser,
 } from 'react-icons/fa';
 import useAuthStore from '../Store/AuthStore';
-
-const dev_env = import.meta.env.VITE_DEV_ENV;
+import { updateUserDetails } from '../../utils/apis';
 
 function StudentDetails() {
   const {
@@ -127,16 +125,8 @@ function StudentDetails() {
       return;
     }
     try {
-      let response;
-      if (dev_env === 'development') {
-        response = await axios.patch('http://localhost:4000/user', changedData);
-      } else if (dev_env === 'production') {
-        // eslint-disable-next-line no-unused-vars
-        response = await axios.patch(
-          'https://laundrix-api.vercel.app/user',
-          changedData
-        );
-      }
+      // eslint-disable-next-line no-unused-vars
+      const response = await updateUserDetails(changedData);
 
       changedFields.forEach((field) => {
         switch (field) {

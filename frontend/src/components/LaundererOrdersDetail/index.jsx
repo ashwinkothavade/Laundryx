@@ -34,12 +34,14 @@ import {
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../Store/AuthStore';
-
-const dev_env = import.meta.env.VITE_DEV_ENV;
+import {
+  getAllOrders,
+  postNotif,
+  updateAcceptedStatus,
+  updateDeliveryStatus,
+} from '../../utils/apis';
 
 function LaundererOrdersDetail() {
   const [orders, setOrders] = useState([]);
@@ -49,7 +51,6 @@ function LaundererOrdersDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const toast = useToast();
-  const navigate = useNavigate();
   const { userName } = useAuthStore((state) => ({
     userName: state.userName,
   }));
@@ -61,25 +62,13 @@ function LaundererOrdersDetail() {
       status,
       duration: 5000,
       isClosable: true,
-      onCloseComplete: () => {
-        if (status === 'error') {
-          navigate('/login');
-        }
-      },
     });
   };
 
   useEffect(() => {
     const getOrders = async () => {
       try {
-        let response;
-        if (dev_env === 'development') {
-          response = await axios.get('http://localhost:4000/allorders');
-        } else if (dev_env === 'production') {
-          response = await axios.get(
-            'https://laundrix-api.vercel.app/allorders'
-          );
-        }
+        const response = await getAllOrders();
         setOrders(response.data.orders);
         setLoading(false);
       } catch (err) {
@@ -110,18 +99,7 @@ function LaundererOrdersDetail() {
 
   const handleUpdateAcceptedStatus = async (order_id) => {
     try {
-      let response;
-      if (dev_env === 'development') {
-        response = await axios.put(
-          `http://localhost:4000/acceptorder/${order_id}`,
-          {}
-        );
-      } else if (dev_env === 'production') {
-        response = await axios.put(
-          `https://laundrix-api.vercel.app/acceptorder/${order_id}`,
-          {}
-        );
-      }
+      const response = await updateAcceptedStatus(order_id);
 
       if (response.status === 200) {
         const notification = {
@@ -130,18 +108,7 @@ function LaundererOrdersDetail() {
           student: '', // need to query the student username from the order_id
           orderId: order_id,
         };
-        let notifResponse;
-        if (dev_env === 'development') {
-          notifResponse = await axios.post(
-            'http://localhost:4000/notifications',
-            notification
-          );
-        } else if (dev_env === 'production') {
-          notifResponse = await axios.post(
-            'https://laundrix-api.vercel.app/notifications',
-            notification
-          );
-        }
+        const notifResponse = await postNotif(notification);
 
         if (notifResponse.status !== 500) {
           console.log(notifResponse);
@@ -163,20 +130,7 @@ function LaundererOrdersDetail() {
 
   const handleUpdateDeliveredStatus = async (order_id) => {
     try {
-      let response;
-      if (dev_env === 'development') {
-        response = await axios.put(
-          `http://localhost:4000/updatedeliveredstatus/${order_id}`,
-          {},
-          { withCredentials: true }
-        );
-      } else if (dev_env === 'production') {
-        response = await axios.put(
-          `https://laundrix-api.vercel.app/updatedeliveredstatus/${order_id}`,
-          {},
-          { withCredentials: true }
-        );
-      }
+      const response = await updateDeliveryStatus(order_id);
 
       if (response.status === 200) {
         const notification = {
@@ -185,18 +139,7 @@ function LaundererOrdersDetail() {
           student: '', // need to query the student username from the order_id
           orderId: order_id,
         };
-        let notifResponse;
-        if (dev_env === 'development') {
-          notifResponse = await axios.post(
-            'http://localhost:4000/notifications',
-            notification
-          );
-        } else if (dev_env === 'production') {
-          notifResponse = await axios.post(
-            'https://laundrix-api.vercel.app/notifications',
-            notification
-          );
-        }
+        const notifResponse = await postNotif(notification);
 
         if (notifResponse.status !== 500) {
           console.log(notifResponse);

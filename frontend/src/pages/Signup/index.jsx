@@ -1,7 +1,7 @@
 import { Box, Flex } from '@chakra-ui/react';
 import { DotLottiePlayer } from '@dotlottie/react-player';
 import '@dotlottie/react-player/dist/index.css';
-// eslint-disable-next-line import/no-extraneous-dependencies
+
 import { Helmet } from 'react-helmet-async';
 import Navbar from '../../components/Navbar';
 import SignupForm from '../../components/SignupForm';
