@@ -8,7 +8,7 @@ const {
 } = require('../middlewares/authMiddleware');
 
 router.get(
-  '/student/myorders',
+  '/student/orders',
   verifyUser,
   studentOrderController.getStudentOrders
 );
