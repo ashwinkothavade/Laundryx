@@ -23,7 +23,7 @@ const logout = () => {
 };
 
 const updateUserDetails = (changedData) => {
-  return axios.patch('http://localhost:4000/user', changedData);
+  return axios.patch(`${API_URL}/user`, changedData);
 };
 const fetchNotifs = () => {
   return axios.get(`${API_URL}/notifications`);

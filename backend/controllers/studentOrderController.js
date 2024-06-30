@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const Order = require('../models/orderModel');
 const User = require('../models/userModel');
 // @desc    Get all orders of a student
-// @route   GET /student/myorders
+// @route   GET /student/orders
 // @access  Private
 const getStudentOrders = async (req, resp) => {
   try {

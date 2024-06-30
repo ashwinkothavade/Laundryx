@@ -57,8 +57,8 @@ const createUser = async (req, resp) => {
     resp.cookie('jwt', token, {
       httpOnly: true,
       maxAge: maxAge * 1000,
-      secure: true, // set to true if your using https
-      sameSite: 'strict',
+      secure: process.env.NODE_ENV === 'production', // set to true if your using https
+      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax', // if backend and frontend are on different domains
     }); // Set the cookie
 
     resp.status(201).json({
@@ -116,8 +116,8 @@ const loginUser = async (req, resp) => {
         resp.cookie('jwt', token, {
           httpOnly: true,
           maxAge: maxAge * 1000,
-          secure: true, // set to true if your using https
-          sameSite: 'strict',
+          secure: process.env.NODE_ENV === 'production', // set to true if your using https
+          sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax', // if backend and frontend are on different domains
         }); // Set the cookie
 
         resp.status(200).json({
@@ -148,8 +148,8 @@ const logoutUser = async (req, resp) => {
   resp.cookie('jwt', '', {
     httpOnly: true,
     maxAge: -1,
-    secure: true, // set to true if your using https
-    sameSite: 'none',
+    secure: process.env.NODE_ENV === 'production', // set to true if your using https
+    sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax', // if backend and frontend are on different domains
   }); // negative maxAge so that the cookie expires immediately
 
   resp.status(200).json({
