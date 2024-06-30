@@ -4,7 +4,6 @@ import {
   Flex,
   FormControl,
   FormLabel,
-  Heading,
   Input,
   Stack,
   Text,
@@ -79,19 +78,32 @@ function ContactSection() {
   };
 
   return (
-    <Flex align="center" gap="3rem">
+    <Flex align="center" gap={{ base: '2rem', '2xl': '3rem' }}>
       <Stack align="center">
         <Stack align="center" gap="1rem" mb="3rem">
-          <Heading color="#584BAC" size="2xl">
+          <Text
+            color="#584BAC"
+            fontWeight={600}
+            fontSize={{ base: '2.1rem', sm: '2.5rem', '2xl': '3rem' }}
+          >
             Reach Out to Us
-          </Heading>
-          <Text fontWeight={600} fontSize="1.3rem" textAlign="center" w="40rem">
+          </Text>
+          <Text
+            fontWeight={600}
+            fontSize={{ base: '1rem', sm: '1.2rem', '2xl': '1.3rem' }}
+            textAlign="center"
+            w={{ base: '20rem', sm: '30rem', md: '35rem', '2xl': '40rem' }}
+          >
             Whether you have inquiries, feedback, or need support, we're just a
             message away.
           </Text>
         </Stack>
         <Stack gap="2rem">
-          <Flex gap="3rem">
+          <Flex
+            gap={{ base: '2rem', md: '3rem' }}
+            flexDirection={{ base: 'column', md: 'row' }}
+            align={{ base: 'center', md: '' }}
+          >
             <Box>
               <FormControl>
                 <FormLabel fontSize="1.2rem">Name</FormLabel>
@@ -100,7 +112,12 @@ function ContactSection() {
                   ref={senderNameRef}
                   placeholder="Enter your name"
                   pl={0}
-                  w="18rem"
+                  w={{
+                    base: '20rem',
+                    sm: '25rem',
+                    md: '16rem',
+                    '2xl': '18rem',
+                  }}
                   border="none"
                   borderBottom="2px solid #584BAC"
                   borderRadius={0}
@@ -117,7 +134,12 @@ function ContactSection() {
                   ref={senderMailRef}
                   placeholder="Enter your email"
                   pl={0}
-                  w="18rem"
+                  w={{
+                    base: '20rem',
+                    sm: '25rem',
+                    md: '16rem',
+                    '2xl': '18rem',
+                  }}
                   border="none"
                   borderBottom="2px solid #584BAC"
                   borderRadius={0}
@@ -131,7 +153,7 @@ function ContactSection() {
             <FormControl>
               <FormLabel fontSize="1.2rem">Message</FormLabel>
               <Textarea
-                w="39rem"
+                w={{ base: '20rem', sm: '25rem', md: '35rem', '2xl': '39rem' }}
                 ref={messageRef}
                 placeholder="Enter the message"
                 pl={0}
@@ -157,7 +179,10 @@ function ContactSection() {
           Send Mail
         </Button>
       </Stack>
-      <Box display={{ base: 'none', lg: 'block' }} h="45rem" w="45rem">
+      <Box
+        display={{ base: 'none', xl: 'block' }}
+        boxSize={{ base: 0, xl: '35rem', '2xl': '45rem' }}
+      >
         <DotLottiePlayer
           src="/Contact.lottie"
           autoplay
