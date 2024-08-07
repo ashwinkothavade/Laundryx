@@ -1,8 +1,16 @@
-import React from 'react';
+import {
+  Box,
+  Flex,
+  Heading,
+  Image,
+  Text,
+  chakra,
+  useToast,
+} from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { Text, Heading, Box, Flex, chakra, useToast } from '@chakra-ui/react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import Landing from '../../../public/assets/LandingImg.svg';
+import Landing from '../../../public/assets/laundry_hero.png';
 import useAuthStore from '../Store/AuthStore';
 
 const LandingButton = chakra('button', {
@@ -26,7 +34,6 @@ const LandingButton = chakra('button', {
 });
 
 const AnimatedBox = motion.div;
-const AnimatedImage = motion.img;
 
 function Hero() {
   const navigate = useNavigate();
@@ -42,17 +49,16 @@ function Hero() {
     transition: { duration: 0.9, ease: 'easeInOut' },
   };
 
-  const imageVariant = {
-    initial: { opacity: 0, scale: 0.9 },
-    animate: { opacity: 1, scale: 1 },
-    transition: { duration: 0.9, ease: 'anticipate' },
-  };
-
   return (
     <Flex
+      w={{ base: '100%', xl: '' }}
+      h={{ base: '100%', xl: '' }}
+      bgImage={{ base: "url('public/assets/laundry_hero.png')", xl: '' }}
+      bgPosition=""
+      bgRepeat="no-repeat"
       alignItems="center"
-      justifyContent="space-around"
-      mt="5rem"
+      justifyContent="center"
+      gap={{ base: '2.1rem', xl: '2rem', '2xl': '8rem' }}
       direction={{ base: 'column', lg: 'row' }}
       px="1rem"
       mx="1rem"
@@ -71,10 +77,21 @@ function Hero() {
           justifyContent="center"
           order={{ base: '1', md: '0' }}
         >
-          <Heading color="lxPurple" mb="2rem" textAlign="center" size="2xl">
+          <Heading
+            color="lxPurple"
+            mb="2rem"
+            textAlign="center"
+            fontSize={{ base: '2.1rem', sm: '2.5rem', '2xl': '3.2rem' }}
+          >
             Laundry and Dry Cleaning, Done.
           </Heading>
-          <Text fontSize="xl" textAlign="center" mb="1rem">
+          <Text
+            fontWeight={600}
+            fontSize={{ base: '1rem', sm: '1.2rem', '2xl': '1.3rem' }}
+            textAlign="center"
+            w={{ base: '20rem', sm: '25rem', md: '28rem', '2xl': '35rem' }}
+            mb="2rem"
+          >
             LaundriX picks up, cleans and delivers. Amazingly awesome,
             ridiculously simple.
           </Text>
@@ -122,10 +139,18 @@ function Hero() {
         </Box>
       </AnimatedBox>
       <Box>
-        <AnimatedImage
+        <Image
           src={Landing}
-          alt="Landing Image"
-          variants={imageVariant}
+          height={{
+            base: '0',
+            xl: '530px',
+            '2xl': '600px',
+          }}
+          width={{
+            base: '0',
+            xl: '700px',
+            '2xl': '850px',
+          }}
         />
       </Box>
     </Flex>

@@ -11,7 +11,6 @@ function LandingPage() {
         <title>LaundriX</title>
         <meta name="description" content="" />
       </Helmet>
-
       <Navbar />
       <Home />
     </>

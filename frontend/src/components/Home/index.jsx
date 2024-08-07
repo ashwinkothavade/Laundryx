@@ -8,9 +8,9 @@ import WorkingCard from './WorkingCard';
 function Main() {
   return (
     <Box pt="4rem">
-      <Box height="100vh">
+      <Center height="100vh">
         <Hero />
-      </Box>
+      </Center>
       <Box height="100vh">
         <ServiceCard />
       </Box>
