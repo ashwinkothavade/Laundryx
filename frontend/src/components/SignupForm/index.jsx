@@ -136,8 +136,8 @@ export default function SignupForm() {
       >
         <form onSubmit={onSubmit}>
           {/* Username and Phone */}
-          <Flex gap="2rem">
-            <Box mb={['1rem', '1.5rem']}>
+          <Flex direction={{ base: 'column', sm: 'row' }} gap={{ base: '0', sm: '2rem' }}>
+            <Box mb={['1rem', '1.5rem']} flex="1">
               <Text mb="0.5rem" fontSize="1.1rem">
                 Username
               </Text>
@@ -153,7 +153,7 @@ export default function SignupForm() {
                 />
               </Box>
             </Box>
-            <Box mb={['1rem', '1.5rem']}>
+            <Box mb={['1rem', '1.5rem']} flex="1">
               <Text mb="0.5rem" fontSize="1.1rem">
                 Phone
               </Text>
