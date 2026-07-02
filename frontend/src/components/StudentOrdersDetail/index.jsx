@@ -277,8 +277,13 @@ function OrderDetail() {
   }
 
   return (
-    <VStack align="start" gap={14} ml="8rem">
-      <Text fontSize="2rem" fontWeight="bold">
+    <VStack
+      align="start"
+      gap={{ base: 8, md: 14 }}
+      ml={{ base: '0', md: '8rem' }}
+      w="100%"
+    >
+      <Text fontSize={{ base: '1.5rem', md: '2rem' }} fontWeight="bold">
         Order Details:
       </Text>
       <CheckboxGroup>
@@ -325,7 +330,7 @@ function OrderDetail() {
         </HStack>
       </CheckboxGroup>
       <Box
-        w="75vw"
+        w={{ base: '100%', md: '75vw' }}
         overflowX="scroll"
         css={{
           '&::-webkit-scrollbar': {
@@ -431,7 +436,10 @@ function OrderDetail() {
                 <strong>Order Total:</strong> ${selectedOrder.orderTotal}
               </Text>
               <Divider my={2} />
-              <Grid templateColumns="repeat(2, 1fr)" gap={4}>
+              <Grid
+                templateColumns={{ base: '1fr', sm: 'repeat(2, 1fr)' }}
+                gap={4}
+              >
                 <GridItem>
                   <Text>
                     <strong>Pickup Address:</strong>{' '}
@@ -466,7 +474,11 @@ function OrderDetail() {
                 </GridItem>
               </Grid>
               <Divider my={2} />
-              <Grid templateColumns="repeat(2, 1fr)" gap={4} my={4}>
+              <Grid
+                templateColumns={{ base: '1fr', sm: 'repeat(2, 1fr)' }}
+                gap={4}
+                my={4}
+              >
                 <GridItem>
                   <Text>
                     <strong>Accepted Status:</strong>

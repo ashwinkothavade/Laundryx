@@ -266,7 +266,7 @@ function ScheduleCard() {
           <Select
             placeholder="Select location"
             border="2px solid #584BAC"
-            w={{ base: '11rem', md: 'auto' }}
+            w={{ base: '9rem', md: 'auto' }}
             ref={pickupAddressRef}
             _hover={{ border: '2px solid #584BAC' }}
             _focus={{ border: '2px solid #584BAC' }}
@@ -291,7 +291,7 @@ function ScheduleCard() {
           <Select
             placeholder="Select location"
             border="2px solid #584BAC"
-            w={{ base: '12rem', md: 'auto' }}
+            w={{ base: '9rem', md: 'auto' }}
             ref={deliveryAddressRef}
             _hover={{ border: '2px solid #584BAC' }}
             _focus={{ border: '2px solid #584BAC' }}
@@ -316,7 +316,7 @@ function ScheduleCard() {
           <Select
             placeholder="Select launderer"
             border="2px solid #584BAC"
-            w={{ base: '10rem', md: 'auto' }}
+            w={{ base: '9rem', md: 'auto' }}
             ref={laundererRef}
             _hover={{ border: '2px solid #584BAC' }}
             _focus={{ border: '2px solid #584BAC' }}

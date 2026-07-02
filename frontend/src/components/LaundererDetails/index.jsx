@@ -235,7 +235,7 @@ function LaundererDetails() {
 
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
-        <ModalContent maxWidth="500px">
+        <ModalContent maxWidth={{ base: '90vw', md: '500px' }}>
           <ModalHeader textAlign="center">User Details</ModalHeader>
           <ModalCloseButton />
           <ModalBody>

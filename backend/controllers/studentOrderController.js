@@ -47,7 +47,35 @@ const createStudentOrder = async (req, resp) => {
       pickupTime,
       launderer,
     } = req.body;
-    // all the items validation is done in the frontend without any anomaly.
+    // Backend validation — never trust the client. The frontend also validates,
+    // but that is bypassable, so the required fields are re-checked here.
+    if (!Array.isArray(items) || items.length === 0) {
+      return resp.status(400).json({
+        message: 'Order must contain at least one item',
+      });
+    }
+    const requiredFields = {
+      deliveryDate,
+      deliveryTime,
+      pickupAddress,
+      deliveryAddress,
+      pickupDate,
+      pickupTime,
+      launderer,
+    };
+    const missingField = Object.keys(requiredFields).find(
+      (key) => !requiredFields[key]
+    );
+    if (missingField) {
+      return resp.status(400).json({
+        message: `Missing required field: ${missingField}`,
+      });
+    }
+    if (typeof orderTotal !== 'number' || orderTotal < 0) {
+      return resp.status(400).json({
+        message: 'Invalid order total',
+      });
+    }
     const result = await User.find({
       username: launderer,
     });
@@ -86,11 +114,18 @@ const createStudentOrder = async (req, resp) => {
 // @access  Private
 const updatePickupStatus = async (req, resp) => {
   try {
+    const token = req.cookies.jwt;
+    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     const orderId = req.params.order_id;
     const order = await Order.findById(orderId);
     if (order === null) {
       return resp.status(404).json({
         message: 'Order not found',
+      });
+    }
+    if (order.user.toString() !== decodedToken.user_id) {
+      return resp.status(403).json({
+        message: 'You are not authorized to modify this order',
       });
     }
     if (order.acceptedStatus === false) {
@@ -123,18 +158,27 @@ const updatePickupStatus = async (req, resp) => {
 // @access  Private
 const deleteOrder = async (req, resp) => {
   try {
+    const token = req.cookies.jwt;
+    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     const orderId = req.params.order_id;
 
-    const result = await Order.findByIdAndDelete(orderId);
-    if (!result) {
+    const order = await Order.findById(orderId);
+    if (!order) {
       return resp.status(404).json({
         message: 'Order not found',
       });
     }
+    if (order.user.toString() !== decodedToken.user_id) {
+      return resp.status(403).json({
+        message: 'You are not authorized to delete this order',
+      });
+    }
+
+    await Order.findByIdAndDelete(orderId);
 
     resp.status(200).json({
       message: 'Order deleted successfully',
-      order: result,
+      order,
     });
   } catch (err) {
     console.error(err);
@@ -150,8 +194,20 @@ const deleteOrder = async (req, resp) => {
 // @access  Private
 const updateDeliveryStatus = async (req, resp) => {
   try {
+    const token = req.cookies.jwt;
+    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     const orderId = req.params.order_id;
     const order = await Order.findById(orderId);
+    if (order === null) {
+      return resp.status(404).json({
+        message: 'Order not found',
+      });
+    }
+    if (order.user.toString() !== decodedToken.user_id) {
+      return resp.status(403).json({
+        message: 'You are not authorized to modify this order',
+      });
+    }
     if (order.pickUpStatus === false) {
       return resp.status(400).json({
         message: 'Order not picked up yet',
