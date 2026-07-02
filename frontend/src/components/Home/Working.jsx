@@ -11,10 +11,8 @@ const CardWrapper = styled.div`
   width: 100%;
 `;
 const Card = styled(motion.div)`
-    width:15rem;
-    height:15rem;
-    min-width:{{base:'auto', md:'15rem'}};
-    min-height:{{base:'auto', md:'15rem'}};
+    width:min(15rem, 75vw);
+    height:min(15rem, 75vw);
     display:flex;
     flex-direction:column;
     border-radius:1.5rem;

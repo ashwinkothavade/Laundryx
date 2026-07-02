@@ -184,8 +184,13 @@ function LaundererOrdersDetail() {
   }
 
   return (
-    <VStack align="start" gap={12} ml="8rem">
-      <Text fontSize="2rem" fontWeight="bold">
+    <VStack
+      align="start"
+      gap={{ base: 8, md: 12 }}
+      ml={{ base: '0', md: '8rem' }}
+      w="100%"
+    >
+      <Text fontSize={{ base: '1.5rem', md: '2rem' }} fontWeight="bold">
         Order Details:
       </Text>
       <CheckboxGroup>
@@ -232,7 +237,7 @@ function LaundererOrdersDetail() {
         </HStack>
       </CheckboxGroup>
       <Box
-        w="93rem"
+        w={{ base: '100%', md: '75vw' }}
         overflowX="scroll"
         css={{
           '&::-webkit-scrollbar': {
@@ -293,7 +298,11 @@ function LaundererOrdersDetail() {
       {selectedOrder && (
         <Modal isOpen={isOpen} onClose={onClose}>
           <ModalOverlay />
-          <ModalContent border="2px solid #ce1567" borderRadius="0.5rem">
+          <ModalContent
+            width="90%"
+            border="2px solid #ce1567"
+            borderRadius="0.5rem"
+          >
             <ModalHeader />
             <ModalCloseButton />
             <ModalBody>
@@ -305,7 +314,10 @@ function LaundererOrdersDetail() {
                 Student Details:
               </Text>
               <Divider my={2} />
-              <Grid templateColumns="repeat(2, 1fr)" gap={2}>
+              <Grid
+                templateColumns={{ base: '1fr', sm: 'repeat(2, 1fr)' }}
+                gap={2}
+              >
                 <GridItem>
                   <Text>
                     <strong>Student Username:</strong>{' '}
@@ -334,7 +346,10 @@ function LaundererOrdersDetail() {
                 Order Details:
               </Text>
               <Divider my={2} />
-              <Grid templateColumns="repeat(2, 1fr)" gap={2}>
+              <Grid
+                templateColumns={{ base: '1fr', sm: 'repeat(2, 1fr)' }}
+                gap={2}
+              >
                 <GridItem>
                   <Text>
                     <strong>Pickup Address:</strong>{' '}
@@ -369,7 +384,11 @@ function LaundererOrdersDetail() {
                 </GridItem>
               </Grid>
               <Divider my={2} />
-              <Grid templateColumns="repeat(2, 1fr)" gap={4} my={4}>
+              <Grid
+                templateColumns={{ base: '1fr', sm: 'repeat(2, 1fr)' }}
+                gap={4}
+                my={4}
+              >
                 <GridItem>
                   <Text>
                     <strong>Accepted Status:</strong>

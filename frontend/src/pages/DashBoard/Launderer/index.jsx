@@ -18,25 +18,33 @@ function LaundererDashboard() {
         <meta name="description" content="" />
       </Helmet>
       <Navbar />
-      <Flex justify="space-evenly" pt="7rem">
+      <Flex
+        direction={{ base: 'column', md: 'row' }}
+        justify="space-evenly"
+        pt={{ base: '0', md: '7rem' }}
+      >
         <Box
-          position="fixed"
+          position={{ base: 'static', md: 'fixed' }}
           left={0}
           top={['50px', '55px', '70px']}
-          bottom={0}
-          w="15rem"
+          bottom={{ base: 'auto', md: 0 }}
+          w={{ base: '100%', md: '15rem' }}
           boxShadow="0px 2px 3px lightgray"
-          pl="2rem"
+          pl={{ base: '1rem', md: '2rem' }}
           pr="1rem"
           pt="3rem"
+          mt={{ base: '50px', md: 0 }}
         >
-          <HStack mb="2rem">
+          <HStack mb="2rem" display={{ base: 'none', md: 'flex' }}>
             <RiSettingsLine size={35} />
             <Text fontWeight={600} fontSize="1.4rem">
               Dashboard
             </Text>
           </HStack>
-          <Stack gap={4}>
+          <Stack
+            direction={{ base: 'row', md: 'column' }}
+            gap={{ base: 2, md: 4 }}
+          >
             <Button
               p={0}
               color={!isActive ? 'white' : '#9197B3'}
@@ -73,7 +81,14 @@ function LaundererDashboard() {
             </Button>
           </Stack>
         </Box>
-        <Flex justify="space-evenly" align="center" pt="3rem" pl="5rem">
+        <Flex
+          justify="space-evenly"
+          align="center"
+          pt="3rem"
+          pl={{ base: '1rem', md: '5rem' }}
+          pr={{ base: '1rem', md: 0 }}
+          w="100%"
+        >
           {!isActive ? <LaundererDetails /> : <LaundererOrdersDetail />}
         </Flex>
       </Flex>

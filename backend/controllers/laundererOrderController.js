@@ -48,6 +48,11 @@ const getOrdersByStudent = async (req, resp) => {
       // Get the username of the student, search in the database for the orders with the username
       const { username } = req.params;
       const user = await User.findOne({ username });
+      if (!user) {
+        return resp.status(404).json({
+          message: 'Student not found',
+        });
+      }
       const userId = user._id;
       const result = await Order.find({ user: userId });
       resp.status(200).json({
@@ -79,6 +84,11 @@ const updateOrderAccept = async (req, resp) => {
       // launderer can now accept the order
       const orderId = req.params.order_id;
       const order = await Order.findById(orderId);
+      if (!order) {
+        return resp.status(404).json({
+          message: 'Order not found',
+        });
+      }
       if (order.acceptedStatus === true) {
         resp.status(400).json({
           message: 'Order is already accepted.',
@@ -114,6 +124,11 @@ const updateOrderReject = async (req, resp) => {
       // launderer can now reject the order
       const orderId = req.params.order_id;
       const order = await Order.findById(orderId);
+      if (!order) {
+        return resp.status(404).json({
+          message: 'Order not found',
+        });
+      }
       if (order.pickUpStatus === true) {
         resp.status(400).json({
           message: 'Order is picked up, cannot be rejected.',
@@ -150,6 +165,11 @@ const updateDeliveredStatus = async (req, resp) => {
       // launderer can now set the delivered status of the order to be true
       const orderId = req.params.order_id;
       const order = await Order.findById(orderId);
+      if (!order) {
+        return resp.status(404).json({
+          message: 'Order not found',
+        });
+      }
       if (order.acceptedStatus === false) {
         resp.status(400).json({
           message: 'Order is not accepted yet.',
@@ -195,7 +215,11 @@ const updateOrderDeliveryDate = async (req, resp) => {
       const result = await Order.findByIdAndUpdate(orderId, {
         deliveryDate: req.body.deliveryDate,
       });
-      result.save();
+      if (!result) {
+        return resp.status(404).json({
+          message: 'Order not found',
+        });
+      }
       resp.status(201).json({
         updatedOrder: result,
       });

@@ -85,10 +85,10 @@ const updateUser = async (req, resp) => {
       new: true,
       runValidators: true,
     });
-    resp.status(200).json(user);
     if (!user) {
       throw new Error('User not found');
     }
+    resp.status(200).json(user);
   } catch (err) {
     const errors = authUtils.handleSignUpError(err);
     resp.status(500).json({ errors });
@@ -179,7 +179,8 @@ const forgotPassword = async (req, resp) => {
         secret,
         { expiresIn: '5m' }
       );
-      const url = `http://localhost:4000/resetpassword/${user._id}/${token}`;
+      const backendUrl = process.env.BACKEND_URL || 'http://localhost:4000';
+      const url = `${backendUrl}/resetpassword/${user._id}/${token}`;
 
       // eslint-disable-next-line no-unused-vars
       const testAccount = await nodemailer.createTestAccount();
@@ -194,7 +195,7 @@ const forgotPassword = async (req, resp) => {
       });
 
       const info = await transporter.sendMail({
-        from: '"LaundriX" <laundrix5@gmail.com>',
+        from: `"LaundriX" <${process.env.GMAIL_ADDRESS}>`,
         to: email,
         subject: 'Reset Password link from LaundriX',
         text: `Click on this link to reset your password: ${url}`,
@@ -213,20 +214,20 @@ const forgotPassword = async (req, resp) => {
 // @access  Public
 const getResetPassword = async (req, resp) => {
   const { id, token } = req.params;
-  const user = await User.findById(id);
-  if (!user) {
-    throw new Error('User not found');
-  }
-  const secret = process.env.JWT_SECRET + user.password;
   try {
+    const user = await User.findById(id);
+    if (!user) {
+      return resp.status(404).send('User not found');
+    }
+    const secret = process.env.JWT_SECRET + user.password;
     // eslint-disable-next-line no-unused-vars
     const verify = jwt.verify(token, secret);
-    resp.render('index', {
+    return resp.render('index', {
       status: 'not verified',
       error: '',
     });
   } catch (err) {
-    resp.status(401).send(err.message);
+    return resp.status(401).send(err.message);
   }
 };
 
@@ -236,36 +237,39 @@ const getResetPassword = async (req, resp) => {
 const postResetPassword = async (req, resp) => {
   const { id, token } = req.params;
   const { password } = req.body;
-  const user = await User.findById(id);
-  if (!user) {
-    throw new Error('User not found');
-  }
-  if (!password) {
-    return resp.status(401).render('index', {
-      status: 'not verified',
-      error: 'Password cannot be empty',
-    });
-  }
-  if (
-    !password.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/)
-  ) {
-    return resp.status(401).render('index', {
-      status: 'not verified',
-      error:
-        'Password must be at least 8 characters long and must contain at least one lowercase letter, one uppercase letter, one numeric digit, and one special character',
-    });
-  }
-
-  const secret = process.env.JWT_SECRET + user.password;
   try {
+    const user = await User.findById(id);
+    if (!user) {
+      return resp.status(404).render('index', {
+        status: 'not verified',
+        error: 'User not found',
+      });
+    }
+    if (!password) {
+      return resp.status(401).render('index', {
+        status: 'not verified',
+        error: 'Password cannot be empty',
+      });
+    }
+    if (
+      !password.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/)
+    ) {
+      return resp.status(401).render('index', {
+        status: 'not verified',
+        error:
+          'Password must be at least 8 characters long and must contain at least one lowercase letter, one uppercase letter, one numeric digit, and one special character',
+      });
+    }
+
+    const secret = process.env.JWT_SECRET + user.password;
     // eslint-disable-next-line no-unused-vars
     const verify = jwt.verify(token, secret);
     user.password = password;
-    user.save();
-    resp.status(200).render('index', { status: 'verified', error: '' });
+    await user.save();
+    return resp.status(200).render('index', { status: 'verified', error: '' });
   } catch (err) {
-    alert(err.message);
-    resp.status(401).send(err.message);
+    console.error(err);
+    return resp.status(401).send(err.message);
   }
 };
 module.exports = {
