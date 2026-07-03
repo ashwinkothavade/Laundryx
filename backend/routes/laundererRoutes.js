@@ -20,6 +20,12 @@ router.put(
   verifyLaunderer,
   laundererOrderController.setAvailability
 );
+router.put(
+  '/launderer/express',
+  verifyUser,
+  verifyLaunderer,
+  laundererOrderController.setExpress
+);
 router.get('/allorders', verifyUser, laundererOrderController.getAllOrders);
 router.get(
   '/orders/:username',

@@ -9,6 +9,8 @@ const useOrderStore = create(
         items: [],
         orderTotal: 0,
         fulfilmentMode: 'home_pickup',
+        express: false,
+        couponCode: '',
         pickupDate: '',
         deliveryDate: '-- -- --',
         pickupTime: '',
@@ -22,6 +24,20 @@ const useOrderStore = create(
         set((state) => ({
           ...state,
           order: { ...state.order, fulfilmentMode: value },
+        }));
+      },
+
+      setExpress: (value) => {
+        set((state) => ({
+          ...state,
+          order: { ...state.order, express: value },
+        }));
+      },
+
+      setCouponCode: (value) => {
+        set((state) => ({
+          ...state,
+          order: { ...state.order, couponCode: value },
         }));
       },
 
@@ -173,6 +189,8 @@ const useOrderStore = create(
             order: {
               ...state.order,
               fulfilmentMode: 'home_pickup',
+              express: false,
+              couponCode: '',
               pickupDate: '',
               deliveryDate: '-- -- --',
               pickupTime: '',

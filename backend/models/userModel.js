@@ -44,6 +44,12 @@ const userSchema = mongoose.Schema(
       type: [String],
       default: [],
     },
+    // Flat surcharge a launderer charges for express service. 0 = not offered.
+    expressSurcharge: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     email: {
       type: String,
       required: [true, 'Please provide an email'],

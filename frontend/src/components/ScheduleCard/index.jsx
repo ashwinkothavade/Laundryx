@@ -4,8 +4,10 @@ import {
   Divider,
   Flex,
   HStack,
+  Input,
   Select,
   Stack,
+  Switch,
   Text,
   useToast,
 } from '@chakra-ui/react';
@@ -22,6 +24,7 @@ import {
   getLaundererCatalog,
   getSettings,
   postNotif,
+  previewCoupon,
 } from '../../utils/apis';
 
 function ScheduleCard() {
@@ -34,6 +37,8 @@ function ScheduleCard() {
     setPickupAddress,
     setDeliveryAddress,
     setFulfilmentMode,
+    setExpress,
+    setCouponCode,
     clearItems,
   } = useOrderStore((state) => ({
     clearSchedule: state.clearSchedule,
@@ -44,9 +49,13 @@ function ScheduleCard() {
     setPickupAddress: state.setPickupAddress,
     setDeliveryAddress: state.setDeliveryAddress,
     setFulfilmentMode: state.setFulfilmentMode,
+    setExpress: state.setExpress,
+    setCouponCode: state.setCouponCode,
     clearItems: state.clearItems,
   }));
   const isHomePickup = order.fulfilmentMode !== 'self_dropoff';
+  const [expressSurcharge, setExpressSurcharge] = useState(0);
+  const [couponStatus, setCouponStatus] = useState(null);
   const { userName, userHostel, userRollNumber } = useAuthStore((state) => ({
     userName: state.userName,
     userHostel: state.userHostel,
@@ -74,6 +83,7 @@ function ScheduleCard() {
             if (cat.data.availableTimeSlots?.length) {
               slots = cat.data.availableTimeSlots;
             }
+            setExpressSurcharge(cat.data.expressSurcharge || 0);
           } catch (e) {
             // ignore — fall back to global slots
           }
@@ -96,6 +106,26 @@ function ScheduleCard() {
       isClosable: true,
     });
   };
+
+  const applyCoupon = async () => {
+    if (!order.couponCode) {
+      setCouponStatus(null);
+      return;
+    }
+    try {
+      const res = await previewCoupon(order.couponCode, order.orderTotal);
+      setCouponStatus(res.data);
+    } catch (e) {
+      setCouponStatus({ valid: false, discount: 0, message: 'Invalid coupon' });
+    }
+  };
+
+  const discount = couponStatus?.valid ? couponStatus.discount : 0;
+  const expressCharge = order.express ? expressSurcharge : 0;
+  const estimatedTotal = Math.max(
+    0,
+    order.orderTotal + expressCharge - discount
+  );
 
   const handleConfirmSchedule = () => {
     // Values are written to the (persisted) store live via each Select's
@@ -380,6 +410,74 @@ function ScheduleCard() {
           <Text fontWeight={600} color="#584BAC">
             {order.launderer || 'Not selected'}
           </Text>
+        </Flex>
+      </Stack>
+      <Stack
+        border="2px solid gray"
+        boxShadow="0px 0px 20px 0px rgba(0, 0, 0, 0.20)"
+        borderRadius="1rem"
+        w={{ base: '20rem', md: '32rem' }}
+        py="1.5rem"
+        px={{ base: '1.5rem', md: '2.5rem' }}
+        gap={3}
+      >
+        <Text color="#CE1567" fontWeight={600}>
+          Extras
+        </Text>
+        {expressSurcharge > 0 && (
+          <Flex justify="space-between" align="center">
+            <Text>Express service (+₹{expressSurcharge})</Text>
+            <Switch
+              colorScheme="purple"
+              isChecked={order.express}
+              onChange={(e) => setExpress(e.target.checked)}
+            />
+          </Flex>
+        )}
+        <Flex gap={2}>
+          <Input
+            placeholder="Coupon code"
+            focusBorderColor="#584BAC"
+            value={order.couponCode}
+            onChange={(e) => {
+              setCouponCode(e.target.value);
+              setCouponStatus(null);
+            }}
+          />
+          <Button variant="outline" colorScheme="purple" onClick={applyCoupon}>
+            Apply
+          </Button>
+        </Flex>
+        {couponStatus && (
+          <Text
+            fontSize="sm"
+            color={couponStatus.valid ? 'green.600' : 'red.500'}
+          >
+            {couponStatus.valid
+              ? `Coupon applied: -₹${couponStatus.discount}`
+              : couponStatus.message}
+          </Text>
+        )}
+        <Divider />
+        <Flex justify="space-between">
+          <Text>Subtotal</Text>
+          <Text>₹{order.orderTotal}</Text>
+        </Flex>
+        {expressCharge > 0 && (
+          <Flex justify="space-between">
+            <Text>Express</Text>
+            <Text>+₹{expressCharge}</Text>
+          </Flex>
+        )}
+        {discount > 0 && (
+          <Flex justify="space-between" color="green.600">
+            <Text>Discount</Text>
+            <Text>-₹{discount}</Text>
+          </Flex>
+        )}
+        <Flex justify="space-between" fontWeight={700} fontSize="1.1rem">
+          <Text>Total</Text>
+          <Text>₹{estimatedTotal}</Text>
         </Flex>
       </Stack>
       <HStack gap={{ base: 4, sm: 6, md: 8 }}>

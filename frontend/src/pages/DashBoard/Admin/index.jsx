@@ -40,11 +40,14 @@ import { MdDelete } from 'react-icons/md';
 import Navbar from '../../../components/Navbar';
 import {
   addSettingValue,
+  adminCreateCoupon,
+  adminDeleteCoupon,
   adminDeleteUser,
   adminGetAnalytics,
   adminGetCatalog,
   adminGetOrders,
   adminGetUsers,
+  adminListCoupons,
   adminSetApproval,
   adminUpdateUserRole,
   getSettings,
@@ -88,21 +91,61 @@ function AdminDashboard() {
   const [settings, setSettings] = useState({});
   const [newValue, setNewValue] = useState({});
   const [newKey, setNewKey] = useState('');
+  const [coupons, setCoupons] = useState([]);
+  const emptyCoupon = {
+    code: '',
+    discountType: 'percent',
+    value: '',
+    minOrder: '',
+  };
+  const [newCoupon, setNewCoupon] = useState(emptyCoupon);
 
   const loadAll = async () => {
-    const [a, u, o, c, s] = await Promise.allSettled([
+    const [a, u, o, c, s, cp] = await Promise.allSettled([
       adminGetAnalytics(),
       adminGetUsers(),
       adminGetOrders(),
       adminGetCatalog(),
       getSettings(),
+      adminListCoupons(),
     ]);
     if (a.status === 'fulfilled') setAnalytics(a.value.data.analytics);
     if (u.status === 'fulfilled') setUsers(u.value.data.users);
     if (o.status === 'fulfilled') setOrders(o.value.data.orders);
     if (c.status === 'fulfilled') setCatalog(c.value.data.items);
     if (s.status === 'fulfilled') setSettings(s.value.data.settings);
+    if (cp.status === 'fulfilled') setCoupons(cp.value.data.coupons);
     setLoading(false);
+  };
+
+  const createCoupon = async () => {
+    try {
+      const res = await adminCreateCoupon({
+        code: newCoupon.code.trim(),
+        discountType: newCoupon.discountType,
+        value: Number(newCoupon.value),
+        minOrder: Number(newCoupon.minOrder) || 0,
+      });
+      setCoupons((prev) => [res.data.coupon, ...prev]);
+      setNewCoupon(emptyCoupon);
+      notify('Coupon created', 'success');
+    } catch (err) {
+      notify(
+        'Could not create coupon',
+        'error',
+        err.response?.data?.message || ''
+      );
+    }
+  };
+
+  const removeCoupon = async (id) => {
+    try {
+      await adminDeleteCoupon(id);
+      setCoupons((prev) => prev.filter((c) => c._id !== id));
+      notify('Coupon deleted', 'success');
+    } catch (err) {
+      notify('Could not delete coupon', 'error');
+    }
   };
 
   useEffect(() => {
@@ -218,6 +261,7 @@ function AdminDashboard() {
             <Tab>Users</Tab>
             <Tab>Orders</Tab>
             <Tab>Catalog</Tab>
+            <Tab>Coupons</Tab>
             <Tab>Settings</Tab>
           </TabList>
           <TabPanels>
@@ -433,6 +477,121 @@ function AdminDashboard() {
               </ScrollTable>
               {catalog.length === 0 && (
                 <Text color="gray.500">No catalog items yet.</Text>
+              )}
+            </TabPanel>
+
+            {/* Coupons */}
+            <TabPanel px={0}>
+              <Box
+                border="1px solid #e2e2e2"
+                borderRadius="0.6rem"
+                p="1rem"
+                mb="1.5rem"
+              >
+                <Text fontWeight={600} mb="1rem">
+                  Create a coupon
+                </Text>
+                <Flex
+                  direction={{ base: 'column', md: 'row' }}
+                  gap={3}
+                  align={{ md: 'end' }}
+                  wrap="wrap"
+                >
+                  <Input
+                    placeholder="CODE"
+                    w={{ base: '100%', md: '8rem' }}
+                    value={newCoupon.code}
+                    onChange={(e) =>
+                      setNewCoupon({ ...newCoupon, code: e.target.value })
+                    }
+                  />
+                  <Select
+                    w={{ base: '100%', md: '9rem' }}
+                    value={newCoupon.discountType}
+                    onChange={(e) =>
+                      setNewCoupon({
+                        ...newCoupon,
+                        discountType: e.target.value,
+                      })
+                    }
+                  >
+                    <option value="percent">Percent</option>
+                    <option value="flat">Flat</option>
+                  </Select>
+                  <Input
+                    type="number"
+                    placeholder="Value"
+                    w={{ base: '100%', md: '7rem' }}
+                    value={newCoupon.value}
+                    onChange={(e) =>
+                      setNewCoupon({ ...newCoupon, value: e.target.value })
+                    }
+                  />
+                  <Input
+                    type="number"
+                    placeholder="Min order"
+                    w={{ base: '100%', md: '8rem' }}
+                    value={newCoupon.minOrder}
+                    onChange={(e) =>
+                      setNewCoupon({ ...newCoupon, minOrder: e.target.value })
+                    }
+                  />
+                  <Button
+                    bg="#CE1567"
+                    color="white"
+                    _hover={{ bg: '#bf0055' }}
+                    onClick={createCoupon}
+                  >
+                    Create
+                  </Button>
+                </Flex>
+              </Box>
+              <ScrollTable>
+                <Thead>
+                  <Tr>
+                    <Th>Code</Th>
+                    <Th>Type</Th>
+                    <Th isNumeric>Value</Th>
+                    <Th isNumeric>Min order</Th>
+                    <Th>Status</Th>
+                    <Th>Delete</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {coupons.map((c) => (
+                    <Tr key={c._id}>
+                      <Td fontWeight={600}>{c.code}</Td>
+                      <Td>{c.discountType}</Td>
+                      <Td isNumeric>
+                        {c.discountType === 'percent'
+                          ? `${c.value}%`
+                          : `₹${c.value}`}
+                      </Td>
+                      <Td isNumeric>₹{c.minOrder}</Td>
+                      <Td>
+                        <Tag
+                          size="sm"
+                          colorScheme={c.active ? 'green' : 'gray'}
+                        >
+                          {c.active ? 'Active' : 'Inactive'}
+                        </Tag>
+                      </Td>
+                      <Td>
+                        <IconButton
+                          aria-label="Delete coupon"
+                          size="sm"
+                          colorScheme="red"
+                          variant="ghost"
+                          icon={<MdDelete size={18} />}
+                          onClick={() => removeCoupon(c._id)}
+                        />
+                      </Td>
+                    </Tr>
+                  ))}
+                </Tbody>
+              </ScrollTable>
+              {coupons.length === 0 && (
+                <Text color="gray.500">No coupons yet.</Text>
               )}
             </TabPanel>
 
