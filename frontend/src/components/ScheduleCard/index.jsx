@@ -10,14 +10,14 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import moment from 'moment';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaTruckPickup, FaUser } from 'react-icons/fa';
 import { FaLocationCrosshairs, FaLocationDot } from 'react-icons/fa6';
 import { TbTruckDelivery } from 'react-icons/tb';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../Store/AuthStore';
 import useOrderStore from '../Store/OrderStore';
-import { createOrder, fetchLaunderers, postNotif } from '../../utils/apis';
+import { createOrder, getSettings, postNotif } from '../../utils/apis';
 
 function ScheduleCard() {
   const {
@@ -28,7 +28,6 @@ function ScheduleCard() {
     setDeliveryTime,
     setPickupAddress,
     setDeliveryAddress,
-    setLaunderer,
     clearItems,
   } = useOrderStore((state) => ({
     clearSchedule: state.clearSchedule,
@@ -38,7 +37,6 @@ function ScheduleCard() {
     setDeliveryTime: state.setDeliveryTime,
     setPickupAddress: state.setPickupAddress,
     setDeliveryAddress: state.setDeliveryAddress,
-    setLaunderer: state.setLaunderer,
     clearItems: state.clearItems,
   }));
   const { userName, userHostel, userRollNumber } = useAuthStore((state) => ({
@@ -46,25 +44,26 @@ function ScheduleCard() {
     userHostel: state.userHostel,
     userRollNumber: state.userRollNumber,
   }));
-  // eslint-disable-next-line no-unused-vars
-  const [loading, setLoading] = useState(true);
 
-  const launderersRef = useRef();
+  // Locations and time slots come from the admin-managed dynamic settings
+  // (nothing hardcoded).
+  const [locations, setLocations] = useState([]);
+  const [timeSlots, setTimeSlots] = useState([]);
 
   const toast = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const getLaunderers = async () => {
+    const loadSettings = async () => {
       try {
-        const response = await fetchLaunderers();
-        launderersRef.current = response.data;
-        setLoading(false);
+        const res = await getSettings();
+        setLocations(res.data.settings?.locations || []);
+        setTimeSlots(res.data.settings?.timeSlots || []);
       } catch (err) {
-        setLoading(false);
+        // Non-fatal — the selects will just be empty until settings load.
       }
     };
-    getLaunderers();
+    loadSettings();
   }, []);
 
   const handleToast = (title, description, status) => {
@@ -200,9 +199,11 @@ function ScheduleCard() {
             _hover={{ border: '2px solid #584BAC' }}
             _focus={{ border: '2px solid #584BAC' }}
           >
-            <option value="12:00 PM">12:00 PM</option>
-            <option value="04:00 PM">04:00 PM</option>
-            <option value="07:00 PM">07:00 PM</option>
+            {timeSlots.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
           </Select>
         </Flex>
         <Divider
@@ -232,9 +233,11 @@ function ScheduleCard() {
             _hover={{ border: '2px solid #584BAC' }}
             _focus={{ border: '2px solid #584BAC' }}
           >
-            <option value="12:00 PM">12:00 PM</option>
-            <option value="04:00 PM">04:00 PM</option>
-            <option value="07:00 PM">07:00 PM</option>
+            {timeSlots.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
           </Select>
         </Flex>
       </Flex>
@@ -265,12 +268,11 @@ function ScheduleCard() {
             _hover={{ border: '2px solid #584BAC' }}
             _focus={{ border: '2px solid #584BAC' }}
           >
-            <option value="H1">H1</option>
-            <option value="H3">H3</option>
-            <option value="H4">H4</option>
-            <option value="Panini">Panini</option>
-            <option value="Nagarjuna">Nagarjuna</option>
-            <option value="Maa Saraswati">Maa Saraswati</option>
+            {locations.map((loc) => (
+              <option key={loc} value={loc}>
+                {loc}
+              </option>
+            ))}
           </Select>
         </Flex>
         <Flex align="center" justify="space-between">
@@ -291,12 +293,11 @@ function ScheduleCard() {
             _hover={{ border: '2px solid #584BAC' }}
             _focus={{ border: '2px solid #584BAC' }}
           >
-            <option value="H1">H1</option>
-            <option value="H3">H3</option>
-            <option value="H4">H4</option>
-            <option value="Panini">Panini</option>
-            <option value="Nagarjuna">Nagarjuna</option>
-            <option value="Maa Saraswati">Maa Saraswati</option>
+            {locations.map((loc) => (
+              <option key={loc} value={loc}>
+                {loc}
+              </option>
+            ))}
           </Select>
         </Flex>
         <Flex align="center" justify="space-between">
@@ -308,22 +309,9 @@ function ScheduleCard() {
               Launderer
             </Text>
           </HStack>
-          <Select
-            placeholder="Select launderer"
-            border="2px solid #584BAC"
-            w={{ base: '9rem', md: 'auto' }}
-            value={order.launderer}
-            onChange={(e) => setLaunderer(e.target.value)}
-            _hover={{ border: '2px solid #584BAC' }}
-            _focus={{ border: '2px solid #584BAC' }}
-          >
-            {launderersRef.current &&
-              launderersRef.current.map((launderer) => (
-                <option key={launderer._id} value={launderer.username}>
-                  {launderer.username}
-                </option>
-              ))}
-          </Select>
+          <Text fontWeight={600} color="#584BAC">
+            {order.launderer || 'Not selected'}
+          </Text>
         </Flex>
       </Stack>
       <HStack gap={{ base: 4, sm: 6, md: 8 }}>

@@ -65,16 +65,8 @@ function OrderItemsAccordion() {
                 px={3}
                 _expanded={{ bg: '#E6E6E6' }}
               >
-                <span>
-                  {washType
-                    .split('_')
-                    .map(
-                      (word) =>
-                        word.charAt(0).toUpperCase() +
-                        word.slice(1).toLowerCase()
-                    )
-                    .join(' ')}
-                </span>
+                {/* Wash types are launderer-defined free text — show verbatim. */}
+                <span>{washType}</span>
                 <AccordionIcon />
               </AccordionButton>
               <AccordionPanel>

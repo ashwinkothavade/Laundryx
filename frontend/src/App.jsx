@@ -10,6 +10,7 @@ const LaundererDashboard = React.lazy(
   () => import('./pages/DashBoard/Launderer')
 );
 const StudentDashBoard = React.lazy(() => import('./pages/DashBoard/Student'));
+const AdminDashboard = React.lazy(() => import('./pages/DashBoard/Admin'));
 const LandingPage = React.lazy(() => import('./pages/LandingPage'));
 const Login = React.lazy(() => import('./pages/Login'));
 const OrderList = React.lazy(() => import('./pages/OrderList'));
@@ -42,13 +43,11 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route
           path="/dashboard"
-          element={
-            userRole === 'student' ? (
-              <StudentDashBoard />
-            ) : (
-              <LaundererDashboard />
-            )
-          }
+          element={(() => {
+            if (userRole === 'admin') return <AdminDashboard />;
+            if (userRole === 'launderer') return <LaundererDashboard />;
+            return <StudentDashBoard />;
+          })()}
         />
       </Routes>
     </Suspense>
