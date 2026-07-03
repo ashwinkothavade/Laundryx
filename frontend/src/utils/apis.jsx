@@ -51,6 +51,10 @@ const fetchLaunderers = () => {
   return axios.get(`${API_URL}/launderers`);
 };
 
+const fetchLaundererDirectory = () => {
+  return axios.get(`${API_URL}/launderers/directory`);
+};
+
 const getStudentOrders = () => {
   return axios.get(`${API_URL}/student/orders`);
 };
@@ -97,6 +101,12 @@ const addSettingValue = (key, value) =>
 const removeSettingValue = (key, value) =>
   axios.delete(`${API_URL}/settings/${key}/${encodeURIComponent(value)}`);
 
+// ---- Reviews & ratings ----
+const createReview = (body) => axios.post(`${API_URL}/reviews`, body);
+const getLaundererReviews = (username) =>
+  axios.get(`${API_URL}/reviews/launderer/${username}`);
+const getReviewsSummary = () => axios.get(`${API_URL}/reviews/summary`);
+
 // ---- Admin ----
 const adminGetUsers = () => axios.get(`${API_URL}/admin/users`);
 const adminDeleteUser = (id) => axios.delete(`${API_URL}/admin/users/${id}`);
@@ -120,6 +130,7 @@ export {
   fetchNotifs,
   fetchLaunderers,
   postNotif,
+  fetchLaundererDirectory,
   createOrder,
   getStudentOrders,
   getAllOrders,
@@ -137,6 +148,9 @@ export {
   upsertSetting,
   addSettingValue,
   removeSettingValue,
+  createReview,
+  getLaundererReviews,
+  getReviewsSummary,
   adminGetUsers,
   adminDeleteUser,
   adminUpdateUserRole,

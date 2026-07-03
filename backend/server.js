@@ -19,6 +19,7 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const catalogRoutes = require('./routes/catalogRoutes');
 const settingRoutes = require('./routes/settingRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 
 const app = express();
 
@@ -104,6 +105,7 @@ app.use(notificationRoutes);
 app.use(catalogRoutes);
 app.use(settingRoutes);
 app.use(adminRoutes);
+app.use(reviewRoutes);
 
 app.get('/', (req, resp) => {
   resp.status(200).json('This is the LaundriX backend API.');

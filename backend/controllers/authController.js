@@ -36,6 +36,52 @@ const getAllLaunderers = async (req, resp) => {
     resp.status(500).json('UserModel error');
   }
 };
+// @desc    Directory of approved launderers with rating + price range + items
+// @route   GET /launderers/directory
+// @access  Private
+const getLaundererDirectory = async (req, resp) => {
+  try {
+    const directory = await User.aggregate([
+      { $match: { role: 'launderer', approved: true } },
+      {
+        $lookup: {
+          from: 'CatalogItem',
+          localField: '_id',
+          foreignField: 'launderer',
+          as: 'catalog',
+        },
+      },
+      {
+        $lookup: {
+          from: 'Review',
+          localField: '_id',
+          foreignField: 'launderer',
+          as: 'reviews',
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          username: 1,
+          phone_number: 1,
+          itemCount: { $size: '$catalog' },
+          minPrice: { $min: '$catalog.price' },
+          maxPrice: { $max: '$catalog.price' },
+          avgRating: { $round: [{ $avg: '$reviews.rating' }, 1] },
+          reviewCount: { $size: '$reviews' },
+        },
+      },
+      { $sort: { username: 1 } },
+    ]);
+    return resp.status(200).json({ launderers: directory });
+  } catch (err) {
+    logger.error(`getLaundererDirectory error: ${err.message}`, {
+      stack: err.stack,
+    });
+    return resp.status(500).json({ message: 'Error fetching launderers' });
+  }
+};
+
 // @desc    Get the currently authenticated user (validates the auth cookie)
 // @route   GET /me
 // @access  Private
@@ -297,6 +343,7 @@ const postResetPassword = async (req, resp) => {
 module.exports = {
   getAllUsers,
   getAllLaunderers,
+  getLaundererDirectory,
   getMe,
   createUser,
   updateUser,
