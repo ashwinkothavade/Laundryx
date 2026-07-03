@@ -50,10 +50,16 @@ const makeStudent = async ({ hostel = 'H1' } = {}) => {
   return { username: body.username, cookie };
 };
 
-const makeLaunderer = async ({ approved = true, availableTimeSlots } = {}) => {
+const makeLaunderer = async ({
+  approved = true,
+  availableTimeSlots,
+  expressSurcharge,
+} = {}) => {
   const { body } = await signup({ role: 'launderer' });
   const update = { approved };
   if (availableTimeSlots) update.availableTimeSlots = availableTimeSlots;
+  if (expressSurcharge !== undefined)
+    update.expressSurcharge = expressSurcharge;
   await User.updateOne({ username: body.username }, update);
   const { cookie } = await login(body.username);
   const user = await User.findOne({ username: body.username });

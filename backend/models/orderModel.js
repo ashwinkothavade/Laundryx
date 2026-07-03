@@ -61,6 +61,25 @@ const orderSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    // Pricing breakdown. orderTotal is the final payable amount:
+    //   orderTotal = subtotal + expressCharge - discount
+    subtotal: Number,
+    express: {
+      type: Boolean,
+      default: false,
+    },
+    expressCharge: {
+      type: Number,
+      default: 0,
+    },
+    couponCode: {
+      type: String,
+      default: '',
+    },
+    discount: {
+      type: Number,
+      default: 0,
+    },
     orderTotal: Number,
     // accept -> pickup -> delivered -> pay (for security concerns, we can add a payment gateway to the app to make sure the payment is done before the delivery is made)
     acceptedStatus: {

@@ -113,6 +113,19 @@ const addSettingValue = (key, value) =>
 const removeSettingValue = (key, value) =>
   axios.delete(`${API_URL}/settings/${key}/${encodeURIComponent(value)}`);
 
+// ---- Coupons & express ----
+const previewCoupon = (code, subtotal) =>
+  axios.get(`${API_URL}/coupons/${encodeURIComponent(code)}`, {
+    params: { subtotal },
+  });
+const setLaundererExpress = (expressSurcharge) =>
+  axios.put(`${API_URL}/launderer/express`, { expressSurcharge });
+const adminCreateCoupon = (body) =>
+  axios.post(`${API_URL}/admin/coupons`, body);
+const adminListCoupons = () => axios.get(`${API_URL}/admin/coupons`);
+const adminDeleteCoupon = (id) =>
+  axios.delete(`${API_URL}/admin/coupons/${id}`);
+
 // ---- Reviews & ratings ----
 const createReview = (body) => axios.post(`${API_URL}/reviews`, body);
 const getLaundererReviews = (username) =>
@@ -164,6 +177,11 @@ export {
   upsertSetting,
   addSettingValue,
   removeSettingValue,
+  previewCoupon,
+  setLaundererExpress,
+  adminCreateCoupon,
+  adminListCoupons,
+  adminDeleteCoupon,
   createReview,
   getLaundererReviews,
   getReviewsSummary,

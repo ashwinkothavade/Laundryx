@@ -70,6 +70,27 @@ const setAvailability = async (req, resp) => {
   }
 };
 
+// @desc    Set the launderer's express-service surcharge (0 = not offered)
+// @route   PUT /launderer/express
+// @access  Private (launderer)
+const setExpress = async (req, resp) => {
+  try {
+    const surcharge = Number(req.body.expressSurcharge);
+    if (Number.isNaN(surcharge) || surcharge < 0) {
+      return resp.status(400).json({ message: 'Invalid express surcharge' });
+    }
+    const user = await User.findByIdAndUpdate(
+      req.user.user_id,
+      { expressSurcharge: surcharge },
+      { new: true }
+    ).select('-password -__v');
+    return resp.status(200).json({ expressSurcharge: user.expressSurcharge });
+  } catch (err) {
+    logger.error(`setExpress error: ${err.message}`, { stack: err.stack });
+    return resp.status(500).json({ message: 'Error updating express service' });
+  }
+};
+
 // @desc    Get all orders
 // @route   GET /allorders
 // @access  Private
@@ -296,6 +317,7 @@ const updateOrderDeliveryDate = async (req, resp) => {
 module.exports = {
   getLaundererAnalytics,
   setAvailability,
+  setExpress,
   getAllOrders,
   getOrdersByStudent,
   updateOrderAccept,

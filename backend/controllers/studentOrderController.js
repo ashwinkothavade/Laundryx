@@ -3,6 +3,7 @@ const User = require('../models/userModel');
 const CatalogItem = require('../models/catalogModel');
 const Setting = require('../models/settingModel');
 const logger = require('../utils/logger');
+const { validateCouponFor } = require('./couponController');
 // @desc    Get all orders of a student
 // @route   GET /student/orders
 // @access  Private
@@ -46,6 +47,8 @@ const createStudentOrder = async (req, resp) => {
       pickupTime,
       launderer,
       fulfilmentMode = 'home_pickup',
+      express = false,
+      couponCode = '',
     } = req.body;
     // Backend validation — never trust the client. The frontend also validates,
     // but that is bypassable, so the required fields are re-checked here.
@@ -125,7 +128,7 @@ const createStudentOrder = async (req, resp) => {
     const priceOf = new Map(
       catalog.map((c) => [`${c.clothingType}||${c.washType}`, c.price])
     );
-    let orderTotal = 0;
+    let subtotal = 0;
     const pricedItems = [];
     for (let i = 0; i < items.length; i += 1) {
       const { name, washType, quantity } = items[i];
@@ -141,9 +144,17 @@ const createStudentOrder = async (req, resp) => {
           message: `"${name} (${washType})" is not offered by this launderer`,
         });
       }
-      orderTotal += price * qty;
+      subtotal += price * qty;
       pricedItems.push({ name, washType, quantity: qty, pricePerItem: price });
     }
+
+    // Express surcharge (only if the launderer offers it) and coupon discount
+    // are both resolved server-side; the client can't set the price.
+    const wantsExpress = express === true && laundererUser.expressSurcharge > 0;
+    const expressCharge = wantsExpress ? laundererUser.expressSurcharge : 0;
+    const couponResult = await validateCouponFor(couponCode, subtotal);
+    const discount = couponResult.valid ? couponResult.discount : 0;
+    const orderTotal = Math.max(0, subtotal + expressCharge - discount);
 
     const order = new Order({
       user: studentId,
@@ -153,6 +164,11 @@ const createStudentOrder = async (req, resp) => {
       deliveryTime,
       pickupAddress: resolvedPickupAddress,
       deliveryAddress: resolvedDeliveryAddress,
+      subtotal,
+      express: wantsExpress,
+      expressCharge,
+      couponCode: couponResult.valid ? couponResult.code : '',
+      discount,
       orderTotal,
       pickupDate,
       pickupTime,

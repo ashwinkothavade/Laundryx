@@ -39,6 +39,7 @@ const getLaundererCatalog = async (req, resp) => {
     return resp.status(200).json({
       launderer: launderer.username,
       availableTimeSlots: launderer.availableTimeSlots || [],
+      expressSurcharge: launderer.expressSurcharge || 0,
       items,
     });
   } catch (err) {
