@@ -11,18 +11,18 @@ const CardWrapper = styled.div`
   width: 100%;
 `;
 const Card = styled(motion.div)`
-    width:min(15rem, 75vw);
-    height:min(15rem, 75vw);
-    display:flex;
-    flex-direction:column;
-    border-radius:1.5rem;
-    background-color: #fff7;
-    margin:1rem;
-    position:relative;
-    cursor:grab;
-    padding:1rem;
-    justify-content:center;
-    align-items:center;
+  width: min(15rem, 75vw);
+  height: min(15rem, 75vw);
+  display: flex;
+  flex-direction: column;
+  border-radius: 1.5rem;
+  background-color: #fff7;
+  margin: 1rem;
+  position: relative;
+  cursor: grab;
+  padding: 1rem;
+  justify-content: center;
+  align-items: center;
 `;
 const CircleWrapper = styled.div`
   position: absolute;

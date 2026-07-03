@@ -89,7 +89,9 @@ const createStudentOrder = async (req, resp) => {
     const locations = locationSetting ? locationSetting.values : [];
     const timeSlots = timeSetting ? timeSetting.values : [];
     if (![pickupAddress, deliveryAddress].every((a) => locations.includes(a))) {
-      return resp.status(400).json({ message: 'Invalid pickup/delivery location' });
+      return resp
+        .status(400)
+        .json({ message: 'Invalid pickup/delivery location' });
     }
     if (![pickupTime, deliveryTime].every((t) => timeSlots.includes(t))) {
       return resp.status(400).json({ message: 'Invalid pickup/delivery time' });

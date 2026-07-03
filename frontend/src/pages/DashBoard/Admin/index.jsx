@@ -34,6 +34,7 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet-async';
 import { MdDelete } from 'react-icons/md';
 import Navbar from '../../../components/Navbar';
@@ -62,10 +63,21 @@ function ScrollTable({ children }) {
   );
 }
 
+ScrollTable.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
 function AdminDashboard() {
   const toast = useToast();
   const notify = (title, status, description = '') =>
-    toast({ position: 'top', title, description, status, duration: 2500, isClosable: true });
+    toast({
+      position: 'top',
+      title,
+      description,
+      status,
+      duration: 2500,
+      isClosable: true,
+    });
 
   const [loading, setLoading] = useState(true);
   const [analytics, setAnalytics] = useState(null);
@@ -102,7 +114,11 @@ function AdminDashboard() {
       setUsers((prev) => prev.map((u) => (u._id === id ? res.data.user : u)));
       notify('Role updated', 'success');
     } catch (err) {
-      notify('Could not update role', 'error', err.response?.data?.message || '');
+      notify(
+        'Could not update role',
+        'error',
+        err.response?.data?.message || ''
+      );
     }
   };
 
@@ -112,7 +128,11 @@ function AdminDashboard() {
       setUsers((prev) => prev.filter((u) => u._id !== id));
       notify('User deleted', 'success');
     } catch (err) {
-      notify('Could not delete user', 'error', err.response?.data?.message || '');
+      notify(
+        'Could not delete user',
+        'error',
+        err.response?.data?.message || ''
+      );
     }
   };
 
@@ -190,14 +210,39 @@ function AdminDashboard() {
             <TabPanel px={0}>
               {analytics && (
                 <>
-                  <SimpleGrid columns={{ base: 2, md: 4 }} spacing={4} mb="2rem">
-                    <StatCard label="Total Users" value={analytics.totalUsers} />
-                    <StatCard label="Total Orders" value={analytics.totalOrders} />
-                    <StatCard label="Paid Revenue" value={`₹${analytics.paidRevenue}`} />
-                    <StatCard label="Catalog Items" value={analytics.totalCatalogItems} />
-                    <StatCard label="Students" value={analytics.usersByRole?.student || 0} />
-                    <StatCard label="Launderers" value={analytics.usersByRole?.launderer || 0} />
-                    <StatCard label="Admins" value={analytics.usersByRole?.admin || 0} />
+                  <SimpleGrid
+                    columns={{ base: 2, md: 4 }}
+                    spacing={4}
+                    mb="2rem"
+                  >
+                    <StatCard
+                      label="Total Users"
+                      value={analytics.totalUsers}
+                    />
+                    <StatCard
+                      label="Total Orders"
+                      value={analytics.totalOrders}
+                    />
+                    <StatCard
+                      label="Paid Revenue"
+                      value={`₹${analytics.paidRevenue}`}
+                    />
+                    <StatCard
+                      label="Catalog Items"
+                      value={analytics.totalCatalogItems}
+                    />
+                    <StatCard
+                      label="Students"
+                      value={analytics.usersByRole?.student || 0}
+                    />
+                    <StatCard
+                      label="Launderers"
+                      value={analytics.usersByRole?.launderer || 0}
+                    />
+                    <StatCard
+                      label="Admins"
+                      value={analytics.usersByRole?.admin || 0}
+                    />
                   </SimpleGrid>
                   <Text fontWeight={600} mb="0.5rem">
                     Orders per launderer
@@ -295,8 +340,21 @@ function AdminDashboard() {
                       <Td>{o.launderer}</Td>
                       <Td isNumeric>₹{o.orderTotal}</Td>
                       <Td>
-                        <Tag size="sm" colorScheme={o.deliveredStatus ? 'green' : o.acceptedStatus ? 'orange' : 'gray'}>
-                          {o.deliveredStatus ? 'Delivered' : o.acceptedStatus ? 'Accepted' : 'Pending'}
+                        <Tag
+                          size="sm"
+                          colorScheme={
+                            o.deliveredStatus
+                              ? 'green'
+                              : o.acceptedStatus
+                                ? 'orange'
+                                : 'gray'
+                          }
+                        >
+                          {o.deliveredStatus
+                            ? 'Delivered'
+                            : o.acceptedStatus
+                              ? 'Accepted'
+                              : 'Pending'}
                         </Tag>
                       </Td>
                       <Td>
@@ -308,7 +366,9 @@ function AdminDashboard() {
                   ))}
                 </Tbody>
               </ScrollTable>
-              {orders.length === 0 && <Text color="gray.500">No orders yet.</Text>}
+              {orders.length === 0 && (
+                <Text color="gray.500">No orders yet.</Text>
+              )}
             </TabPanel>
 
             {/* Catalog */}
@@ -333,14 +393,16 @@ function AdminDashboard() {
                   ))}
                 </Tbody>
               </ScrollTable>
-              {catalog.length === 0 && <Text color="gray.500">No catalog items yet.</Text>}
+              {catalog.length === 0 && (
+                <Text color="gray.500">No catalog items yet.</Text>
+              )}
             </TabPanel>
 
             {/* Settings */}
             <TabPanel px={0}>
               <Text color="gray.600" mb="1rem">
-                These lists drive the app dynamically (pickup/delivery locations,
-                time slots, etc.). Nothing here is hardcoded.
+                These lists drive the app dynamically (pickup/delivery
+                locations, time slots, etc.). Nothing here is hardcoded.
               </Text>
               {Object.entries(settings).map(([key, values]) => (
                 <Box
@@ -374,11 +436,18 @@ function AdminDashboard() {
                       placeholder={`Add to ${key}`}
                       value={newValue[key] || ''}
                       onChange={(e) =>
-                        setNewValue((prev) => ({ ...prev, [key]: e.target.value }))
+                        setNewValue((prev) => ({
+                          ...prev,
+                          [key]: e.target.value,
+                        }))
                       }
                       onKeyDown={(e) => e.key === 'Enter' && addValue(key)}
                     />
-                    <Button size="sm" colorScheme="purple" onClick={() => addValue(key)}>
+                    <Button
+                      size="sm"
+                      colorScheme="purple"
+                      onClick={() => addValue(key)}
+                    >
                       Add
                     </Button>
                   </HStack>
@@ -392,7 +461,13 @@ function AdminDashboard() {
                   onChange={(e) => setNewKey(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && createList()}
                 />
-                <Button size="sm" bg="#CE1567" color="white" _hover={{ bg: '#bf0055' }} onClick={createList}>
+                <Button
+                  size="sm"
+                  bg="#CE1567"
+                  color="white"
+                  _hover={{ bg: '#bf0055' }}
+                  onClick={createList}
+                >
                   Create list
                 </Button>
               </Flex>
@@ -417,5 +492,10 @@ function StatCard({ label, value }) {
     </Stat>
   );
 }
+
+StatCard.propTypes = {
+  label: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+};
 
 export default AdminDashboard;
