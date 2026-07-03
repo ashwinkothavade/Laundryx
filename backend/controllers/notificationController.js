@@ -1,13 +1,12 @@
-const jwt = require('jsonwebtoken');
 const Notification = require('../models/notificationModel');
 const Order = require('../models/orderModel');
+const logger = require('../utils/logger');
 // @desc    Get all notifications
 // @route   GET /notifications
 // @access  Private
 const getNotifications = async (req, resp) => {
   try {
-    const token = req.cookies.jwt;
-    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const decodedToken = req.user;
     if (decodedToken.role === 'student') {
       const notifications = await Notification.find({
         student: decodedToken.username,
@@ -28,6 +27,9 @@ const getNotifications = async (req, resp) => {
       });
     }
   } catch (err) {
+    logger.error(`getNotifications error: ${err.message}`, {
+      stack: err.stack,
+    });
     resp.status(500).json('NotificationModel error');
   }
 };
@@ -38,8 +40,7 @@ const getNotifications = async (req, resp) => {
 const createNotification = async (req, resp) => {
   try {
     const { student, launderer, message, orderId } = req.body;
-    const token = req.cookies.jwt;
-    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const decodedToken = req.user;
     let studentName = '';
     // if the notification is sent by launderer.
     if (student === '') {
@@ -58,6 +59,9 @@ const createNotification = async (req, resp) => {
       notification: notification,
     });
   } catch (err) {
+    logger.error(`createNotification error: ${err.message}`, {
+      stack: err.stack,
+    });
     resp.status(500).json({
       error: err.message,
       message: 'Error sending the notification',

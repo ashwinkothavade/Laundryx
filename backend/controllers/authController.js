@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const User = require('../models/userModel');
 const authUtils = require('../utils/authUtils');
+const logger = require('../utils/logger');
 
 const maxAge = 86400; // 3 days in seconds
 
@@ -12,7 +13,7 @@ const maxAge = 86400; // 3 days in seconds
 // @access  Private
 const getAllUsers = async (req, resp) => {
   try {
-    const result = await User.find();
+    const result = await User.find().select('-password -__v');
     resp.status(200).json(result);
   } catch (err) {
     resp.status(500).json('UserModel error');
@@ -25,12 +26,30 @@ const getAllUsers = async (req, resp) => {
 // @access  Private
 const getAllLaunderers = async (req, resp) => {
   try {
-    const launderers = await User.find({ role: 'launderer' });
+    const launderers = await User.find({ role: 'launderer' }).select(
+      '-password -__v'
+    );
     resp.status(200).json(launderers);
   } catch (err) {
     resp.status(500).json('UserModel error');
   }
 };
+// @desc    Get the currently authenticated user (validates the auth cookie)
+// @route   GET /me
+// @access  Private
+const getMe = async (req, resp) => {
+  try {
+    const user = await User.findById(req.user.user_id).select('-password -__v');
+    if (!user) {
+      return resp.status(404).json({ message: 'User not found' });
+    }
+    return resp.status(200).json(user);
+  } catch (err) {
+    logger.error(`getMe error: ${err.message}`, { stack: err.stack });
+    return resp.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
 // @desc    Create a new user
 // @route   POST /signup
 // @access  Public
@@ -78,9 +97,8 @@ const createUser = async (req, resp) => {
 // @access  Private
 const updateUser = async (req, resp) => {
   const updates = req.body;
-  const token = req.cookies.jwt;
   try {
-    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const decodedToken = req.user;
     const user = await User.findByIdAndUpdate(decodedToken.user_id, updates, {
       new: true,
       runValidators: true,
@@ -201,7 +219,7 @@ const forgotPassword = async (req, resp) => {
         text: `Click on this link to reset your password: ${url}`,
         html: `<b>Click on this link to reset your password: <a href="${url}">Reset Password</a></b>`,
       });
-      console.log('Message sent: %s', info.messageId);
+      logger.info(`Password reset email sent: ${info.messageId}`);
       resp.status(200).json(info);
     }
   } catch (err) {
@@ -268,13 +286,16 @@ const postResetPassword = async (req, resp) => {
     await user.save();
     return resp.status(200).render('index', { status: 'verified', error: '' });
   } catch (err) {
-    console.error(err);
+    logger.error(`postResetPassword error: ${err.message}`, {
+      stack: err.stack,
+    });
     return resp.status(401).send(err.message);
   }
 };
 module.exports = {
   getAllUsers,
   getAllLaunderers,
+  getMe,
   createUser,
   updateUser,
   loginUser,
