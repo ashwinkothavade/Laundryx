@@ -1,13 +1,14 @@
-const jwt = require('jsonwebtoken');
 const Order = require('../models/orderModel');
 const User = require('../models/userModel');
+const CatalogItem = require('../models/catalogModel');
+const Setting = require('../models/settingModel');
+const logger = require('../utils/logger');
 // @desc    Get all orders of a student
 // @route   GET /student/orders
 // @access  Private
 const getStudentOrders = async (req, resp) => {
   try {
-    const token = req.cookies.jwt;
-    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const decodedToken = req.user;
     const studentId = decodedToken.user_id; // avoiding database call by storing the user_id in the token
     const result = await Order.find({
       user: studentId,
@@ -16,7 +17,7 @@ const getStudentOrders = async (req, resp) => {
       orders: result,
     });
   } catch (err) {
-    console.error(err);
+    logger.error(err.message, { stack: err.stack });
     resp.status(401).json({
       message: 'Unauthorized',
     });
@@ -28,8 +29,7 @@ const getStudentOrders = async (req, resp) => {
 // @access  Private
 const createStudentOrder = async (req, resp) => {
   try {
-    const token = req.cookies.jwt;
-    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const decodedToken = req.user;
     const studentId = decodedToken.user_id; // avoiding database call by storing the user_id in the token
     if (decodedToken.role !== 'student') {
       return resp.status(401).json({
@@ -42,7 +42,6 @@ const createStudentOrder = async (req, resp) => {
       deliveryTime,
       pickupAddress,
       deliveryAddress,
-      orderTotal,
       pickupDate,
       pickupTime,
       launderer,
@@ -71,22 +70,60 @@ const createStudentOrder = async (req, resp) => {
         message: `Missing required field: ${missingField}`,
       });
     }
-    if (typeof orderTotal !== 'number' || orderTotal < 0) {
-      return resp.status(400).json({
-        message: 'Invalid order total',
-      });
-    }
-    const result = await User.find({
+    const laundererUser = await User.findOne({
       username: launderer,
+      role: 'launderer',
     });
-    if (result.length === 0) {
+    if (!laundererUser) {
       return resp.status(404).json({
         message: 'Launderer not found',
       });
     }
+
+    // Validate addresses and time slots against the dynamic, admin-managed
+    // settings (nothing is hardcoded, and the client can't invent values).
+    const [locationSetting, timeSetting] = await Promise.all([
+      Setting.findOne({ key: 'locations' }),
+      Setting.findOne({ key: 'timeSlots' }),
+    ]);
+    const locations = locationSetting ? locationSetting.values : [];
+    const timeSlots = timeSetting ? timeSetting.values : [];
+    if (![pickupAddress, deliveryAddress].every((a) => locations.includes(a))) {
+      return resp.status(400).json({ message: 'Invalid pickup/delivery location' });
+    }
+    if (![pickupTime, deliveryTime].every((t) => timeSlots.includes(t))) {
+      return resp.status(400).json({ message: 'Invalid pickup/delivery time' });
+    }
+
+    // Price every item from the chosen launderer's catalog server-side, so the
+    // client cannot tamper with prices or the order total.
+    const catalog = await CatalogItem.find({ launderer: laundererUser._id });
+    const priceOf = new Map(
+      catalog.map((c) => [`${c.clothingType}||${c.washType}`, c.price])
+    );
+    let orderTotal = 0;
+    const pricedItems = [];
+    for (let i = 0; i < items.length; i += 1) {
+      const { name, washType, quantity } = items[i];
+      const qty = Number(quantity);
+      if (!name || !washType || !Number.isInteger(qty) || qty <= 0) {
+        return resp
+          .status(400)
+          .json({ message: 'Each item needs a name, wash type and quantity' });
+      }
+      const price = priceOf.get(`${name}||${washType}`);
+      if (price === undefined) {
+        return resp.status(400).json({
+          message: `"${name} (${washType})" is not offered by this launderer`,
+        });
+      }
+      orderTotal += price * qty;
+      pricedItems.push({ name, washType, quantity: qty, pricePerItem: price });
+    }
+
     const order = new Order({
       user: studentId,
-      items,
+      items: pricedItems,
       deliveryDate,
       deliveryTime,
       pickupAddress,
@@ -101,7 +138,7 @@ const createStudentOrder = async (req, resp) => {
       order: order,
     });
   } catch (err) {
-    console.error(err);
+    logger.error(err.message, { stack: err.stack });
     resp.status(500).json({
       message: 'Error creating the order',
       error: err,
@@ -114,8 +151,7 @@ const createStudentOrder = async (req, resp) => {
 // @access  Private
 const updatePickupStatus = async (req, resp) => {
   try {
-    const token = req.cookies.jwt;
-    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const decodedToken = req.user;
     const orderId = req.params.order_id;
     const order = await Order.findById(orderId);
     if (order === null) {
@@ -145,7 +181,7 @@ const updatePickupStatus = async (req, resp) => {
       updatedOrder: order,
     });
   } catch (err) {
-    console.error(err);
+    logger.error(err.message, { stack: err.stack });
     resp.status(500).json({
       message: 'Error updating the pickup status',
       error: err,
@@ -158,8 +194,7 @@ const updatePickupStatus = async (req, resp) => {
 // @access  Private
 const deleteOrder = async (req, resp) => {
   try {
-    const token = req.cookies.jwt;
-    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const decodedToken = req.user;
     const orderId = req.params.order_id;
 
     const order = await Order.findById(orderId);
@@ -181,7 +216,7 @@ const deleteOrder = async (req, resp) => {
       order,
     });
   } catch (err) {
-    console.error(err);
+    logger.error(err.message, { stack: err.stack });
     resp.status(500).json({
       message: 'Error deleting the order',
       error: err,
@@ -194,8 +229,7 @@ const deleteOrder = async (req, resp) => {
 // @access  Private
 const updateDeliveryStatus = async (req, resp) => {
   try {
-    const token = req.cookies.jwt;
-    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const decodedToken = req.user;
     const orderId = req.params.order_id;
     const order = await Order.findById(orderId);
     if (order === null) {
@@ -230,7 +264,7 @@ const updateDeliveryStatus = async (req, resp) => {
       updatedOrder: order,
     });
   } catch (err) {
-    console.error(err);
+    logger.error(err.message, { stack: err.stack });
     resp.status(500).json({
       message: 'Error updating the delivery status',
       error: err,

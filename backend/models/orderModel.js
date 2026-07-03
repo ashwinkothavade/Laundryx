@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
 
+// Clothing and wash types are no longer a fixed list — they come from each
+// launderer's catalog, so these are free-form strings rather than enums.
 const itemSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    enum: ['Shirt', 'T-shirt', 'Pant', 'Jacket', 'Blanket'],
   },
   quantity: {
     type: Number,
@@ -13,7 +14,6 @@ const itemSchema = new mongoose.Schema({
   washType: {
     type: String,
     required: true,
-    enum: ['simple_wash', 'power_clean', 'dry_clean'],
   },
   pricePerItem: {
     type: Number,

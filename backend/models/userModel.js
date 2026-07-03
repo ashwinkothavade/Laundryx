@@ -29,7 +29,7 @@ const userSchema = mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['student', 'launderer'],
+      enum: ['student', 'launderer', 'admin'],
       required: [true, 'Please select a role'],
     },
     email: {

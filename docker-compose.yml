@@ -40,6 +40,10 @@ services:
       GMAIL_PASSWORD: ${GMAIL_PASSWORD:-}
       RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID:-}
       RAZORPAY_SECRET: ${RAZORPAY_SECRET:-}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@laundrix.com}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-Admin@1234}
+      ADMIN_PHONE: ${ADMIN_PHONE:-+919999999999}
 
   frontend:
     build:
