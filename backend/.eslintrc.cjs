@@ -20,6 +20,14 @@ module.exports = {
         sourceType: 'script',
       },
     },
+    {
+      // Test files and jest config use jest globals + node.
+      env: {
+        jest: true,
+        node: true,
+      },
+      files: ['tests/**/*.js', '**/*.test.js', 'jest.config.js'],
+    },
   ],
   parserOptions: {
     parser: '@babel/eslint-parser',

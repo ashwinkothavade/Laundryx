@@ -65,9 +65,25 @@ There is a husky pre-commit hook (`lint-staged`) when installed.
 
 ## Testing
 
-There is no automated test suite yet — this is the top engineering priority.
-The CI workflow is ready to run tests once added (recommended: Vitest +
-supertest for the backend, Vitest + React Testing Library for the frontend).
+The backend has an end-to-end/integration suite (Jest + supertest) covering
+auth, catalog, dynamic settings, the full order flow (server-side pricing,
+validation, accept → pickup → deliver, reschedule, cancel), reviews/ratings,
+and admin management.
+
+```bash
+cd backend && npm test
+```
+
+By default it spins up an in-memory MongoDB (`mongodb-memory-server`). To run
+against a real Mongo instead, set `TEST_MONGO_URI`:
+
+```bash
+TEST_MONGO_URI=mongodb://localhost:27017/laundrix_test npm test
+```
+
+CI runs `npm test` on every push/PR. Frontend component/e2e tests are the next
+addition (recommended: Vitest + React Testing Library, and Playwright for
+browser E2E).
 
 ## Reproducing CI locally without Node installed
 

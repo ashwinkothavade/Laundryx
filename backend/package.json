@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "NODE_ENV=test jest --runInBand --forceExit",
     "start": "node server.js",
     "server": "nodemon server.js",
     "seed:admin": "node scripts/seedAdmin.js",
-    "lint": "eslint .  --ext js --report-unused-disable-directives --max-warnings 0",
-    "lint:fix": "eslint  . --ext js --fix --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint .  --ext js --report-unused-disable-directives --max-warnings 0 --ignore-pattern coverage",
+    "lint:fix": "eslint  . --ext js --fix --report-unused-disable-directives --max-warnings 0 --ignore-pattern coverage"
   },
   "keywords": [],
   "author": "",
@@ -43,8 +43,11 @@
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-jsx-a11y": "^6.7.1",
     "eslint-plugin-prettier": "^5.0.0",
+    "jest": "^29.7.0",
+    "mongodb-memory-server": "^9.4.0",
     "nodemon": "^3.1.0",
     "prettier": "^3.0.0",
-    "stylelint": "^15.10.2"
+    "stylelint": "^15.10.2",
+    "supertest": "^6.3.4"
   }
 }

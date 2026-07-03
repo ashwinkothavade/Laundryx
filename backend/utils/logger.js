@@ -28,6 +28,8 @@ const logger = winston.createLogger({
   defaultMeta: { service: 'laundrix-api' },
   format: isProduction ? prodFormat : devFormat,
   transports: [new winston.transports.Console()],
+  // Stay silent during tests so suite output isn't polluted by expected errors.
+  silent: process.env.NODE_ENV === 'test',
   // Never let a logging failure crash a request/serverless invocation.
   exitOnError: false,
 });
