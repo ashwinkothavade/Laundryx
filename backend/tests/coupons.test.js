@@ -7,6 +7,7 @@ const {
   seedSettings,
   addCatalogItem,
   orderBody,
+  models,
 } = require('./helpers');
 
 const ITEM = { clothingType: 'Shirt', washType: 'Simple Wash', price: 100 };
@@ -88,6 +89,21 @@ describe('Coupons & express', () => {
     expect(res.status).toBe(201);
     expect(res.body.order.expressCharge).toBe(40);
     expect(res.body.order.orderTotal).toBe(140);
+  });
+
+  test('applies tax from the taxPercent setting', async () => {
+    await seedSettings();
+    await models.Setting.create({ key: 'taxPercent', values: ['10'] });
+    const launderer = await makeLaunderer({ approved: true });
+    await addCatalogItem(launderer.cookie, ITEM); // price 100
+    const student = await makeStudent({ hostel: 'H1' });
+    const res = await createOrder(
+      student.cookie,
+      orderBody(launderer.username, ITEM, 1)
+    );
+    expect(res.status).toBe(201);
+    expect(res.body.order.tax).toBe(10); // 10% of 100
+    expect(res.body.order.orderTotal).toBe(110);
   });
 
   test('express is ignored when the launderer does not offer it', async () => {

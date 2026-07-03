@@ -52,6 +52,7 @@ import {
 import RateOrderModal from '../RateOrderModal';
 import RescheduleModal from '../RescheduleModal';
 import OrderTimeline from '../OrderTimeline';
+import InvoiceModal from '../InvoiceModal';
 
 function OrderDetail() {
   const [orders, setOrders] = useState([]);
@@ -60,8 +61,10 @@ function OrderDetail() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const rate = useDisclosure();
   const reschedule = useDisclosure();
+  const invoice = useDisclosure();
   const [orderToRate, setOrderToRate] = useState(null);
   const [orderToReschedule, setOrderToReschedule] = useState(null);
+  const [orderForInvoice, setOrderForInvoice] = useState(null);
   const [reviewedIds, setReviewedIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -394,6 +397,17 @@ function OrderDetail() {
                         View Details
                       </Button>
                       <Button
+                        variant="outline"
+                        color="#584BAC"
+                        borderColor="#584BAC"
+                        onClick={() => {
+                          setOrderForInvoice(order);
+                          invoice.onOpen();
+                        }}
+                      >
+                        Receipt
+                      </Button>
+                      <Button
                         color="#ffffff"
                         bgColor="green.500"
                         isDisabled={order.paid}
@@ -679,6 +693,12 @@ function OrderDetail() {
             prev.map((o) => (o._id === updated._id ? updated : o))
           )
         }
+      />
+
+      <InvoiceModal
+        isOpen={invoice.isOpen}
+        onClose={invoice.onClose}
+        order={orderForInvoice}
       />
     </VStack>
   );
