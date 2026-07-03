@@ -73,10 +73,11 @@ const createStudentOrder = async (req, resp) => {
     const laundererUser = await User.findOne({
       username: launderer,
       role: 'launderer',
+      approved: true,
     });
     if (!laundererUser) {
       return resp.status(404).json({
-        message: 'Launderer not found',
+        message: 'Launderer not found or not accepting orders',
       });
     }
 

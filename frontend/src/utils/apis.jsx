@@ -102,6 +102,8 @@ const adminGetUsers = () => axios.get(`${API_URL}/admin/users`);
 const adminDeleteUser = (id) => axios.delete(`${API_URL}/admin/users/${id}`);
 const adminUpdateUserRole = (id, role) =>
   axios.patch(`${API_URL}/admin/users/${id}/role`, { role });
+const adminSetApproval = (id, approved) =>
+  axios.patch(`${API_URL}/admin/users/${id}/approval`, { approved });
 const adminGetOrders = () => axios.get(`${API_URL}/admin/orders`);
 const adminGetCatalog = () => axios.get(`${API_URL}/admin/catalog`);
 const adminGetAnalytics = () => axios.get(`${API_URL}/admin/analytics`);
@@ -138,6 +140,7 @@ export {
   adminGetUsers,
   adminDeleteUser,
   adminUpdateUserRole,
+  adminSetApproval,
   adminGetOrders,
   adminGetCatalog,
   adminGetAnalytics,
