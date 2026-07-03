@@ -68,6 +68,15 @@ const createOrder = (order) => {
 const deleteOrder = (order_id) => {
   return axios.delete(`${API_URL}/student/deleteorder/${order_id}`);
 };
+const rescheduleOrder = (order_id, changes) => {
+  return axios.put(`${API_URL}/student/reschedule/${order_id}`, changes);
+};
+const cancelOrder = (order_id) => {
+  return axios.put(`${API_URL}/student/cancelorder/${order_id}`);
+};
+const setLaundererAvailability = (timeSlots) => {
+  return axios.put(`${API_URL}/launderer/availability`, { timeSlots });
+};
 
 const makePayment = (body) => {
   return axios.post(`${API_URL}/payment`, body);
@@ -140,6 +149,9 @@ export {
   makePayment,
   updatePickupStatus,
   deleteOrder,
+  rescheduleOrder,
+  cancelOrder,
+  setLaundererAvailability,
   updateAcceptedStatus,
   updateDeliveryStatus,
   getLaundererAnalytics,

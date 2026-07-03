@@ -88,7 +88,12 @@ const createStudentOrder = async (req, resp) => {
       Setting.findOne({ key: 'timeSlots' }),
     ]);
     const locations = locationSetting ? locationSetting.values : [];
-    const timeSlots = timeSetting ? timeSetting.values : [];
+    // Prefer the launderer's own available slots; fall back to the global ones.
+    const timeSlots =
+      laundererUser.availableTimeSlots &&
+      laundererUser.availableTimeSlots.length
+        ? laundererUser.availableTimeSlots
+        : (timeSetting && timeSetting.values) || [];
     if (![pickupAddress, deliveryAddress].every((a) => locations.includes(a))) {
       return resp
         .status(400)
@@ -275,6 +280,69 @@ const updateDeliveryStatus = async (req, resp) => {
   }
 };
 
+// @desc    Reschedule an order (before pickup)
+// @route   PUT /student/reschedule/:order_id
+// @access  Private (student, owner)
+const rescheduleOrder = async (req, resp) => {
+  try {
+    const decodedToken = req.user;
+    const order = await Order.findById(req.params.order_id);
+    if (!order) {
+      return resp.status(404).json({ message: 'Order not found' });
+    }
+    if (order.user.toString() !== decodedToken.user_id) {
+      return resp
+        .status(403)
+        .json({ message: 'You are not authorized to modify this order' });
+    }
+    if (order.pickUpStatus) {
+      return resp
+        .status(400)
+        .json({ message: 'Order already picked up; cannot reschedule' });
+    }
+    const { pickupDate, pickupTime, deliveryDate, deliveryTime } = req.body;
+    if (pickupDate) order.pickupDate = pickupDate;
+    if (pickupTime) order.pickupTime = pickupTime;
+    if (deliveryDate) order.deliveryDate = deliveryDate;
+    if (deliveryTime) order.deliveryTime = deliveryTime;
+    await order.save();
+    return resp
+      .status(200)
+      .json({ message: 'Order rescheduled', updatedOrder: order });
+  } catch (err) {
+    logger.error(`rescheduleOrder error: ${err.message}`, { stack: err.stack });
+    return resp.status(500).json({ message: 'Error rescheduling the order' });
+  }
+};
+
+// @desc    Cancel an order (before pickup)
+// @route   PUT /student/cancelorder/:order_id
+// @access  Private (student, owner)
+const cancelOrder = async (req, resp) => {
+  try {
+    const decodedToken = req.user;
+    const order = await Order.findById(req.params.order_id);
+    if (!order) {
+      return resp.status(404).json({ message: 'Order not found' });
+    }
+    if (order.user.toString() !== decodedToken.user_id) {
+      return resp
+        .status(403)
+        .json({ message: 'You are not authorized to cancel this order' });
+    }
+    if (order.pickUpStatus) {
+      return resp
+        .status(400)
+        .json({ message: 'Order already picked up; cannot cancel' });
+    }
+    await Order.findByIdAndDelete(order._id);
+    return resp.status(200).json({ message: 'Order cancelled', order });
+  } catch (err) {
+    logger.error(`cancelOrder error: ${err.message}`, { stack: err.stack });
+    return resp.status(500).json({ message: 'Error cancelling the order' });
+  }
+};
+
 // @desc    Get the launderers
 // @route   GET /student/launderers
 // @access  Private
@@ -304,5 +372,7 @@ module.exports = {
   updatePickupStatus,
   deleteOrder,
   updateDeliveryStatus,
+  rescheduleOrder,
+  cancelOrder,
   getAllLaunderers,
 };

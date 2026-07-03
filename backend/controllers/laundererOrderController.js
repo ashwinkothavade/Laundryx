@@ -43,6 +43,33 @@ const getLaundererAnalytics = async (req, resp) => {
   }
 };
 
+// @desc    Set the launderer's own available time slots
+// @route   PUT /launderer/availability
+// @access  Private (launderer)
+const setAvailability = async (req, resp) => {
+  try {
+    const { timeSlots } = req.body;
+    if (!Array.isArray(timeSlots)) {
+      return resp.status(400).json({ message: 'timeSlots must be an array' });
+    }
+    const cleaned = [
+      ...new Set(timeSlots.map((t) => String(t).trim()).filter(Boolean)),
+    ];
+    // findByIdAndUpdate avoids the password-hashing pre-save hook.
+    const user = await User.findByIdAndUpdate(
+      req.user.user_id,
+      { availableTimeSlots: cleaned },
+      { new: true }
+    ).select('-password -__v');
+    return resp
+      .status(200)
+      .json({ availableTimeSlots: user.availableTimeSlots });
+  } catch (err) {
+    logger.error(`setAvailability error: ${err.message}`, { stack: err.stack });
+    return resp.status(500).json({ message: 'Error updating availability' });
+  }
+};
+
 // @desc    Get all orders
 // @route   GET /allorders
 // @access  Private
@@ -268,6 +295,7 @@ const updateOrderDeliveryDate = async (req, resp) => {
 
 module.exports = {
   getLaundererAnalytics,
+  setAvailability,
   getAllOrders,
   getOrdersByStudent,
   updateOrderAccept,

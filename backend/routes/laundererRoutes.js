@@ -14,6 +14,12 @@ router.get(
   verifyLaunderer,
   laundererOrderController.getLaundererAnalytics
 );
+router.put(
+  '/launderer/availability',
+  verifyUser,
+  verifyLaunderer,
+  laundererOrderController.setAvailability
+);
 router.get('/allorders', verifyUser, laundererOrderController.getAllOrders);
 router.get(
   '/orders/:username',

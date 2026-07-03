@@ -36,7 +36,11 @@ const getLaundererCatalog = async (req, resp) => {
       clothingType: 1,
       washType: 1,
     });
-    return resp.status(200).json({ launderer: launderer.username, items });
+    return resp.status(200).json({
+      launderer: launderer.username,
+      availableTimeSlots: launderer.availableTimeSlots || [],
+      items,
+    });
   } catch (err) {
     logger.error(`getLaundererCatalog error: ${err.message}`, {
       stack: err.stack,
