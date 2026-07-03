@@ -49,12 +49,6 @@ function ScheduleCard() {
   // eslint-disable-next-line no-unused-vars
   const [loading, setLoading] = useState(true);
 
-  const pickupDateRef = useRef();
-  const pickupTimeRef = useRef();
-  const deliveryTimeRef = useRef();
-  const pickupAddressRef = useRef();
-  const deliveryAddressRef = useRef();
-  const laundererRef = useRef();
   const launderersRef = useRef();
 
   const toast = useToast();
@@ -85,23 +79,19 @@ function ScheduleCard() {
   };
 
   const handleConfirmSchedule = () => {
+    // Values are written to the (persisted) store live via each Select's
+    // onChange, so here we only validate that everything is filled.
     if (
-      !pickupDateRef.current.value ||
-      !pickupTimeRef.current.value ||
-      !deliveryTimeRef.current.value ||
-      !pickupAddressRef.current.value ||
-      !deliveryAddressRef.current.value ||
-      !laundererRef.current.value
+      !order.pickupDate ||
+      !order.pickupTime ||
+      !order.deliveryTime ||
+      !order.pickupAddress ||
+      !order.deliveryAddress ||
+      !order.launderer
     ) {
       handleToast('Please confirm all the details.', '', 'error');
       return;
     }
-    setPickupDate(pickupDateRef.current.value);
-    setPickupTime(pickupTimeRef.current.value);
-    setDeliveryTime(deliveryTimeRef.current.value);
-    setPickupAddress(pickupAddressRef.current.value);
-    setDeliveryAddress(deliveryAddressRef.current.value);
-    setLaunderer(laundererRef.current.value);
     handleToast(
       'All schedule details are added.',
       'Order can now be confirmed and placed.',
@@ -186,7 +176,8 @@ function ScheduleCard() {
             placeholder="Select Date"
             border="2px solid #584BAC"
             w="auto"
-            ref={pickupDateRef}
+            value={order.pickupDate}
+            onChange={(e) => setPickupDate(e.target.value)}
             _hover={{ border: '2px solid #584BAC' }}
             _focus={{ border: '2px solid #584BAC' }}
           >
@@ -204,7 +195,8 @@ function ScheduleCard() {
             placeholder="Select Time"
             border="2px solid #584BAC"
             w="auto"
-            ref={pickupTimeRef}
+            value={order.pickupTime}
+            onChange={(e) => setPickupTime(e.target.value)}
             _hover={{ border: '2px solid #584BAC' }}
             _focus={{ border: '2px solid #584BAC' }}
           >
@@ -235,7 +227,8 @@ function ScheduleCard() {
             placeholder="Select Time"
             border="2px solid #584BAC"
             w="auto"
-            ref={deliveryTimeRef}
+            value={order.deliveryTime}
+            onChange={(e) => setDeliveryTime(e.target.value)}
             _hover={{ border: '2px solid #584BAC' }}
             _focus={{ border: '2px solid #584BAC' }}
           >
@@ -267,7 +260,8 @@ function ScheduleCard() {
             placeholder="Select location"
             border="2px solid #584BAC"
             w={{ base: '9rem', md: 'auto' }}
-            ref={pickupAddressRef}
+            value={order.pickupAddress}
+            onChange={(e) => setPickupAddress(e.target.value)}
             _hover={{ border: '2px solid #584BAC' }}
             _focus={{ border: '2px solid #584BAC' }}
           >
@@ -292,7 +286,8 @@ function ScheduleCard() {
             placeholder="Select location"
             border="2px solid #584BAC"
             w={{ base: '9rem', md: 'auto' }}
-            ref={deliveryAddressRef}
+            value={order.deliveryAddress}
+            onChange={(e) => setDeliveryAddress(e.target.value)}
             _hover={{ border: '2px solid #584BAC' }}
             _focus={{ border: '2px solid #584BAC' }}
           >
@@ -317,7 +312,8 @@ function ScheduleCard() {
             placeholder="Select launderer"
             border="2px solid #584BAC"
             w={{ base: '9rem', md: 'auto' }}
-            ref={laundererRef}
+            value={order.launderer}
+            onChange={(e) => setLaunderer(e.target.value)}
             _hover={{ border: '2px solid #584BAC' }}
             _focus={{ border: '2px solid #584BAC' }}
           >

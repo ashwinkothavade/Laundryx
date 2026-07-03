@@ -7,7 +7,7 @@ import WorkingCard from './WorkingCard';
 
 function Main() {
   return (
-    <Box pt="4rem">
+    <Box pt={['3.5rem', '4rem', '5rem']}>
       <Center height="100vh">
         <Hero />
       </Center>
