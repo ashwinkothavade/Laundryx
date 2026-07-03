@@ -34,7 +34,9 @@ const deleteUser = async (req, resp) => {
     if (!user) {
       return resp.status(404).json({ message: 'User not found' });
     }
-    return resp.status(200).json({ message: 'User deleted', id: req.params.id });
+    return resp
+      .status(200)
+      .json({ message: 'User deleted', id: req.params.id });
   } catch (err) {
     logger.error(`admin deleteUser error: ${err.message}`, {
       stack: err.stack,

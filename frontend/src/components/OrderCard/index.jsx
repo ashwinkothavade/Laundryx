@@ -45,7 +45,14 @@ function OrderCard() {
   const toast = useToast();
 
   const handleToast = (title, description, status) =>
-    toast({ position: 'top', title, description, status, isClosable: true, duration: 2000 });
+    toast({
+      position: 'top',
+      title,
+      description,
+      status,
+      isClosable: true,
+      duration: 2000,
+    });
 
   // Load the list of launderers to choose from.
   useEffect(() => {
@@ -80,7 +87,6 @@ function OrderCard() {
 
   useEffect(() => {
     if (order.launderer) loadCatalog(order.launderer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleLaundererChange = (username) => {
@@ -117,7 +123,11 @@ function OrderCard() {
 
   const handleCheckout = () => {
     if (order.items.length === 0) {
-      handleToast('Please add items before proceeding to checkout', '', 'error');
+      handleToast(
+        'Please add items before proceeding to checkout',
+        '',
+        'error'
+      );
       return;
     }
     navigate('/CheckoutPage');
@@ -126,7 +136,11 @@ function OrderCard() {
   return (
     <>
       <Center>
-        <Text mt="6rem" fontWeight={600} fontSize={{ base: '1.5rem', md: '2rem' }}>
+        <Text
+          mt="6rem"
+          fontWeight={600}
+          fontSize={{ base: '1.5rem', md: '2rem' }}
+        >
           Select &amp; Add Items
         </Text>
       </Center>
@@ -214,7 +228,8 @@ function OrderCard() {
                       w="5.5rem"
                       defaultValue={0}
                       onChange={(value) => {
-                        quantityRefs.current[item._id] = parseInt(value, 10) || 0;
+                        quantityRefs.current[item._id] =
+                          parseInt(value, 10) || 0;
                       }}
                     >
                       <NumberInputField

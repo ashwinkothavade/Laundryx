@@ -33,6 +33,10 @@ function App() {
     return () => clearTimeout(timer);
   }, [isLoading]);
 
+  let dashboardElement = <StudentDashBoard />;
+  if (userRole === 'admin') dashboardElement = <AdminDashboard />;
+  else if (userRole === 'launderer') dashboardElement = <LaundererDashboard />;
+
   return (
     <Suspense fallback={<PreLoader />}>
       <Routes>
@@ -41,14 +45,7 @@ function App() {
         <Route path="/CheckoutPage" element={<CheckoutPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route
-          path="/dashboard"
-          element={(() => {
-            if (userRole === 'admin') return <AdminDashboard />;
-            if (userRole === 'launderer') return <LaundererDashboard />;
-            return <StudentDashBoard />;
-          })()}
-        />
+        <Route path="/dashboard" element={dashboardElement} />
       </Routes>
     </Suspense>
   );

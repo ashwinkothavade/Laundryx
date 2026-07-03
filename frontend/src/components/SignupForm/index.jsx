@@ -65,15 +65,13 @@ export default function SignupForm() {
       confirmPassword: confirmPasswordRef.current.value,
     };
 
-    if (
-      !(
-        credentials.email &&
-        credentials.password &&
-        credentials.username &&
-        credentials.phone_number &&
-        credentials.role
-      )
-    ) {
+    if (!(
+      credentials.email &&
+      credentials.password &&
+      credentials.username &&
+      credentials.phone_number &&
+      credentials.role
+    )) {
       handleToast('Incomplete Entries', 'Please enter all the fields', 'error');
       return;
     }
@@ -136,7 +134,10 @@ export default function SignupForm() {
       >
         <form onSubmit={onSubmit}>
           {/* Username and Phone */}
-          <Flex direction={{ base: 'column', sm: 'row' }} gap={{ base: '0', sm: '2rem' }}>
+          <Flex
+            direction={{ base: 'column', sm: 'row' }}
+            gap={{ base: '0', sm: '2rem' }}
+          >
             <Box mb={['1rem', '1.5rem']} flex="1">
               <Text mb="0.5rem" fontSize="1.1rem">
                 Username

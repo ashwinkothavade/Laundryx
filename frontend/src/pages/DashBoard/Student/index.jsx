@@ -36,7 +36,10 @@ function StudentDashBoard() {
             Dashboard
           </Text>
         </HStack>
-        <Stack direction={{ base: 'row', md: 'column' }} gap={{ base: 2, md: 4 }}>
+        <Stack
+          direction={{ base: 'row', md: 'column' }}
+          gap={{ base: 2, md: 4 }}
+        >
           <Button
             p={0}
             color={!isActive ? 'white' : '#9197B3'}

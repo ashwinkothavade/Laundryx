@@ -2,7 +2,10 @@ const { Router } = require('express');
 
 const router = Router();
 const catalogController = require('../controllers/catalogController');
-const { verifyUser, verifyLaunderer } = require('../middlewares/authMiddleware');
+const {
+  verifyUser,
+  verifyLaunderer,
+} = require('../middlewares/authMiddleware');
 
 // Launderer-managed catalog (owner only for writes).
 router.get(

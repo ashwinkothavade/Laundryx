@@ -35,7 +35,14 @@ function LaundererCatalog() {
   const toast = useToast();
 
   const notify = (title, status, description = '') =>
-    toast({ position: 'top', title, description, status, duration: 2500, isClosable: true });
+    toast({
+      position: 'top',
+      title,
+      description,
+      status,
+      duration: 2500,
+      isClosable: true,
+    });
 
   const loadCatalog = async () => {
     try {
@@ -73,11 +80,7 @@ function LaundererCatalog() {
       setForm(emptyForm);
       notify('Item added to your catalog', 'success');
     } catch (err) {
-      notify(
-        'Could not add item',
-        'error',
-        err.response?.data?.message || ''
-      );
+      notify('Could not add item', 'error', err.response?.data?.message || '');
     }
   };
 
@@ -92,7 +95,12 @@ function LaundererCatalog() {
 
   const saveEdit = async (id) => {
     const price = Number(editForm.price);
-    if (!editForm.clothingType.trim() || !editForm.washType.trim() || Number.isNaN(price) || price < 0) {
+    if (
+      !editForm.clothingType.trim() ||
+      !editForm.washType.trim() ||
+      Number.isNaN(price) ||
+      price < 0
+    ) {
       notify('Enter valid values', 'error');
       return;
     }
@@ -102,11 +110,17 @@ function LaundererCatalog() {
         washType: editForm.washType.trim(),
         price,
       });
-      setItems((prev) => prev.map((it) => (it._id === id ? res.data.item : it)));
+      setItems((prev) =>
+        prev.map((it) => (it._id === id ? res.data.item : it))
+      );
       setEditingId(null);
       notify('Item updated', 'success');
     } catch (err) {
-      notify('Could not update item', 'error', err.response?.data?.message || '');
+      notify(
+        'Could not update item',
+        'error',
+        err.response?.data?.message || ''
+      );
     }
   };
 
@@ -145,14 +159,20 @@ function LaundererCatalog() {
         <Text fontWeight={600} mb="1rem" color="#584BAC">
           Add a new item
         </Text>
-        <Flex direction={{ base: 'column', md: 'row' }} gap="1rem" align={{ md: 'end' }}>
+        <Flex
+          direction={{ base: 'column', md: 'row' }}
+          gap="1rem"
+          align={{ md: 'end' }}
+        >
           <FormControl isRequired>
             <FormLabel>Clothing type</FormLabel>
             <Input
               placeholder="e.g. Shirt"
               focusBorderColor="#584BAC"
               value={form.clothingType}
-              onChange={(e) => setForm({ ...form, clothingType: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, clothingType: e.target.value })
+              }
             />
           </FormControl>
           <FormControl isRequired>
@@ -212,13 +232,17 @@ function LaundererCatalog() {
                     size="sm"
                     value={editForm.clothingType}
                     focusBorderColor="#584BAC"
-                    onChange={(e) => setEditForm({ ...editForm, clothingType: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, clothingType: e.target.value })
+                    }
                   />
                   <Input
                     size="sm"
                     value={editForm.washType}
                     focusBorderColor="#584BAC"
-                    onChange={(e) => setEditForm({ ...editForm, washType: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, washType: e.target.value })
+                    }
                   />
                   <Input
                     size="sm"
@@ -226,7 +250,9 @@ function LaundererCatalog() {
                     min={0}
                     value={editForm.price}
                     focusBorderColor="#584BAC"
-                    onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, price: e.target.value })
+                    }
                   />
                   <HStack justify="end">
                     <IconButton
