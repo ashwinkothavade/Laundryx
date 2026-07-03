@@ -125,6 +125,7 @@ cd backend && npm run seed:admin
 | [docs/API.md](docs/API.md) | Complete REST endpoint reference |
 | [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md) | Every environment variable (backend + frontend build args) |
 | [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Project layout, running, linting, testing, CI, deployment |
+| [docs/ROADMAP.md](docs/ROADMAP.md) | Market-readiness checklist of remaining work |
 
 <br>
 
