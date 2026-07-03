@@ -76,6 +76,39 @@ const updateUserRole = async (req, resp) => {
   }
 };
 
+// @desc    Approve or revoke a launderer
+// @route   PATCH /admin/users/:id/approval
+// @access  Private (admin)
+const setApproval = async (req, resp) => {
+  try {
+    const { approved } = req.body;
+    if (typeof approved !== 'boolean') {
+      return resp.status(400).json({ message: 'approved must be a boolean' });
+    }
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return resp.status(404).json({ message: 'User not found' });
+    }
+    if (user.role !== 'launderer') {
+      return resp
+        .status(400)
+        .json({ message: 'Only launderers require approval' });
+    }
+    // findByIdAndUpdate avoids the password-hashing pre-save hook.
+    const updated = await User.findByIdAndUpdate(
+      req.params.id,
+      { approved },
+      { new: true }
+    ).select('-password -__v');
+    return resp.status(200).json({ user: updated });
+  } catch (err) {
+    logger.error(`admin setApproval error: ${err.message}`, {
+      stack: err.stack,
+    });
+    return resp.status(500).json({ message: 'Error updating approval' });
+  }
+};
+
 // @desc    List every order in the system
 // @route   GET /admin/orders
 // @access  Private (admin)
@@ -159,6 +192,7 @@ module.exports = {
   getAllUsers,
   deleteUser,
   updateUserRole,
+  setApproval,
   getAllOrders,
   getAllCatalog,
   getAnalytics,

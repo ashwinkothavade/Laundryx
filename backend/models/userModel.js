@@ -32,6 +32,12 @@ const userSchema = mongoose.Schema(
       enum: ['student', 'launderer', 'admin'],
       required: [true, 'Please select a role'],
     },
+    // Launderers must be approved by an admin before they are visible to
+    // students and can receive orders. Not applicable to students/admins.
+    approved: {
+      type: Boolean,
+      default: false,
+    },
     email: {
       type: String,
       required: [true, 'Please provide an email'],

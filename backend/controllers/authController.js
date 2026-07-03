@@ -26,9 +26,11 @@ const getAllUsers = async (req, resp) => {
 // @access  Private
 const getAllLaunderers = async (req, resp) => {
   try {
-    const launderers = await User.find({ role: 'launderer' }).select(
-      '-password -__v'
-    );
+    // Students only ever see approved launderers.
+    const launderers = await User.find({
+      role: 'launderer',
+      approved: true,
+    }).select('-password -__v');
     resp.status(200).json(launderers);
   } catch (err) {
     resp.status(500).json('UserModel error');

@@ -1,5 +1,14 @@
-import { Box, Button, Flex, HStack, Stack, Text } from '@chakra-ui/react';
-import React, { useState } from 'react';
+import {
+  Alert,
+  AlertIcon,
+  Box,
+  Button,
+  Flex,
+  HStack,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
 import { FiBox, FiList } from 'react-icons/fi';
 
 import { Helmet } from 'react-helmet-async';
@@ -9,9 +18,18 @@ import LaundererDetails from '../../../components/LaundererDetails';
 import LaundererOrdersDetail from '../../../components/LaundererOrdersDetail';
 import LaundererCatalog from '../../../components/LaundererCatalog';
 import Navbar from '../../../components/Navbar';
+import { getMe } from '../../../utils/apis';
 
 function LaundererDashboard() {
   const [isActive, setIsActive] = useState(0);
+  const [approved, setApproved] = useState(null);
+
+  useEffect(() => {
+    getMe()
+      .then((res) => setApproved(res.data.approved))
+      .catch(() => setApproved(null));
+  }, []);
+
   return (
     <>
       <Helmet>
@@ -72,18 +90,34 @@ function LaundererDashboard() {
             ))}
           </Stack>
         </Box>
-        <Flex
-          justify="space-evenly"
-          align="center"
-          pt="3rem"
-          pl={{ base: '1rem', md: '5rem' }}
-          pr={{ base: '1rem', md: 0 }}
-          w="100%"
-        >
-          {isActive === 0 && <LaundererDetails />}
-          {isActive === 1 && <LaundererOrdersDetail />}
-          {isActive === 2 && <LaundererCatalog />}
-        </Flex>
+        <Box w="100%">
+          {approved === false && (
+            <Alert
+              status="warning"
+              borderRadius="md"
+              mt={{ base: '1rem', md: 0 }}
+              mx={{ base: '1rem', md: '5rem' }}
+              w="auto"
+            >
+              <AlertIcon />
+              Your launderer account is pending admin approval. You can set up
+              your catalog now, but students won’t see you or be able to place
+              orders until you’re approved.
+            </Alert>
+          )}
+          <Flex
+            justify="space-evenly"
+            align="center"
+            pt="3rem"
+            pl={{ base: '1rem', md: '5rem' }}
+            pr={{ base: '1rem', md: 0 }}
+            w="100%"
+          >
+            {isActive === 0 && <LaundererDetails />}
+            {isActive === 1 && <LaundererOrdersDetail />}
+            {isActive === 2 && <LaundererCatalog />}
+          </Flex>
+        </Box>
       </Flex>
     </>
   );

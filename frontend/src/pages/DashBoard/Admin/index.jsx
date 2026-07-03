@@ -45,6 +45,7 @@ import {
   adminGetCatalog,
   adminGetOrders,
   adminGetUsers,
+  adminSetApproval,
   adminUpdateUserRole,
   getSettings,
   removeSettingValue,
@@ -130,6 +131,20 @@ function AdminDashboard() {
     } catch (err) {
       notify(
         'Could not delete user',
+        'error',
+        err.response?.data?.message || ''
+      );
+    }
+  };
+
+  const toggleApproval = async (id, approved) => {
+    try {
+      const res = await adminSetApproval(id, approved);
+      setUsers((prev) => prev.map((u) => (u._id === id ? res.data.user : u)));
+      notify(approved ? 'Launderer approved' : 'Approval revoked', 'success');
+    } catch (err) {
+      notify(
+        'Could not update approval',
         'error',
         err.response?.data?.message || ''
       );
@@ -279,6 +294,7 @@ function AdminDashboard() {
                     <Th>Username</Th>
                     <Th>Email</Th>
                     <Th>Role</Th>
+                    <Th>Approval</Th>
                     <Th>Change role</Th>
                     <Th>Delete</Th>
                   </Tr>
@@ -292,6 +308,28 @@ function AdminDashboard() {
                         <Badge colorScheme={ROLE_COLORS[u.role] || 'gray'}>
                           {u.role}
                         </Badge>
+                      </Td>
+                      <Td>
+                        {u.role === 'launderer' ? (
+                          <HStack>
+                            <Tag
+                              size="sm"
+                              colorScheme={u.approved ? 'green' : 'orange'}
+                            >
+                              {u.approved ? 'Approved' : 'Pending'}
+                            </Tag>
+                            <Button
+                              size="xs"
+                              variant="outline"
+                              colorScheme={u.approved ? 'red' : 'green'}
+                              onClick={() => toggleApproval(u._id, !u.approved)}
+                            >
+                              {u.approved ? 'Revoke' : 'Approve'}
+                            </Button>
+                          </HStack>
+                        ) : (
+                          <Text color="gray.400">—</Text>
+                        )}
                       </Td>
                       <Td>
                         <Select

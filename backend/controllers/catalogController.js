@@ -24,7 +24,11 @@ const getMyCatalog = async (req, resp) => {
 const getLaundererCatalog = async (req, resp) => {
   try {
     const { username } = req.params;
-    const launderer = await User.findOne({ username, role: 'launderer' });
+    const launderer = await User.findOne({
+      username,
+      role: 'launderer',
+      approved: true,
+    });
     if (!launderer) {
       return resp.status(404).json({ message: 'Launderer not found' });
     }
