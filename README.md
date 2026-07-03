@@ -84,6 +84,33 @@ LaundriX is a laundry booking system designed for our institute hostels, allowin
      ```
 
 
+# 🐳 Run with Docker
+
+The whole stack (MongoDB + Express backend + Vite/nginx frontend) is containerized.
+
+**Prerequisites:** Docker and Docker Compose.
+
+1. Create your environment file from the template and fill in the secrets:
+     ```
+     cp .env.example .env
+     ```
+2. Build and start everything:
+     ```
+     docker compose up --build
+     ```
+3. Open the app:
+     - Frontend: http://localhost:8080
+     - Backend API: http://localhost:4000
+     - MongoDB: localhost:27017 (data persisted in the `mongo-data` volume)
+
+To run in the background use `docker compose up --build -d`, and `docker compose down` to stop (add `-v` to also remove the database volume).
+
+Notes:
+- Leave `MONGO_URI` unset in `.env` to use the bundled MongoDB container, or set it to a MongoDB Atlas URI to use a managed database.
+- Keep `NODE_ENV=development` for local http; the auth cookies are marked `Secure` only in production (behind HTTPS).
+- The frontend `VITE_*` values are baked in at build time, so re-run `docker compose build frontend` after changing them.
+
+
 # <img height="40px" src="https://github.com/NightFury742/LaundriX/assets/119070798/143a52c0-b60d-4f57-b38f-3e5156e124d9"> License
 
 MIT License
