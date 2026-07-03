@@ -83,6 +83,9 @@ const updateDeliveryStatus = (order_id) => {
   return axios.put(`${API_URL}/updatedeliveredstatus/${order_id}`);
 };
 
+// ---- Launderer analytics ----
+const getLaundererAnalytics = () => axios.get(`${API_URL}/launderer/analytics`);
+
 // ---- Catalog (per-launderer clothing/wash/price) ----
 const getMyCatalog = () => axios.get(`${API_URL}/catalog/my`);
 const getLaundererCatalog = (username) =>
@@ -139,6 +142,7 @@ export {
   deleteOrder,
   updateAcceptedStatus,
   updateDeliveryStatus,
+  getLaundererAnalytics,
   getMyCatalog,
   getLaundererCatalog,
   addCatalogItem,

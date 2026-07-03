@@ -2,9 +2,18 @@ const { Router } = require('express');
 
 const router = Router();
 const laundererOrderController = require('../controllers/laundererOrderController');
-const { verifyUser } = require('../middlewares/authMiddleware');
+const {
+  verifyUser,
+  verifyLaunderer,
+} = require('../middlewares/authMiddleware');
 
 // launderer routes
+router.get(
+  '/launderer/analytics',
+  verifyUser,
+  verifyLaunderer,
+  laundererOrderController.getLaundererAnalytics
+);
 router.get('/allorders', verifyUser, laundererOrderController.getAllOrders);
 router.get(
   '/orders/:username',
