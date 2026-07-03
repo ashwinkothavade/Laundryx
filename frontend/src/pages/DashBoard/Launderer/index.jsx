@@ -1,12 +1,13 @@
 import { Box, Button, Flex, HStack, Stack, Text } from '@chakra-ui/react';
 import React, { useState } from 'react';
-import { FiBox } from 'react-icons/fi';
+import { FiBox, FiList } from 'react-icons/fi';
 
 import { Helmet } from 'react-helmet-async';
 import { MdKeyboardArrowRight } from 'react-icons/md';
 import { RiAccountBoxLine, RiSettingsLine } from 'react-icons/ri';
 import LaundererDetails from '../../../components/LaundererDetails';
 import LaundererOrdersDetail from '../../../components/LaundererOrdersDetail';
+import LaundererCatalog from '../../../components/LaundererCatalog';
 import Navbar from '../../../components/Navbar';
 
 function LaundererDashboard() {
@@ -45,40 +46,30 @@ function LaundererDashboard() {
             direction={{ base: 'row', md: 'column' }}
             gap={{ base: 2, md: 4 }}
           >
-            <Button
-              p={0}
-              color={!isActive ? 'white' : '#9197B3'}
-              bgColor={!isActive ? '#CE1567' : 'transparent'}
-              onClick={() => setIsActive(0)}
-              _hover={{
-                bgColor: `${!isActive ? '#bf0055' : 'transparent'}`,
-              }}
-            >
-              <Flex w="100%" justify="space-between" align="center" px="1rem">
-                <Flex align="center" gap={2}>
-                  <RiAccountBoxLine size={20} />
-                  <Text>Profile</Text>
+            {[
+              { label: 'Profile', icon: RiAccountBoxLine },
+              { label: 'Orders', icon: FiBox },
+              { label: 'Catalog', icon: FiList },
+            ].map((tab, index) => (
+              <Button
+                key={tab.label}
+                p={0}
+                color={isActive === index ? 'white' : '#9197B3'}
+                bgColor={isActive === index ? '#CE1567' : 'transparent'}
+                onClick={() => setIsActive(index)}
+                _hover={{
+                  bgColor: isActive === index ? '#bf0055' : 'transparent',
+                }}
+              >
+                <Flex w="100%" justify="space-between" align="center" px="1rem">
+                  <Flex align="center" gap={2}>
+                    <tab.icon size={20} />
+                    <Text>{tab.label}</Text>
+                  </Flex>
+                  <MdKeyboardArrowRight />
                 </Flex>
-                <MdKeyboardArrowRight />
-              </Flex>
-            </Button>
-            <Button
-              p={0}
-              color={isActive ? 'white' : '#9197B3'}
-              bgColor={isActive ? '#CE1567' : 'transparent'}
-              onClick={() => setIsActive(1)}
-              _hover={{
-                bgColor: `${isActive ? '#bf0055' : 'transparent'}`,
-              }}
-            >
-              <Flex w="100%" justify="space-between" align="center" px="1rem">
-                <Flex align="center" gap={2}>
-                  <FiBox size={20} />
-                  <Text>Orders</Text>
-                </Flex>
-                <MdKeyboardArrowRight />
-              </Flex>
-            </Button>
+              </Button>
+            ))}
           </Stack>
         </Box>
         <Flex
@@ -89,7 +80,9 @@ function LaundererDashboard() {
           pr={{ base: '1rem', md: 0 }}
           w="100%"
         >
-          {!isActive ? <LaundererDetails /> : <LaundererOrdersDetail />}
+          {isActive === 0 && <LaundererDetails />}
+          {isActive === 1 && <LaundererOrdersDetail />}
+          {isActive === 2 && <LaundererCatalog />}
         </Flex>
       </Flex>
     </>
