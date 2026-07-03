@@ -23,7 +23,7 @@ jobs:
       - run: npm run build
 
   backend:
-    name: Backend (lint)
+    name: Backend (lint + test)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -35,3 +35,5 @@ jobs:
           node-version: 20
       - run: npm install
       - run: npm run lint
+      # Uses mongodb-memory-server (spins up an ephemeral MongoDB).
+      - run: npm test
