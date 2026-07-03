@@ -1,116 +1,146 @@
-#  <img src="https://github.com/NightFury742/LaundriX/assets/119070798/5afc3cc0-69c9-45d9-83ff-faafbc888a8d" height="40px"> LaundriX
+# <img src="https://github.com/NightFury742/LaundriX/assets/119070798/5afc3cc0-69c9-45d9-83ff-faafbc888a8d" height="40px"> LaundriX
 
-LaundriX is a laundry booking system designed for our institute hostels, allowing students to book hassle-free laundry appointments through an online platform. This system streamlines the process of getting laundry done, making the experience seamless and efficient. It is designed for both students and launderers, making it a fully online solution for the cause of laundry.
-<Br><Br>
+LaundriX is a **multi-tenant laundry-management platform**. Students discover
+launderers, order from each launderer's own live catalog, pay online, and rate
+the service; launderers manage their own catalog of clothing/wash types and
+prices and fulfil orders; and an admin oversees the whole marketplace.
 
-# <img src="https://github.com/NightFury742/LaundriX/assets/119070798/ec2ddfa4-c318-4a76-9296-872e8d5fab3f" height="30px"> Features
+Nothing about the catalog or ordering options is hardcoded — clothing types,
+wash types, prices, pickup/delivery locations and time slots are all data,
+managed by launderers and admins at runtime.
 
-* **User Authentication:** Sign in using your created account.
-* **Service Selection**: Choose from our range of services: Wash & Iron, PowerClean, and DryClean.
-* **Item Specification:** Add various clothing items to your order.
-* **Convenient Scheduling**: Select your preferred pickup date, launderer, time slot, and location.
-* **Secure Payments**: Complete transactions securely with Razorpay.
-* **Order Management**: View and review your orders with multiple filter based selections.
-* **Notifications**:
-     - **Launderers:** Receive notifications about each order placed, and updates about the payment status of the orders of each student.
-     - **Students:** Receive notifications about each update concerning placed orders, from your selected launderer, whether it is about                changed delivery date, rejected order, or deivery status.
-* **Role-Based Access:**
-     - **Students:** Place, check and view laundry orders.
-     - **Launderers:** Accept, reject and process laundry orders.
-* **Work Flow:**
-     - Students add items, select their quantity, and select their wash type.
-     - Students select the schedule and select their launderer as per their preference.
-     - Once placed, the orders go into the selected launderer's account, waiting for their acceptance.
-     - Once accepted, the order can be picked up by the launderer.
-     - Once picked up, the launderer processes the order and then delivers to the student as per the schedule.
-     - Any changes are reported back to the student through a notification.
-     - The student is then required to pay the required amount for the order through an online payment gateway.
-     - The payment option is available once the launderer accepts the order.
-<Br><Br>
+<br>
 
-# <img src="https://github.com/NightFury742/LaundriX/assets/119070798/28a131bf-d93f-44a2-b368-7eaa1476685b" height="30px"> Design
+## Table of contents
 
-[Checkout our Figma design](https://www.figma.com/file/Yq77JsE5rNfOIuwUEYgqtr/Laundrix?type=design&t=q4XGVlCGgkAkNEar-6)
-<Br><Br>
+- [Features by role](#-features-by-role)
+- [Tech stack](#-tech-stack)
+- [Quick start (Docker)](#-quick-start-docker)
+- [Manual setup](#-manual-setup)
+- [Creating the admin](#-creating-the-admin)
+- [Documentation](#-documentation)
+- [Deployment](#-deployment)
+- [License](#-license)
 
-# <img src="https://github.com/NightFury742/LaundriX/assets/119070798/6f622e92-9e0d-492c-a901-c5969a1140c0" height="35"> Tech Stack
+<br>
 
-## Frontend
-* React JS
-* Chakra UI
-* Framer Motion
+## 👥 Features by role
 
-## Backend
-* Express JS
-* Mongo DB
-* Razorpay
-* Json WebToken
+### Student
+- **Discover launderers** — searchable, sortable directory (by rating, lowest
+  price, or name) showing each launderer's average rating, price range and
+  number of catalog items.
+- **Order from a live catalog** — pick a launderer, then choose clothing items
+  and wash types from *that launderer's* catalog with real prices.
+- **Schedule** pickup/delivery using admin-managed locations and time slots.
+- **Pay securely** with Razorpay.
+- **Track & manage orders** with status filters, and **rate** launderers after
+  delivery (1–5 stars + comment).
+- **Notifications** for order updates.
 
-<Br><Br>
+### Launderer
+- **Manage a catalog** — add/edit/delete clothing types, wash types and prices
+  from a dedicated dashboard tab.
+- **Fulfil orders** — accept/reject, mark picked-up/delivered, change delivery
+  date.
+- Requires **admin approval** before becoming visible to students.
 
-# <img height="37px" src="https://github.com/NightFury742/LaundriX/assets/119070798/6c1290e3-d35c-4828-8023-ba99194b3991"> Project Initialization
-1. Fork this repository.
-2. Clone the forked repository locally.
-     ```
-     git clone https://github.com/<your-username>/LaundriX.git
-     cd LaundriX
-     ```
-3. Backend Setup
-     1. Navigate to the backend directory:
-     ```
-     cd backend
-     ```
-     2. Install dependencies:
-     ```
-     npm i
-     ```
-     3. Start the backend server:
-     ```
-     npm run server / nodemon 
-     ```
-     
-5. Frontend Setup
-     1. Navigate to the frontend directory:
-     ```
-     cd frontend
-     ```
-     2. Install dependencies:
-     ```
-     npm i
-     ```
-     3. Start the frontend development server:
-     ```
-     npm run dev
-     ```
+### Admin
+- **Approve / revoke launderers.**
+- **Manage users** — change roles, delete accounts.
+- **Oversee** every order and every launderer's catalog.
+- **Manage dynamic settings** — locations, time slots, and any new list.
+- **Analytics** — users by role, total orders, paid revenue, catalog size,
+  orders per launderer.
 
+<br>
 
-# 🐳 Run with Docker
+## 🧰 Tech stack
 
-The whole stack (MongoDB + Express backend + Vite/nginx frontend) is containerized.
+**Frontend:** React (Vite), Chakra UI, Zustand, React Router, Framer Motion,
+Razorpay, EmailJS.
+**Backend:** Express, MongoDB (Mongoose), JWT auth (httpOnly cookies), Razorpay,
+Winston + Morgan logging, Helmet, rate limiting.
+**Infra:** Docker Compose (Mongo + backend + nginx-served frontend), GitHub
+Actions CI, Vercel-ready.
 
-**Prerequisites:** Docker and Docker Compose.
+<br>
 
-1. Create your environment file from the template and fill in the secrets:
-     ```
-     cp .env.example .env
-     ```
-2. Build and start everything:
-     ```
-     docker compose up --build
-     ```
-3. Open the app:
-     - Frontend: http://localhost:8080
-     - Backend API: http://localhost:4000
-     - MongoDB: localhost:27017 (data persisted in the `mongo-data` volume)
+## 🐳 Quick start (Docker)
 
-To run in the background use `docker compose up --build -d`, and `docker compose down` to stop (add `-v` to also remove the database volume).
+The whole stack (MongoDB + backend + frontend) is containerised.
 
-Notes:
-- Leave `MONGO_URI` unset in `.env` to use the bundled MongoDB container, or set it to a MongoDB Atlas URI to use a managed database.
-- Keep `NODE_ENV=development` for local http; the auth cookies are marked `Secure` only in production (behind HTTPS).
-- The frontend `VITE_*` values are baked in at build time, so re-run `docker compose build frontend` after changing them.
+```bash
+cp .env.example .env          # fill in secrets (or use the defaults for local)
+docker compose up --build
+docker compose exec backend npm run seed:admin   # create the admin + starter settings
+```
 
+- Frontend: <http://localhost:8080>
+- Backend API: <http://localhost:4000>
+- MongoDB: `localhost:27017` (persisted in the `mongo-data` volume)
 
-# <img height="40px" src="https://github.com/NightFury742/LaundriX/assets/119070798/143a52c0-b60d-4f57-b38f-3e5156e124d9"> License
+Default seeded admin (change in `.env`): **admin@laundrix.com** / **Admin@1234**.
+
+<br>
+
+## 🔧 Manual setup
+
+**Backend**
+```bash
+cd backend
+npm install
+npm run server        # nodemon on :4000  (npm start for plain node)
+npm run seed:admin    # once, to create the admin
+```
+
+**Frontend**
+```bash
+cd frontend
+npm install
+npm run dev           # Vite dev server
+```
+
+You'll need a running MongoDB and a `.env` (see [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md)).
+
+<br>
+
+## 🔑 Creating the admin
+
+There is no public admin signup. Run the seed script, which reads the `ADMIN_*`
+env vars, creates (or promotes) the admin, and migrates the previously
+hardcoded locations/time-slots into the database as editable settings:
+
+```bash
+cd backend && npm run seed:admin
+```
+
+<br>
+
+## 📚 Documentation
+
+| Doc | What's inside |
+|-----|---------------|
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Data models, roles & permissions, order lifecycle, dynamic-settings design, auth flow |
+| [docs/API.md](docs/API.md) | Complete REST endpoint reference |
+| [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md) | Every environment variable (backend + frontend build args) |
+| [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Project layout, running, linting, testing, CI, deployment |
+
+<br>
+
+## 🚀 Deployment
+
+- **Frontend** and **backend** each deploy to Vercel (`frontend/vercel.json`,
+  `backend/vercel.json`). The backend exports the Express app and only binds a
+  port outside Vercel.
+- Set the environment variables from [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md)
+  in each Vercel project.
+- CI (`.github/workflows/ci.yml`) runs lint + build on every push/PR.
+
+See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md#deployment) for details.
+
+<br>
+
+## 📄 License
 
 MIT License
