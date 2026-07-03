@@ -1,0 +1,62 @@
+# LaundriX — full stack (MongoDB + Express backend + Vite/nginx frontend)
+# Usage:
+#   cp .env.example .env   # fill in secrets
+#   docker compose up --build
+# Then open http://localhost:8080
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - '27017:27017'
+    healthcheck:
+      test: ['CMD', 'mongosh', '--eval', "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - '4000:4000'
+    environment:
+      PORT: 4000
+      # Keep NODE_ENV non-production locally so auth cookies are not marked
+      # Secure (Secure cookies are dropped over plain http://localhost).
+      NODE_ENV: ${NODE_ENV:-development}
+      MONGO_URI: ${MONGO_URI:-mongodb://mongo:27017/laundrix}
+      ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET}
+      JWT_SECRET: ${JWT_SECRET}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8080}
+      BACKEND_URL: ${BACKEND_URL:-http://localhost:4000}
+      GMAIL_ADDRESS: ${GMAIL_ADDRESS:-}
+      GMAIL_PASSWORD: ${GMAIL_PASSWORD:-}
+      RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID:-}
+      RAZORPAY_SECRET: ${RAZORPAY_SECRET:-}
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # VITE_DEV_ENV=development makes the SPA call http://localhost:4000
+        # (the published backend port below) instead of the hosted API.
+        VITE_DEV_ENV: ${VITE_DEV_ENV:-development}
+        VITE_RAZORPAY_KEY_ID: ${VITE_RAZORPAY_KEY_ID:-}
+        VITE_EMAILJS_SERVICE_ID: ${VITE_EMAILJS_SERVICE_ID:-}
+        VITE_EMAILJS_TEMPLATE_ID: ${VITE_EMAILJS_TEMPLATE_ID:-}
+        VITE_EMAILJS_PUBLIC_KEY: ${VITE_EMAILJS_PUBLIC_KEY:-}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - '8080:80'
+
+volumes:
+  mongo-data:
