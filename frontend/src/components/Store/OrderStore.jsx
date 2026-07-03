@@ -8,6 +8,7 @@ const useOrderStore = create(
       order: {
         items: [],
         orderTotal: 0,
+        fulfilmentMode: 'home_pickup',
         pickupDate: '',
         deliveryDate: '-- -- --',
         pickupTime: '',
@@ -15,6 +16,13 @@ const useOrderStore = create(
         pickupAddress: '',
         deliveryAddress: '',
         launderer: '',
+      },
+
+      setFulfilmentMode: (value) => {
+        set((state) => ({
+          ...state,
+          order: { ...state.order, fulfilmentMode: value },
+        }));
       },
 
       // Action to add or update items, and if the item already exists, update the quantity
@@ -164,6 +172,7 @@ const useOrderStore = create(
             ...state,
             order: {
               ...state.order,
+              fulfilmentMode: 'home_pickup',
               pickupDate: '',
               deliveryDate: '-- -- --',
               pickupTime: '',

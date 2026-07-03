@@ -29,6 +29,14 @@ const orderSchema = new mongoose.Schema(
       ref: 'User',
     },
     items: [itemSchema],
+    // How the order reaches the launderer:
+    //  - home_pickup: the launderer collects it from the student's address
+    //  - self_dropoff: the student drops it at the launderer themselves
+    fulfilmentMode: {
+      type: String,
+      enum: ['home_pickup', 'self_dropoff'],
+      default: 'home_pickup',
+    },
     pickupDate: {
       type: String,
       required: true,

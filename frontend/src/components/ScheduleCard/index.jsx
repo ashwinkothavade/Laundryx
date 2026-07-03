@@ -33,6 +33,7 @@ function ScheduleCard() {
     setDeliveryTime,
     setPickupAddress,
     setDeliveryAddress,
+    setFulfilmentMode,
     clearItems,
   } = useOrderStore((state) => ({
     clearSchedule: state.clearSchedule,
@@ -42,8 +43,10 @@ function ScheduleCard() {
     setDeliveryTime: state.setDeliveryTime,
     setPickupAddress: state.setPickupAddress,
     setDeliveryAddress: state.setDeliveryAddress,
+    setFulfilmentMode: state.setFulfilmentMode,
     clearItems: state.clearItems,
   }));
+  const isHomePickup = order.fulfilmentMode !== 'self_dropoff';
   const { userName, userHostel, userRollNumber } = useAuthStore((state) => ({
     userName: state.userName,
     userHostel: state.userHostel,
@@ -97,12 +100,13 @@ function ScheduleCard() {
   const handleConfirmSchedule = () => {
     // Values are written to the (persisted) store live via each Select's
     // onChange, so here we only validate that everything is filled.
+    const addressesOk =
+      !isHomePickup || (order.pickupAddress && order.deliveryAddress);
     if (
       !order.pickupDate ||
       !order.pickupTime ||
       !order.deliveryTime ||
-      !order.pickupAddress ||
-      !order.deliveryAddress ||
+      !addressesOk ||
       !order.launderer
     ) {
       handleToast('Please confirm all the details.', '', 'error');
@@ -125,12 +129,13 @@ function ScheduleCard() {
       );
       return;
     }
+    const addressesOk =
+      !isHomePickup || (order.pickupAddress && order.deliveryAddress);
     if (
       !order.pickupDate ||
       !order.pickupTime ||
       !order.deliveryTime ||
-      !order.pickupAddress ||
-      !order.deliveryAddress ||
+      !addressesOk ||
       !order.launderer
     ) {
       handleToast('Please confirm all schedule details.', '', 'error');
@@ -165,6 +170,48 @@ function ScheduleCard() {
 
   return (
     <Stack align="center" gap={6}>
+      <Stack
+        border="2px solid gray"
+        boxShadow="0px 0px 20px 0px rgba(0, 0, 0, 0.20)"
+        borderRadius="1rem"
+        w={{ base: '20rem', md: '32rem' }}
+        py="1.5rem"
+        px={{ base: '1.5rem', md: '2.5rem' }}
+        gap={3}
+      >
+        <Text color="#CE1567" fontWeight={600}>
+          How would you like to hand over your laundry?
+        </Text>
+        <Flex gap={3} direction={{ base: 'column', sm: 'row' }}>
+          <Button
+            flex="1"
+            variant={isHomePickup ? 'solid' : 'outline'}
+            bg={isHomePickup ? '#584BAC' : 'transparent'}
+            color={isHomePickup ? 'white' : '#584BAC'}
+            borderColor="#584BAC"
+            _hover={{ bg: isHomePickup ? '#4c4196' : '#f0edfa' }}
+            onClick={() => setFulfilmentMode('home_pickup')}
+          >
+            Home pickup
+          </Button>
+          <Button
+            flex="1"
+            variant={!isHomePickup ? 'solid' : 'outline'}
+            bg={!isHomePickup ? '#584BAC' : 'transparent'}
+            color={!isHomePickup ? 'white' : '#584BAC'}
+            borderColor="#584BAC"
+            _hover={{ bg: !isHomePickup ? '#4c4196' : '#f0edfa' }}
+            onClick={() => setFulfilmentMode('self_dropoff')}
+          >
+            Drop off at launderer
+          </Button>
+        </Flex>
+        <Text fontSize="sm" color="gray.500">
+          {isHomePickup
+            ? 'The launderer will collect from and deliver to your address.'
+            : 'You will drop your laundry at the launderer and collect it there. No address needed.'}
+        </Text>
+      </Stack>
       <Flex
         direction={{ base: 'column', md: 'row' }}
         border="2px solid gray"
@@ -267,56 +314,60 @@ function ScheduleCard() {
         px={{ base: '1.5rem', md: '2.5rem' }}
         gap={4}
       >
-        <Flex align="center" justify="space-between">
-          <HStack gap={2}>
-            <Box display={{ base: 'none', md: 'block' }}>
-              <FaLocationDot color="#CE1567" size="20" />
-            </Box>
-            <Text color="#CE1567" fontWeight={600}>
-              Pickup Address
-            </Text>
-          </HStack>
-          <Select
-            placeholder="Select location"
-            border="2px solid #584BAC"
-            w={{ base: '9rem', md: 'auto' }}
-            value={order.pickupAddress}
-            onChange={(e) => setPickupAddress(e.target.value)}
-            _hover={{ border: '2px solid #584BAC' }}
-            _focus={{ border: '2px solid #584BAC' }}
-          >
-            {locations.map((loc) => (
-              <option key={loc} value={loc}>
-                {loc}
-              </option>
-            ))}
-          </Select>
-        </Flex>
-        <Flex align="center" justify="space-between">
-          <HStack gap={2}>
-            <Box display={{ base: 'none', md: 'block' }}>
-              <FaLocationCrosshairs color="#CE1567" size="20" />
-            </Box>
-            <Text color="#CE1567" fontWeight={600}>
-              Delivery Address
-            </Text>
-          </HStack>
-          <Select
-            placeholder="Select location"
-            border="2px solid #584BAC"
-            w={{ base: '9rem', md: 'auto' }}
-            value={order.deliveryAddress}
-            onChange={(e) => setDeliveryAddress(e.target.value)}
-            _hover={{ border: '2px solid #584BAC' }}
-            _focus={{ border: '2px solid #584BAC' }}
-          >
-            {locations.map((loc) => (
-              <option key={loc} value={loc}>
-                {loc}
-              </option>
-            ))}
-          </Select>
-        </Flex>
+        {isHomePickup && (
+          <>
+            <Flex align="center" justify="space-between">
+              <HStack gap={2}>
+                <Box display={{ base: 'none', md: 'block' }}>
+                  <FaLocationDot color="#CE1567" size="20" />
+                </Box>
+                <Text color="#CE1567" fontWeight={600}>
+                  Pickup Address
+                </Text>
+              </HStack>
+              <Select
+                placeholder="Select location"
+                border="2px solid #584BAC"
+                w={{ base: '9rem', md: 'auto' }}
+                value={order.pickupAddress}
+                onChange={(e) => setPickupAddress(e.target.value)}
+                _hover={{ border: '2px solid #584BAC' }}
+                _focus={{ border: '2px solid #584BAC' }}
+              >
+                {locations.map((loc) => (
+                  <option key={loc} value={loc}>
+                    {loc}
+                  </option>
+                ))}
+              </Select>
+            </Flex>
+            <Flex align="center" justify="space-between">
+              <HStack gap={2}>
+                <Box display={{ base: 'none', md: 'block' }}>
+                  <FaLocationCrosshairs color="#CE1567" size="20" />
+                </Box>
+                <Text color="#CE1567" fontWeight={600}>
+                  Delivery Address
+                </Text>
+              </HStack>
+              <Select
+                placeholder="Select location"
+                border="2px solid #584BAC"
+                w={{ base: '9rem', md: 'auto' }}
+                value={order.deliveryAddress}
+                onChange={(e) => setDeliveryAddress(e.target.value)}
+                _hover={{ border: '2px solid #584BAC' }}
+                _focus={{ border: '2px solid #584BAC' }}
+              >
+                {locations.map((loc) => (
+                  <option key={loc} value={loc}>
+                    {loc}
+                  </option>
+                ))}
+              </Select>
+            </Flex>
+          </>
+        )}
         <Flex align="center" justify="space-between">
           <HStack gap={2}>
             <Box display={{ base: 'none', md: 'block' }}>

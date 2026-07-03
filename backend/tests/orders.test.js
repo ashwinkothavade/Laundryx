@@ -33,6 +33,17 @@ describe('Order creation & pricing', () => {
     expect(res.body.order.orderTotal).toBe(15); // 3 x 5, server-side
   });
 
+  test('allows a self drop-off order without home addresses', async () => {
+    const { launderer, student } = await setupOrderWorld();
+    const body = orderBody(launderer.username, ITEM);
+    delete body.pickupAddress;
+    delete body.deliveryAddress;
+    body.fulfilmentMode = 'self_dropoff';
+    const res = await create(student.cookie, body);
+    expect(res.status).toBe(201);
+    expect(res.body.order.fulfilmentMode).toBe('self_dropoff');
+  });
+
   test('ignores a client-tampered price and uses the catalog price', async () => {
     const { launderer, student } = await setupOrderWorld();
     const body = orderBody(launderer.username, ITEM, 2);

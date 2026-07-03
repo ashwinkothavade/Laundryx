@@ -45,6 +45,7 @@ const createStudentOrder = async (req, resp) => {
       pickupDate,
       pickupTime,
       launderer,
+      fulfilmentMode = 'home_pickup',
     } = req.body;
     // Backend validation — never trust the client. The frontend also validates,
     // but that is bypassable, so the required fields are re-checked here.
@@ -53,14 +54,18 @@ const createStudentOrder = async (req, resp) => {
         message: 'Order must contain at least one item',
       });
     }
+    if (!['home_pickup', 'self_dropoff'].includes(fulfilmentMode)) {
+      return resp.status(400).json({ message: 'Invalid fulfilment mode' });
+    }
+    const isHomePickup = fulfilmentMode === 'home_pickup';
     const requiredFields = {
       deliveryDate,
       deliveryTime,
-      pickupAddress,
-      deliveryAddress,
       pickupDate,
       pickupTime,
       launderer,
+      // Home pickup/delivery needs real addresses; self drop-off does not.
+      ...(isHomePickup ? { pickupAddress, deliveryAddress } : {}),
     };
     const missingField = Object.keys(requiredFields).find(
       (key) => !requiredFields[key]
@@ -94,7 +99,18 @@ const createStudentOrder = async (req, resp) => {
       laundererUser.availableTimeSlots.length
         ? laundererUser.availableTimeSlots
         : (timeSetting && timeSetting.values) || [];
-    if (![pickupAddress, deliveryAddress].every((a) => locations.includes(a))) {
+    // For self drop-off the student handles the hand-off at the launderer, so
+    // no home addresses are validated or stored.
+    const resolvedPickupAddress = isHomePickup
+      ? pickupAddress
+      : 'At launderer (self drop-off)';
+    const resolvedDeliveryAddress = isHomePickup
+      ? deliveryAddress
+      : 'At launderer (self collect)';
+    if (
+      isHomePickup &&
+      ![pickupAddress, deliveryAddress].every((a) => locations.includes(a))
+    ) {
       return resp
         .status(400)
         .json({ message: 'Invalid pickup/delivery location' });
@@ -132,10 +148,11 @@ const createStudentOrder = async (req, resp) => {
     const order = new Order({
       user: studentId,
       items: pricedItems,
+      fulfilmentMode,
       deliveryDate,
       deliveryTime,
-      pickupAddress,
-      deliveryAddress,
+      pickupAddress: resolvedPickupAddress,
+      deliveryAddress: resolvedDeliveryAddress,
       orderTotal,
       pickupDate,
       pickupTime,
