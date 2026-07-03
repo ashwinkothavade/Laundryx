@@ -28,7 +28,7 @@ function StudentDashBoard() {
         pl={{ base: '1rem', md: '2rem' }}
         pr="1rem"
         pt="2rem"
-        mt={{ base: '50px', md: 0 }}
+        mt={{ base: '50px', xs: '55px', sm: '70px', md: 0 }}
       >
         <HStack mb="2rem" display={{ base: 'none', md: 'flex' }}>
           <RiSettingsLine size={35} />

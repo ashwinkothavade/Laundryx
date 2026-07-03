@@ -18,7 +18,9 @@ export default function Login() {
         justify="center"
         align="center"
         gap={{ base: '0', xl: '4rem', '2xl': '8rem' }}
-        h="100vh"
+        minH="100vh"
+        pt={['70px', '80px', '90px']}
+        pb="2rem"
         px={{ base: '0', xl: '2rem', '2xl': '0' }}
       >
         <Box
