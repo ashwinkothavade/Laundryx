@@ -1,6 +1,47 @@
 const Order = require('../models/orderModel');
 const User = require('../models/userModel');
+const CatalogItem = require('../models/catalogModel');
+const Review = require('../models/reviewModel');
 const logger = require('../utils/logger');
+
+// @desc    A launderer's own analytics
+// @route   GET /launderer/analytics
+// @access  Private (launderer)
+const getLaundererAnalytics = async (req, resp) => {
+  try {
+    const orders = await Order.find({ launderer: req.user.username });
+    const [catalogItems, reviews] = await Promise.all([
+      CatalogItem.countDocuments({ launderer: req.user.user_id }),
+      Review.find({ launderer: req.user.user_id }),
+    ]);
+    const revenue = orders
+      .filter((o) => o.paid)
+      .reduce((sum, o) => sum + (o.orderTotal || 0), 0);
+    const avgRating = reviews.length
+      ? Math.round(
+          (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length) * 10
+        ) / 10
+      : 0;
+    return resp.status(200).json({
+      analytics: {
+        totalOrders: orders.length,
+        pending: orders.filter((o) => !o.acceptedStatus).length,
+        inProgress: orders.filter((o) => o.acceptedStatus && !o.deliveredStatus)
+          .length,
+        delivered: orders.filter((o) => o.deliveredStatus).length,
+        revenue,
+        catalogItems,
+        avgRating,
+        reviewCount: reviews.length,
+      },
+    });
+  } catch (err) {
+    logger.error(`getLaundererAnalytics error: ${err.message}`, {
+      stack: err.stack,
+    });
+    return resp.status(500).json({ message: 'Error fetching analytics' });
+  }
+};
 
 // @desc    Get all orders
 // @route   GET /allorders
@@ -226,6 +267,7 @@ const updateOrderDeliveryDate = async (req, resp) => {
 };
 
 module.exports = {
+  getLaundererAnalytics,
   getAllOrders,
   getOrdersByStudent,
   updateOrderAccept,

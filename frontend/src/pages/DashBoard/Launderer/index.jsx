@@ -9,7 +9,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import { FiBox, FiList } from 'react-icons/fi';
+import { FiBarChart2, FiBox, FiList } from 'react-icons/fi';
 
 import { Helmet } from 'react-helmet-async';
 import { MdKeyboardArrowRight } from 'react-icons/md';
@@ -17,6 +17,7 @@ import { RiAccountBoxLine, RiSettingsLine } from 'react-icons/ri';
 import LaundererDetails from '../../../components/LaundererDetails';
 import LaundererOrdersDetail from '../../../components/LaundererOrdersDetail';
 import LaundererCatalog from '../../../components/LaundererCatalog';
+import LaundererAnalytics from '../../../components/LaundererAnalytics';
 import Navbar from '../../../components/Navbar';
 import { getMe } from '../../../utils/apis';
 
@@ -68,6 +69,7 @@ function LaundererDashboard() {
               { label: 'Profile', icon: RiAccountBoxLine },
               { label: 'Orders', icon: FiBox },
               { label: 'Catalog', icon: FiList },
+              { label: 'Analytics', icon: FiBarChart2 },
             ].map((tab, index) => (
               <Button
                 key={tab.label}
@@ -116,6 +118,7 @@ function LaundererDashboard() {
             {isActive === 0 && <LaundererDetails />}
             {isActive === 1 && <LaundererOrdersDetail />}
             {isActive === 2 && <LaundererCatalog />}
+            {isActive === 3 && <LaundererAnalytics />}
           </Flex>
         </Box>
       </Flex>
