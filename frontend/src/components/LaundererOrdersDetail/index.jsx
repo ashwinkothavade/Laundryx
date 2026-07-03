@@ -4,6 +4,8 @@ import {
   AccordionIcon,
   AccordionItem,
   AccordionPanel,
+  Alert,
+  AlertIcon,
   Box,
   Button,
   Center,
@@ -35,6 +37,7 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
+import moment from 'moment';
 import useAuthStore from '../Store/AuthStore';
 import {
   getAllOrders,
@@ -159,6 +162,15 @@ function LaundererOrdersDetail() {
     }
   };
 
+  // Home-pickup orders scheduled for collection today that aren't picked up yet.
+  const todaysPickups = orders.filter(
+    (order) =>
+      order.fulfilmentMode !== 'self_dropoff' &&
+      order.acceptedStatus &&
+      !order.pickUpStatus &&
+      order.pickupDate === moment().format('ddd, D MMM YYYY')
+  );
+
   const filteredOrders = orders.filter((order) => {
     if (selectedFilters.includes('all')) return true;
 
@@ -193,6 +205,13 @@ function LaundererOrdersDetail() {
       <Text fontSize={{ base: '1.5rem', md: '2rem' }} fontWeight="bold">
         Order Details:
       </Text>
+      {todaysPickups.length > 0 && (
+        <Alert status="info" borderRadius="md" w="auto">
+          <AlertIcon />
+          You have {todaysPickups.length} home pickup
+          {todaysPickups.length > 1 ? 's' : ''} to collect today.
+        </Alert>
+      )}
       <CheckboxGroup>
         <HStack
           gap={8}
@@ -382,6 +401,14 @@ function LaundererOrdersDetail() {
                     <strong>Delivery Time:</strong> {selectedOrder.deliveryTime}
                   </Text>
                 </GridItem>
+                <GridItem>
+                  <Text>
+                    <strong>Handover:</strong>{' '}
+                    {selectedOrder.fulfilmentMode === 'self_dropoff'
+                      ? 'Self drop-off'
+                      : 'Home pickup'}
+                  </Text>
+                </GridItem>
               </Grid>
               <Divider my={2} />
               <Grid
@@ -472,7 +499,9 @@ function LaundererOrdersDetail() {
               </Text>
 
               <Accordion allowToggle>
-                {['simple_wash', 'power_clean', 'dry_clean'].map((washType) => {
+                {[
+                  ...new Set(selectedOrder.items.map((item) => item.washType)),
+                ].map((washType) => {
                   const itemsByWashType = selectedOrder.items.filter(
                     (item) => item.washType === washType
                   );
@@ -489,19 +518,9 @@ function LaundererOrdersDetail() {
                           textAlign="left"
                           fontSize="lg"
                           fontWeight="bold"
-                          color={
-                            washType === 'simple_wash'
-                              ? 'blue.500'
-                              : washType === 'power_clean'
-                                ? 'orange.500'
-                                : 'purple.500'
-                          }
+                          color="purple.500"
                         >
-                          {washType === 'simple_wash'
-                            ? 'Simple Wash'
-                            : washType === 'power_clean'
-                              ? 'Power Clean'
-                              : 'Dry Clean'}
+                          {washType}
                         </Box>
                         <AccordionIcon />
                       </AccordionButton>

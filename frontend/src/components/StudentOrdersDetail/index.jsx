@@ -597,7 +597,9 @@ function OrderDetail() {
                 Items
               </Text>
               <Accordion allowToggle>
-                {['simple_wash', 'power_clean', 'dry_clean'].map((washType) => {
+                {[
+                  ...new Set(selectedOrder.items.map((item) => item.washType)),
+                ].map((washType) => {
                   const itemsByWashType = selectedOrder.items.filter(
                     (item) => item.washType === washType
                   );
@@ -614,19 +616,9 @@ function OrderDetail() {
                           textAlign="left"
                           fontSize="lg"
                           fontWeight="bold"
-                          color={
-                            washType === 'simple_wash'
-                              ? 'blue.500'
-                              : washType === 'power_clean'
-                                ? 'orange.500'
-                                : 'purple.500'
-                          }
+                          color="purple.500"
                         >
-                          {washType === 'simple_wash'
-                            ? 'Simple Wash'
-                            : washType === 'power_clean'
-                              ? 'Power Clean'
-                              : 'Dry Clean'}
+                          {washType}
                         </Box>
                         <AccordionIcon />
                       </AccordionButton>
