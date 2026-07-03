@@ -38,6 +38,12 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    // A launderer's own available pickup/delivery time slots. When empty, the
+    // global admin-managed `timeSlots` setting applies.
+    availableTimeSlots: {
+      type: [String],
+      default: [],
+    },
     email: {
       type: String,
       required: [true, 'Please provide an email'],

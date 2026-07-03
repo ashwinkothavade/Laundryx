@@ -41,6 +41,7 @@ import { MdDelete } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../Store/AuthStore';
 import {
+  cancelOrder,
   deleteOrder,
   getStudentOrders,
   makePayment,
@@ -49,6 +50,8 @@ import {
   validatePayment,
 } from '../../utils/apis';
 import RateOrderModal from '../RateOrderModal';
+import RescheduleModal from '../RescheduleModal';
+import OrderTimeline from '../OrderTimeline';
 
 function OrderDetail() {
   const [orders, setOrders] = useState([]);
@@ -56,7 +59,9 @@ function OrderDetail() {
   const [selectedFilters, setSelectedFilters] = useState(['all']);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const rate = useDisclosure();
+  const reschedule = useDisclosure();
   const [orderToRate, setOrderToRate] = useState(null);
+  const [orderToReschedule, setOrderToReschedule] = useState(null);
   const [reviewedIds, setReviewedIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -223,6 +228,25 @@ function OrderDetail() {
       handleToast(
         'Error Deleting Order',
         err.message || err.error.message,
+        'error'
+      );
+    }
+  };
+
+  const handleCancelOrder = async (order_id) => {
+    try {
+      const response = await cancelOrder(order_id);
+      if (response.status === 200) {
+        handleToast('Order Cancelled', '', 'success');
+        setOrders((prevOrders) =>
+          prevOrders.filter((order) => order._id !== order_id)
+        );
+        onClose();
+      }
+    } catch (err) {
+      handleToast(
+        'Could not cancel order',
+        err.response?.data?.message || '',
         'error'
       );
     }
@@ -400,6 +424,29 @@ function OrderDetail() {
                       >
                         Rate
                       </Button>
+                      <Button
+                        variant="outline"
+                        colorScheme="purple"
+                        display={!order.pickUpStatus ? 'block' : 'none'}
+                        onClick={() => {
+                          setOrderToReschedule(order);
+                          reschedule.onOpen();
+                        }}
+                      >
+                        Reschedule
+                      </Button>
+                      <Button
+                        variant="outline"
+                        colorScheme="orange"
+                        display={
+                          order.acceptedStatus && !order.pickUpStatus
+                            ? 'block'
+                            : 'none'
+                        }
+                        onClick={() => handleCancelOrder(order._id)}
+                      >
+                        Cancel
+                      </Button>
                       <IconButton
                         colorScheme="red"
                         aria-label="Delete Order"
@@ -434,6 +481,8 @@ function OrderDetail() {
               <Text fontSize="xl" fontWeight="bold">
                 Order ID: {selectedOrder._id}
               </Text>
+              <Divider my={2} />
+              <OrderTimeline order={selectedOrder} />
               <Divider my={2} />
               <Text fontSize="xl" fontWeight="bold">
                 <strong>Order Total:</strong> ${selectedOrder.orderTotal}
@@ -627,6 +676,17 @@ function OrderDetail() {
         onClose={rate.onClose}
         order={orderToRate}
         onRated={(id) => setReviewedIds((prev) => [...prev, id])}
+      />
+
+      <RescheduleModal
+        isOpen={reschedule.isOpen}
+        onClose={reschedule.onClose}
+        order={orderToReschedule}
+        onRescheduled={(updated) =>
+          setOrders((prev) =>
+            prev.map((o) => (o._id === updated._id ? updated : o))
+          )
+        }
       />
     </VStack>
   );

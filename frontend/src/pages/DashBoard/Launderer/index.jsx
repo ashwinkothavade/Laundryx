@@ -17,6 +17,7 @@ import { RiAccountBoxLine, RiSettingsLine } from 'react-icons/ri';
 import LaundererDetails from '../../../components/LaundererDetails';
 import LaundererOrdersDetail from '../../../components/LaundererOrdersDetail';
 import LaundererCatalog from '../../../components/LaundererCatalog';
+import LaundererAvailability from '../../../components/LaundererAvailability';
 import LaundererAnalytics from '../../../components/LaundererAnalytics';
 import Navbar from '../../../components/Navbar';
 import { getMe } from '../../../utils/apis';
@@ -117,7 +118,12 @@ function LaundererDashboard() {
           >
             {isActive === 0 && <LaundererDetails />}
             {isActive === 1 && <LaundererOrdersDetail />}
-            {isActive === 2 && <LaundererCatalog />}
+            {isActive === 2 && (
+              <Stack w="100%" align="center" gap={8}>
+                <LaundererAvailability />
+                <LaundererCatalog />
+              </Stack>
+            )}
             {isActive === 3 && <LaundererAnalytics />}
           </Flex>
         </Box>

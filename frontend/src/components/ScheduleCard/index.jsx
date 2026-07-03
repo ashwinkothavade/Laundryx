@@ -17,7 +17,12 @@ import { TbTruckDelivery } from 'react-icons/tb';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../Store/AuthStore';
 import useOrderStore from '../Store/OrderStore';
-import { createOrder, getSettings, postNotif } from '../../utils/apis';
+import {
+  createOrder,
+  getLaundererCatalog,
+  getSettings,
+  postNotif,
+} from '../../utils/apis';
 
 function ScheduleCard() {
   const {
@@ -58,13 +63,25 @@ function ScheduleCard() {
       try {
         const res = await getSettings();
         setLocations(res.data.settings?.locations || []);
-        setTimeSlots(res.data.settings?.timeSlots || []);
+        let slots = res.data.settings?.timeSlots || [];
+        // Prefer the chosen launderer's own available slots if they set any.
+        if (order.launderer) {
+          try {
+            const cat = await getLaundererCatalog(order.launderer);
+            if (cat.data.availableTimeSlots?.length) {
+              slots = cat.data.availableTimeSlots;
+            }
+          } catch (e) {
+            // ignore — fall back to global slots
+          }
+        }
+        setTimeSlots(slots);
       } catch (err) {
         // Non-fatal — the selects will just be empty until settings load.
       }
     };
     loadSettings();
-  }, []);
+  }, [order.launderer]);
 
   const handleToast = (title, description, status) => {
     toast({

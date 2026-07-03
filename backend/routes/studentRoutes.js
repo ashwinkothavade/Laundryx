@@ -38,5 +38,15 @@ router.delete(
   verifyUser,
   studentOrderController.deleteOrder
 );
+router.put(
+  '/student/reschedule/:order_id',
+  verifyUser,
+  studentOrderController.rescheduleOrder
+);
+router.put(
+  '/student/cancelorder/:order_id',
+  verifyUser,
+  studentOrderController.cancelOrder
+);
 
 module.exports = router;
