@@ -1,14 +1,15 @@
 const mongoose = require('mongoose');
 const Order = require('../models/orderModel');
+const logger = require('../utils/logger');
 
 const connect = async () => {
   try {
     const connection = await mongoose.connect(process.env.MONGO_URI);
-    console.log(
-      `MongoDB connected: ${connection.connection.host}`.cyan.underline
-    );
+    logger.info(`MongoDB connected: ${connection.connection.host}`);
   } catch (error) {
-    console.error(`Error: ${error.message}`.red.underline.bold);
+    logger.error(`MongoDB connection failed: ${error.message}`, {
+      stack: error.stack,
+    });
     process.exit(1);
   }
 };
@@ -26,9 +27,11 @@ const deleteValidOrders = async () => {
       pickUpStatus: true,
       updatedAt: { $lte: twoDaysAgo },
     });
-    console.log(`${result.deletedCount} orders deleted.`);
+    logger.info(`Stale order cleanup: ${result.deletedCount} orders deleted.`);
   } catch (err) {
-    console.error('Error deleting orders:', err);
+    logger.error(`Error deleting stale orders: ${err.message}`, {
+      stack: err.stack,
+    });
   }
 };
 

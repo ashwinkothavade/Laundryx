@@ -1,48 +1,57 @@
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import PreLoader from './Animation/PreLoader';
 import useAuthStore from './components/Store/AuthStore';
-import CheckoutPage from './pages/CheckoutPage';
-import LaundererDashboard from './pages/DashBoard/Launderer';
-import StudentDashBoard from './pages/DashBoard/Student';
-import LandingPage from './pages/LandingPage';
-import Login from './pages/Login';
-import OrderList from './pages/OrderList';
-import Signup from './pages/Signup';
+
+// Route-level code splitting — each page becomes its own chunk that loads on
+// demand, shrinking the initial bundle.
+const CheckoutPage = React.lazy(() => import('./pages/CheckoutPage'));
+const LaundererDashboard = React.lazy(
+  () => import('./pages/DashBoard/Launderer')
+);
+const StudentDashBoard = React.lazy(() => import('./pages/DashBoard/Student'));
+const LandingPage = React.lazy(() => import('./pages/LandingPage'));
+const Login = React.lazy(() => import('./pages/Login'));
+const OrderList = React.lazy(() => import('./pages/OrderList'));
+const Signup = React.lazy(() => import('./pages/Signup'));
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true);
+  // Show the intro preloader only once per browser session, not on every visit.
+  const [isLoading, setIsLoading] = useState(
+    () => !sessionStorage.getItem('preloaded')
+  );
   const { userRole } = useAuthStore((state) => ({
     userRole: state.userRole,
   }));
   useEffect(() => {
-    setTimeout(() => {
+    if (!isLoading) return undefined;
+    const timer = setTimeout(() => {
       setIsLoading(false);
+      sessionStorage.setItem('preloaded', 'true');
     }, 4000);
-  }, []);
+    return () => clearTimeout(timer);
+  }, [isLoading]);
 
   return (
-    <Routes>
-      <Route path="/" element={isLoading ? <PreLoader /> : <LandingPage />} />
-      <Route
-        path="/OrderList"
-        element={<OrderList />}
-        // element={isLoading ? <PreLoader /> : <OrderList />}
-      />
-      <Route
-        path="/CheckoutPage"
-        element={<CheckoutPage />}
-        // element={isLoading ? <PreLoader /> : <CheckoutPage />}
-      />
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
-      <Route
-        path="/dashboard"
-        element={
-          userRole === 'student' ? <StudentDashBoard /> : <LaundererDashboard />
-        }
-      />
-    </Routes>
+    <Suspense fallback={<PreLoader />}>
+      <Routes>
+        <Route path="/" element={isLoading ? <PreLoader /> : <LandingPage />} />
+        <Route path="/OrderList" element={<OrderList />} />
+        <Route path="/CheckoutPage" element={<CheckoutPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route
+          path="/dashboard"
+          element={
+            userRole === 'student' ? (
+              <StudentDashBoard />
+            ) : (
+              <LaundererDashboard />
+            )
+          }
+        />
+      </Routes>
+    </Suspense>
   );
 }
 

@@ -1,14 +1,26 @@
 import axios from 'axios';
 
 axios.defaults.withCredentials = true;
+
+// Prefer an explicit VITE_API_URL; fall back to the legacy VITE_DEV_ENV switch
+// so existing deployments keep working. Exported so other modules use one URL.
 const dev_env = import.meta.env.VITE_DEV_ENV;
-const API_URL =
-  dev_env === 'development'
+export const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (dev_env === 'development'
     ? 'http://localhost:4000'
-    : 'https://laundrix-api.vercel.app';
+    : 'https://laundrix-api.vercel.app');
 
 const login = (credentials) => {
   return axios.post(`${API_URL}/login`, credentials);
+};
+
+const getMe = () => {
+  return axios.get(`${API_URL}/me`);
+};
+
+const validatePayment = (body) => {
+  return axios.put(`${API_URL}/payment/validate`, body);
 };
 
 const forgotPassword = (email) => {
@@ -66,8 +78,38 @@ const updateAcceptedStatus = (order_id) => {
 const updateDeliveryStatus = (order_id) => {
   return axios.put(`${API_URL}/updatedeliveredstatus/${order_id}`);
 };
+
+// ---- Catalog (per-launderer clothing/wash/price) ----
+const getMyCatalog = () => axios.get(`${API_URL}/catalog/my`);
+const getLaundererCatalog = (username) =>
+  axios.get(`${API_URL}/catalog/launderer/${username}`);
+const addCatalogItem = (item) => axios.post(`${API_URL}/catalog`, item);
+const updateCatalogItem = (id, item) =>
+  axios.put(`${API_URL}/catalog/${id}`, item);
+const deleteCatalogItem = (id) => axios.delete(`${API_URL}/catalog/${id}`);
+
+// ---- Dynamic settings (locations, time slots, ...) ----
+const getSettings = () => axios.get(`${API_URL}/settings`);
+const upsertSetting = (key, values) =>
+  axios.put(`${API_URL}/settings/${key}`, { values });
+const addSettingValue = (key, value) =>
+  axios.post(`${API_URL}/settings/${key}`, { value });
+const removeSettingValue = (key, value) =>
+  axios.delete(`${API_URL}/settings/${key}/${encodeURIComponent(value)}`);
+
+// ---- Admin ----
+const adminGetUsers = () => axios.get(`${API_URL}/admin/users`);
+const adminDeleteUser = (id) => axios.delete(`${API_URL}/admin/users/${id}`);
+const adminUpdateUserRole = (id, role) =>
+  axios.patch(`${API_URL}/admin/users/${id}/role`, { role });
+const adminGetOrders = () => axios.get(`${API_URL}/admin/orders`);
+const adminGetCatalog = () => axios.get(`${API_URL}/admin/catalog`);
+const adminGetAnalytics = () => axios.get(`${API_URL}/admin/analytics`);
+
 export {
   login,
+  getMe,
+  validatePayment,
   forgotPassword,
   signup,
   logout,
@@ -84,4 +126,19 @@ export {
   deleteOrder,
   updateAcceptedStatus,
   updateDeliveryStatus,
+  getMyCatalog,
+  getLaundererCatalog,
+  addCatalogItem,
+  updateCatalogItem,
+  deleteCatalogItem,
+  getSettings,
+  upsertSetting,
+  addSettingValue,
+  removeSettingValue,
+  adminGetUsers,
+  adminDeleteUser,
+  adminUpdateUserRole,
+  adminGetOrders,
+  adminGetCatalog,
+  adminGetAnalytics,
 };

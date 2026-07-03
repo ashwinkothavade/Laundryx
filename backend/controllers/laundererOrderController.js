@@ -1,6 +1,6 @@
-const jwt = require('jsonwebtoken');
 const Order = require('../models/orderModel');
 const User = require('../models/userModel');
+const logger = require('../utils/logger');
 
 // @desc    Get all orders
 // @route   GET /allorders
@@ -8,8 +8,7 @@ const User = require('../models/userModel');
 // when accepted and delivery status are marked as true, the orders will be deleted automatically from the database.
 const getAllOrders = async (req, resp) => {
   try {
-    const token = req.cookies.jwt;
-    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const decodedToken = req.user;
     if (decodedToken.role !== 'launderer') {
       resp.status(401).json({
         message: 'User does not have access rights',
@@ -24,7 +23,7 @@ const getAllOrders = async (req, resp) => {
       });
     }
   } catch (err) {
-    console.error(err);
+    logger.error(err.message, { stack: err.stack });
     resp.status(500).json({
       message: 'Error fetching the orders',
       error: err,
@@ -37,8 +36,7 @@ const getAllOrders = async (req, resp) => {
 // @access  Private
 const getOrdersByStudent = async (req, resp) => {
   try {
-    const token = req.cookies.jwt;
-    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const decodedToken = req.user;
     if (decodedToken.role !== 'launderer') {
       resp.status(401).json({
         message: 'User does not have access rights',
@@ -60,7 +58,7 @@ const getOrdersByStudent = async (req, resp) => {
       });
     }
   } catch (err) {
-    console.error(err);
+    logger.error(err.message, { stack: err.stack });
     resp.status(500).json({
       message: 'Error fetching the orders',
       error: err,
@@ -73,8 +71,7 @@ const getOrdersByStudent = async (req, resp) => {
 // @access  Private
 const updateOrderAccept = async (req, resp) => {
   try {
-    const token = req.cookies.jwt;
-    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const decodedToken = req.user;
     if (decodedToken.role !== 'launderer') {
       resp.status(401).json({
         message: 'User does not have access rights',
@@ -113,8 +110,7 @@ const updateOrderAccept = async (req, resp) => {
 // @access  Private
 const updateOrderReject = async (req, resp) => {
   try {
-    const token = req.cookies.jwt;
-    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const decodedToken = req.user;
     if (decodedToken.role !== 'launderer') {
       resp.status(401).json({
         message: 'User does not have access rights',
@@ -154,8 +150,7 @@ const updateOrderReject = async (req, resp) => {
 // @access  Private
 const updateDeliveredStatus = async (req, resp) => {
   try {
-    const token = req.cookies.jwt;
-    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const decodedToken = req.user;
     if (decodedToken.role !== 'launderer') {
       resp.status(401).json({
         message: 'User does not have access rights',
@@ -202,8 +197,7 @@ const updateDeliveredStatus = async (req, resp) => {
 // @access  Private
 const updateOrderDeliveryDate = async (req, resp) => {
   try {
-    const token = req.cookies.jwt;
-    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const decodedToken = req.user;
     if (decodedToken.role !== 'launderer') {
       resp.status(401).json({
         message: 'User does not have access rights',

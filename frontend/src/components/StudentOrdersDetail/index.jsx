@@ -36,7 +36,6 @@ import {
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { MdDelete } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
@@ -47,9 +46,8 @@ import {
   makePayment,
   postNotif,
   updatePickupStatus,
+  validatePayment,
 } from '../../utils/apis';
-
-const dev_env = import.meta.env.VITE_DEV_ENV;
 
 function OrderDetail() {
   const [orders, setOrders] = useState([]);
@@ -124,24 +122,11 @@ function OrderDetail() {
         currency: 'INR',
         name: 'LaundriX',
         description: 'Order Payment',
-        image: 'http://localhost:5173/assets/favicon.svg',
+        image: `${window.location.origin}/assets/favicon.svg`,
         order_id: orderDetails.id,
         async handler(resp) {
           try {
-            let validatePayment;
-            if (dev_env === 'development') {
-              validatePayment = await axios.put(
-                'http://localhost:4000/payment/validate',
-                { ...resp, order_id: order._id }
-              );
-            } else if (dev_env === 'production') {
-              validatePayment = await axios.put(
-                'https://laundrix-api.vercel.app/payment/validate',
-                { ...resp, order_id: order._id }
-              );
-            }
-            // eslint-disable-next-line no-unused-vars
-            const validateResponse = await validatePayment.data;
+            await validatePayment({ ...resp, order_id: order._id });
             const notification = {
               student: userName,
               launderer: order.launderer,
@@ -179,15 +164,12 @@ function OrderDetail() {
         },
       };
       const rzp1 = new window.Razorpay(options);
-      // eslint-disable-next-line func-names
-      rzp1.on('payment.failed', function (result) {
-        alert(result.error.code);
-        alert(result.error.description);
-        alert(result.error.source);
-        alert(result.error.step);
-        alert(result.error.reason);
-        alert(result.error.metadata.order_id);
-        alert(result.error.metadata.payment_id);
+      rzp1.on('payment.failed', (result) => {
+        handleToast(
+          'Payment Failed',
+          result.error?.description || 'Please try again.',
+          'error'
+        );
       });
       rzp1.open();
     } catch (err) {

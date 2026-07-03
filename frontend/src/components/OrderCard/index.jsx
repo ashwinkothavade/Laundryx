@@ -21,7 +21,7 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react';
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { HiArrowLongRight, HiMiniCurrencyRupee } from 'react-icons/hi2';
 import { useNavigate } from 'react-router-dom';
 import prices from '../../TempData/prices.json';
@@ -35,6 +35,8 @@ function OrderCard() {
   }));
   const quantityRefs = useRef(prices.map(() => 0));
   const washTypeRefs = useRef(prices.map(() => ''));
+  // Bumping this key remounts the entry fields to reset them after an add.
+  const [formKey, setFormKey] = useState(0);
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -78,9 +80,11 @@ function OrderCard() {
     if (newItems.length > 0) {
       updateItems(newItems);
       handleToast('Items added in the order.', '', 'success');
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      // Reset the entry fields without a jarring full-page reload; this also
+      // prevents the same quantities from being added again on a second click.
+      quantityRefs.current = prices.map(() => 0);
+      washTypeRefs.current = prices.map(() => '');
+      setFormKey((k) => k + 1);
     } else {
       handleToast(
         'Please fill quantity and wash type before adding any item.',
@@ -107,6 +111,7 @@ function OrderCard() {
       >
         <OrderItemsAccordion />
         <Grid
+          key={formKey}
           templateColumns={{
             base: 'repeat(1, 1fr)',
             lg: 'repeat(2, 1fr)',
