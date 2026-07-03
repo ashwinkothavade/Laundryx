@@ -80,6 +80,10 @@ const orderSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    tax: {
+      type: Number,
+      default: 0,
+    },
     orderTotal: Number,
     // accept -> pickup -> delivered -> pay (for security concerns, we can add a payment gateway to the app to make sure the payment is done before the delivery is made)
     acceptedStatus: {

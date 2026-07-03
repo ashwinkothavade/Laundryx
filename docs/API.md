@@ -55,6 +55,30 @@ at login; send credentials with every request.
 | PUT | `/updatedeliveredstatus/:order_id` | 🧺 | |
 | PUT | `/updatedeliverydate/:order_id` | 🧺 | `{ deliveryDate }` |
 
+## Launderer service settings
+
+| Method | Path | Auth | Body / notes |
+|---|---|:---:|---|
+| GET | `/launderer/analytics` | 🧺 | The launderer's own order/revenue/rating stats |
+| PUT | `/launderer/availability` | 🧺 | `{ timeSlots: [] }` — the launderer's own time slots |
+| PUT | `/launderer/express` | 🧺 | `{ expressSurcharge }` — flat express fee (0 = off) |
+
+## Coupons
+
+| Method | Path | Auth | Body / notes |
+|---|---|:---:|---|
+| GET | `/coupons/:code?subtotal=NN` | 🔒 | Preview: `{ valid, discount, message }` |
+| POST | `/admin/coupons` | 🛠️ | `{ code, discountType: 'percent'\|'flat', value, minOrder?, maxDiscount?, expiresAt? }` |
+| GET | `/admin/coupons` | 🛠️ | List coupons |
+| DELETE | `/admin/coupons/:id` | 🛠️ | Delete a coupon |
+
+> **Order pricing extras:** `POST /student/createorder` also accepts
+> `fulfilmentMode` (`home_pickup`\|`self_dropoff`), `express` (bool), and
+> `couponCode`. Express surcharge, coupon discount and tax are all resolved
+> server-side. Tax comes from the admin `taxPercent` setting (a single value,
+> e.g. `PUT /settings/taxPercent { "values": ["5"] }`). The order stores a full
+> breakdown: `subtotal`, `expressCharge`, `discount`, `tax`, `orderTotal`.
+
 ## Reviews & ratings
 
 | Method | Path | Auth | Body / notes |

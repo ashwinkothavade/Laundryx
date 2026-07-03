@@ -91,10 +91,13 @@ const createStudentOrder = async (req, resp) => {
 
     // Validate addresses and time slots against the dynamic, admin-managed
     // settings (nothing is hardcoded, and the client can't invent values).
-    const [locationSetting, timeSetting] = await Promise.all([
+    const [locationSetting, timeSetting, taxSetting] = await Promise.all([
       Setting.findOne({ key: 'locations' }),
       Setting.findOne({ key: 'timeSlots' }),
+      Setting.findOne({ key: 'taxPercent' }),
     ]);
+    const taxPercent =
+      taxSetting && taxSetting.values.length ? Number(taxSetting.values[0]) : 0;
     const locations = locationSetting ? locationSetting.values : [];
     // Prefer the launderer's own available slots; fall back to the global ones.
     const timeSlots =
@@ -154,7 +157,9 @@ const createStudentOrder = async (req, resp) => {
     const expressCharge = wantsExpress ? laundererUser.expressSurcharge : 0;
     const couponResult = await validateCouponFor(couponCode, subtotal);
     const discount = couponResult.valid ? couponResult.discount : 0;
-    const orderTotal = Math.max(0, subtotal + expressCharge - discount);
+    const taxable = Math.max(0, subtotal + expressCharge - discount);
+    const tax = Math.round(((taxable * taxPercent) / 100) * 100) / 100;
+    const orderTotal = Math.max(0, taxable + tax);
 
     const order = new Order({
       user: studentId,
@@ -169,6 +174,7 @@ const createStudentOrder = async (req, resp) => {
       expressCharge,
       couponCode: couponResult.valid ? couponResult.code : '',
       discount,
+      tax,
       orderTotal,
       pickupDate,
       pickupTime,
