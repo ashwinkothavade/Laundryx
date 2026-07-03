@@ -48,12 +48,16 @@ import {
   updatePickupStatus,
   validatePayment,
 } from '../../utils/apis';
+import RateOrderModal from '../RateOrderModal';
 
 function OrderDetail() {
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [selectedFilters, setSelectedFilters] = useState(['all']);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const rate = useDisclosure();
+  const [orderToRate, setOrderToRate] = useState(null);
+  const [reviewedIds, setReviewedIds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const toast = useToast();
@@ -379,6 +383,23 @@ function OrderDetail() {
                       >
                         Pay
                       </Button>
+                      <Button
+                        color="#ffffff"
+                        bgColor="#F6AD55"
+                        _hover={{ bgColor: '#dd9540' }}
+                        display={
+                          order.deliveredStatus &&
+                          !reviewedIds.includes(order._id)
+                            ? 'block'
+                            : 'none'
+                        }
+                        onClick={() => {
+                          setOrderToRate(order);
+                          rate.onOpen();
+                        }}
+                      >
+                        Rate
+                      </Button>
                       <IconButton
                         colorScheme="red"
                         aria-label="Delete Order"
@@ -600,6 +621,13 @@ function OrderDetail() {
           </ModalContent>
         </Modal>
       )}
+
+      <RateOrderModal
+        isOpen={rate.isOpen}
+        onClose={rate.onClose}
+        order={orderToRate}
+        onRated={(id) => setReviewedIds((prev) => [...prev, id])}
+      />
     </VStack>
   );
 }

@@ -10,7 +10,6 @@ import {
   NumberInput,
   NumberInputField,
   NumberInputStepper,
-  Select,
   Spinner,
   Stack,
   Tag,
@@ -23,8 +22,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { HiArrowLongRight, HiMiniCurrencyRupee } from 'react-icons/hi2';
 import { useNavigate } from 'react-router-dom';
 import OrderItemsAccordion from '../OrderItemsAccordion';
+import LaundererPicker from '../LaundererPicker';
 import useOrderStore from '../Store/OrderStore';
-import { fetchLaunderers, getLaundererCatalog } from '../../utils/apis';
+import { getLaundererCatalog } from '../../utils/apis';
 
 function OrderCard() {
   const { order, updateItems, clearItems, setLaunderer } = useOrderStore(
@@ -36,7 +36,6 @@ function OrderCard() {
     })
   );
 
-  const [launderers, setLaunderers] = useState([]);
   const [catalog, setCatalog] = useState([]);
   const [loadingCatalog, setLoadingCatalog] = useState(false);
   const quantityRefs = useRef({});
@@ -53,19 +52,6 @@ function OrderCard() {
       isClosable: true,
       duration: 2000,
     });
-
-  // Load the list of launderers to choose from.
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const res = await fetchLaunderers();
-        setLaunderers(res.data.launderers || res.data || []);
-      } catch (err) {
-        handleToast('Could not load launderers', '', 'error');
-      }
-    };
-    load();
-  }, []);
 
   // Load the chosen launderer's catalog whenever the selection changes.
   const loadCatalog = async (username) => {
@@ -145,22 +131,14 @@ function OrderCard() {
         </Text>
       </Center>
 
-      <Center mt="1.5rem" px="1rem">
-        <FormControl maxW="26rem">
-          <FormLabel fontWeight={600}>Choose a launderer</FormLabel>
-          <Select
-            placeholder="Select a launderer"
-            focusBorderColor="#584BAC"
-            value={order.launderer}
-            onChange={(e) => handleLaundererChange(e.target.value)}
-          >
-            {launderers.map((l) => (
-              <option key={l.username} value={l.username}>
-                {l.username}
-              </option>
-            ))}
-          </Select>
-        </FormControl>
+      <Center mt="1.5rem" px="1rem" flexDirection="column">
+        <Text fontWeight={600} mb="1rem">
+          Choose a launderer
+        </Text>
+        <LaundererPicker
+          selected={order.launderer}
+          onSelect={handleLaundererChange}
+        />
       </Center>
 
       <Flex
