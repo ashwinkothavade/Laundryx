@@ -115,7 +115,7 @@ function LaundererDetails() {
             break;
         }
       });
-      handleToast('Updated', 'Student details updated', 'success');
+      handleToast('Updated', 'Customer details updated', 'success');
       setIsEditMode(false);
     } catch (err) {
       let errorDescription = '';

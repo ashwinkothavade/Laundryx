@@ -2,10 +2,10 @@ const { app, request, signup, login, makeLaunderer } = require('./helpers');
 
 describe('Auth', () => {
   test('signup creates a student and sets an auth cookie', async () => {
-    const { res, body } = await signup({ role: 'student' });
+    const { res, body } = await signup({ role: 'customer' });
     expect(res.status).toBe(201);
     expect(res.headers['set-cookie']).toBeDefined();
-    expect(res.body.role).toBe('student');
+    expect(res.body.role).toBe('customer');
     expect(res.body.newUser.username).toBe(body.username);
   });
 

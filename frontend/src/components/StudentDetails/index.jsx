@@ -152,7 +152,7 @@ function StudentDetails() {
             break;
         }
       });
-      handleToast('Updated', 'Student details updated', 'success');
+      handleToast('Updated', 'Customer details updated', 'success');
       setIsEditMode(false);
     } catch (err) {
       let errorDescription = '';
@@ -166,7 +166,7 @@ function StudentDetails() {
         errorDescription += err.response.data.errors.phone_number;
       }
       handleToast(
-        'Error while updating student data',
+        'Error while updating customer data',
         errorDescription,
         'error'
       );
@@ -290,7 +290,7 @@ function StudentDetails() {
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent maxWidth={{ base: '90vw', md: '500px' }}>
-          <ModalHeader textAlign="center">Student Details</ModalHeader>
+          <ModalHeader textAlign="center">Customer Details</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Flex

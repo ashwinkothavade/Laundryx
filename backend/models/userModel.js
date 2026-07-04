@@ -29,7 +29,7 @@ const userSchema = mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['student', 'launderer', 'admin'],
+      enum: ['customer', 'launderer', 'admin'],
       required: [true, 'Please select a role'],
     },
     // Launderers must be approved by an admin before they are visible to

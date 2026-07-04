@@ -3,7 +3,7 @@ const Order = require('../models/orderModel');
 const CatalogItem = require('../models/catalogModel');
 const logger = require('../utils/logger');
 
-const ROLES = ['student', 'launderer', 'admin'];
+const ROLES = ['customer', 'launderer', 'admin'];
 
 // @desc    List all users
 // @route   GET /admin/users

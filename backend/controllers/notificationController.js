@@ -7,7 +7,7 @@ const logger = require('../utils/logger');
 const getNotifications = async (req, resp) => {
   try {
     const decodedToken = req.user;
-    if (decodedToken.role === 'student') {
+    if (decodedToken.role === 'customer') {
       const notifications = await Notification.find({
         student: decodedToken.username,
       });
@@ -49,7 +49,7 @@ const createNotification = async (req, resp) => {
     }
     const notification = new Notification({
       user: decodedToken.user_id, // can be launderer or student who is sending the notification to the opposite role.
-      student: decodedToken.role === 'student' ? '' : studentName,
+      student: decodedToken.role === 'customer' ? '' : studentName,
       launderer: decodedToken.role === 'launderer' ? '' : launderer,
       message: message,
       read: false, // unread by default.

@@ -271,7 +271,7 @@ function LaundererOrdersDetail() {
               <Tr>
                 <Th textAlign="center">Order ID</Th>
                 <Th textAlign="center">Order Total</Th>
-                <Th textAlign="center">Student Username</Th>
+                <Th textAlign="center">Customer Username</Th>
                 <Th textAlign="center">Hostel</Th>
                 <Th textAlign="center">Delivery Date</Th>
                 <Th textAlign="center">Pickup Status</Th>
@@ -330,7 +330,7 @@ function LaundererOrdersDetail() {
               </Text>
               <Divider my={2} />
               <Text fontSize="lg" fontWeight="bold" color="purple.500">
-                Student Details:
+                Customer Details:
               </Text>
               <Divider my={2} />
               <Grid
@@ -339,7 +339,7 @@ function LaundererOrdersDetail() {
               >
                 <GridItem>
                   <Text>
-                    <strong>Student Username:</strong>{' '}
+                    <strong>Customer Username:</strong>{' '}
                     {selectedOrder.user.username}
                   </Text>
                 </GridItem>

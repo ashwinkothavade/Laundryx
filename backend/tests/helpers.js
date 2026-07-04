@@ -19,7 +19,7 @@ const userPayload = (overrides = {}) => {
     username: `user${n}`,
     email: `user${n}@test.com`,
     password: PASSWORD,
-    role: 'student',
+    role: 'customer',
     phone_number: `+91${9000000000 + n}`,
     ...overrides,
   };
@@ -42,7 +42,7 @@ const login = (username, password = PASSWORD) =>
 // Create a student, optionally with a hostel set BEFORE login (so the JWT
 // carries it — required by verifyStudentDetails for order creation).
 const makeStudent = async ({ hostel = 'H1' } = {}) => {
-  const { body } = await signup({ role: 'student' });
+  const { body } = await signup({ role: 'customer' });
   if (hostel) {
     await User.updateOne({ username: body.username }, { hostel });
   }

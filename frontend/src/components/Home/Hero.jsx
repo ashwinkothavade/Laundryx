@@ -96,7 +96,7 @@ function Hero() {
             ridiculously simple.
           </Text>
 
-          {userRole === 'student' ? (
+          {userRole === 'customer' ? (
             <LandingButton
               onClick={() => {
                 if (isAuth) {

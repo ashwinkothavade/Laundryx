@@ -31,7 +31,7 @@ const verifyStudentDetails = (req, resp, next) => {
   try {
     const token = req.cookies.jwt;
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    if (decodedToken.role === 'student' && decodedToken.hostel === '') {
+    if (decodedToken.role === 'customer' && decodedToken.hostel === '') {
       resp.status(401).json({ message: 'Please update your hostel details' });
     } else {
       next();

@@ -32,7 +32,7 @@ const createStudentOrder = async (req, resp) => {
   try {
     const decodedToken = req.user;
     const studentId = decodedToken.user_id; // avoiding database call by storing the user_id in the token
-    if (decodedToken.role !== 'student') {
+    if (decodedToken.role !== 'customer') {
       return resp.status(401).json({
         message: 'User does not have access rights',
       });

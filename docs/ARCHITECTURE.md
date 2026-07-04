@@ -11,7 +11,7 @@ LaundriX is a two-service application:
   state (persisted to `sessionStorage`). Served by nginx in Docker/production.
 
 ```
-Student / Launderer / Admin  ──►  React SPA (Chakra UI)
+Customer / Launderer / Admin  ──►  React SPA (Chakra UI)
                                        │  axios (withCredentials)
                                        ▼
                                  Express API  ──►  MongoDB
@@ -22,9 +22,9 @@ Student / Launderer / Admin  ──►  React SPA (Chakra UI)
 
 ## Roles & permissions
 
-There are three roles on the `User` model (`role`: `student | launderer | admin`).
+There are three roles on the `User` model (`role`: `customer | launderer | admin`).
 
-| Capability | Student | Launderer | Admin |
+| Capability | Customer | Launderer | Admin |
 |---|:---:|:---:|:---:|
 | Browse approved launderers & catalogs | ✅ | ✅ | ✅ |
 | Place / pay / cancel-delete own orders | ✅ | | |

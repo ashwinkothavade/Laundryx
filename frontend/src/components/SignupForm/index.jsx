@@ -276,7 +276,7 @@ export default function SignupForm() {
                   Select Role
                 </option>
                 <option value="launderer">Launderer</option>
-                <option value="student">Student</option>
+                <option value="customer">Customer</option>
               </Select>
             </Box>
           </Box>

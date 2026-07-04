@@ -4,7 +4,7 @@ Base URL: `http://localhost:4000` (local) — configurable via `VITE_API_URL` on
 the frontend. All authenticated requests rely on the httpOnly `jwt` cookie set
 at login; send credentials with every request.
 
-**Auth column:** 🔓 public · 🔒 any logged-in user · 🎓 student · 🧺 launderer
+**Auth column:** 🔓 public · 🔒 any logged-in user · 🎓 customer · 🧺 launderer
 (approved where noted) · 🛠️ admin.
 
 ## Auth & users
@@ -33,11 +33,14 @@ at login; send credentials with every request.
 | DELETE | `/catalog/:id` | 🧺 | Owner only |
 | GET | `/catalog/launderer/:username` | 🔒 | An approved launderer's catalog (for ordering) |
 
-## Student orders
+## Customer orders
+
+> The role is **customer**; the route paths keep the historical `/student`
+> prefix for backward compatibility.
 
 | Method | Path | Auth | Body / notes |
 |---|---|:---:|---|
-| GET | `/student/orders` | 🎓 | The student's orders |
+| GET | `/student/orders` | 🎓 | The customer's orders |
 | GET | `/student/launderers` | 🔒 | Launderers (username + phone) |
 | POST | `/student/createorder` | 🎓 | `{ items, launderer, pickup/delivery date/time/address }` — **prices computed server-side from the catalog** |
 | PUT | `/student/updatepickupstatus/:order_id` | 🎓 | Owner only |

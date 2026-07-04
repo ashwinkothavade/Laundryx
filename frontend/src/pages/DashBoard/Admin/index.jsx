@@ -55,7 +55,7 @@ import {
   upsertSetting,
 } from '../../../utils/apis';
 
-const ROLE_COLORS = { admin: 'purple', launderer: 'pink', student: 'blue' };
+const ROLE_COLORS = { admin: 'purple', launderer: 'pink', customer: 'blue' };
 
 function ScrollTable({ children }) {
   return (
@@ -291,8 +291,8 @@ function AdminDashboard() {
                       value={analytics.totalCatalogItems}
                     />
                     <StatCard
-                      label="Students"
-                      value={analytics.usersByRole?.student || 0}
+                      label="Customers"
+                      value={analytics.usersByRole?.customer || 0}
                     />
                     <StatCard
                       label="Launderers"
@@ -382,7 +382,7 @@ function AdminDashboard() {
                           value={u.role}
                           onChange={(e) => changeRole(u._id, e.target.value)}
                         >
-                          <option value="student">student</option>
+                          <option value="customer">customer</option>
                           <option value="launderer">launderer</option>
                           <option value="admin">admin</option>
                         </Select>
@@ -408,7 +408,7 @@ function AdminDashboard() {
               <ScrollTable>
                 <Thead>
                   <Tr>
-                    <Th>Student</Th>
+                    <Th>Customer</Th>
                     <Th>Launderer</Th>
                     <Th isNumeric>Total</Th>
                     <Th>Status</Th>
