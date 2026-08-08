@@ -196,12 +196,7 @@ function LaundererOrdersDetail() {
   }
 
   return (
-    <VStack
-      align="start"
-      gap={{ base: 8, md: 12 }}
-      ml={{ base: '0', md: '8rem' }}
-      w="100%"
-    >
+    <VStack align="start" gap={{ base: 8, md: 12 }} w="100%" minW={0}>
       <Text fontSize={{ base: '1.5rem', md: '2rem' }} fontWeight="bold">
         Order Details:
       </Text>
@@ -255,17 +250,8 @@ function LaundererOrdersDetail() {
           </Checkbox>
         </HStack>
       </CheckboxGroup>
-      <Box
-        w={{ base: '100%', md: '75vw' }}
-        overflowX="scroll"
-        css={{
-          '&::-webkit-scrollbar': {
-            display: 'none',
-          },
-          'scrollbar-width': 'none',
-        }}
-      >
-        <Box maxH="70vh" overflowY="scroll">
+      <Box w="100%" maxW="100%" overflowX="auto">
+        <Box maxH="70vh" overflowY="auto">
           <Table variant="simple">
             <Thead>
               <Tr>

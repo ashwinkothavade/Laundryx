@@ -98,8 +98,9 @@ function LaundererDashboard() {
             <Alert
               status="warning"
               borderRadius="md"
-              mt={{ base: '1rem', md: 0 }}
-              mx={{ base: '1rem', md: '5rem' }}
+              mt={{ base: '1rem', md: '1rem' }}
+              ml={{ base: '1rem', md: '16rem' }}
+              mr={{ base: '1rem', md: '2rem' }}
               w="auto"
             >
               <AlertIcon />
@@ -109,12 +110,13 @@ function LaundererDashboard() {
             </Alert>
           )}
           <Flex
-            justify="space-evenly"
-            align="center"
+            justify="flex-start"
+            align="stretch"
             pt="3rem"
-            pl={{ base: '1rem', md: '5rem' }}
-            pr={{ base: '1rem', md: 0 }}
+            pl={{ base: '1rem', md: '16rem' }}
+            pr={{ base: '1rem', md: '2rem' }}
             w="100%"
+            minW={0}
           >
             {isActive === 0 && <LaundererDetails />}
             {isActive === 1 && <LaundererOrdersDetail />}

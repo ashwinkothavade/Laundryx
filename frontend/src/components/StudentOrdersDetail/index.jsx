@@ -290,12 +290,7 @@ function OrderDetail() {
   }
 
   return (
-    <VStack
-      align="start"
-      gap={{ base: 8, md: 14 }}
-      ml={{ base: '0', md: '8rem' }}
-      w="100%"
-    >
+    <VStack align="start" gap={{ base: 8, md: 14 }} w="100%" minW={0}>
       <Text fontSize={{ base: '1.5rem', md: '2rem' }} fontWeight="bold">
         Order Details:
       </Text>
@@ -342,17 +337,8 @@ function OrderDetail() {
           </Checkbox>
         </HStack>
       </CheckboxGroup>
-      <Box
-        w={{ base: '100%', md: '75vw' }}
-        overflowX="scroll"
-        css={{
-          '&::-webkit-scrollbar': {
-            display: 'none',
-          },
-          'scrollbar-width': 'none',
-        }}
-      >
-        <Box maxH="70vh" overflowY="scroll">
+      <Box w="100%" maxW="100%" overflowX="auto">
+        <Box maxH="70vh" overflowY="auto">
           <Table variant="simple">
             <Thead>
               <Tr>
@@ -388,15 +374,17 @@ function OrderDetail() {
                       {order.deliveredStatus ? 'Delivered' : 'Not Delivered'}
                     </Tag>
                   </Td>
-                  <Td textAlign="center">
-                    <Flex gap={4} w="fit-content">
+                  <Td textAlign="center" whiteSpace="nowrap">
+                    <Flex gap={2} justify="center" align="center">
                       <Button
+                        size="sm"
                         color="#ce1567"
                         onClick={() => handleCardClick(order)}
                       >
                         View Details
                       </Button>
                       <Button
+                        size="sm"
                         variant="outline"
                         color="#584BAC"
                         borderColor="#584BAC"
@@ -408,6 +396,7 @@ function OrderDetail() {
                         Receipt
                       </Button>
                       <Button
+                        size="sm"
                         color="#ffffff"
                         bgColor="green.500"
                         isDisabled={order.paid}
@@ -422,6 +411,7 @@ function OrderDetail() {
                         Pay
                       </Button>
                       <Button
+                        size="sm"
                         color="#ffffff"
                         bgColor="#F6AD55"
                         _hover={{ bgColor: '#dd9540' }}
@@ -439,6 +429,7 @@ function OrderDetail() {
                         Rate
                       </Button>
                       <Button
+                        size="sm"
                         variant="outline"
                         colorScheme="purple"
                         display={!order.pickUpStatus ? 'block' : 'none'}
@@ -450,6 +441,7 @@ function OrderDetail() {
                         Reschedule
                       </Button>
                       <Button
+                        size="sm"
                         variant="outline"
                         colorScheme="orange"
                         display={
@@ -462,9 +454,10 @@ function OrderDetail() {
                         Cancel
                       </Button>
                       <IconButton
+                        size="sm"
                         colorScheme="red"
                         aria-label="Delete Order"
-                        icon={<MdDelete size={24} />}
+                        icon={<MdDelete size={20} />}
                         // button should be abled either when the order is not accepted, or when the order is paid and delivered.
                         isDisabled={
                           order.acceptedStatus &&

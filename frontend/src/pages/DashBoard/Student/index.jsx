@@ -78,12 +78,13 @@ function StudentDashBoard() {
       </Box>
 
       <Flex
-        justify="space-evenly"
-        align="center"
+        justify="flex-start"
+        align="stretch"
         pt={{ base: '2rem', md: '5rem' }}
-        pl={{ base: '1rem', md: '5rem' }}
-        pr={{ base: '1rem', md: 0 }}
+        pl={{ base: '1rem', md: '16rem' }}
+        pr={{ base: '1rem', md: '2rem' }}
         mt={{ base: '0', md: '70px' }}
+        minW={0}
       >
         {!isActive ? <StudentDetails /> : <OrderDetail />}
       </Flex>
