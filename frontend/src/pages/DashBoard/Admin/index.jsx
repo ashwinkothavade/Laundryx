@@ -6,12 +6,16 @@ import {
   Flex,
   HStack,
   Heading,
+  Icon,
   IconButton,
   Input,
+  InputGroup,
+  InputLeftElement,
   Select,
   SimpleGrid,
   Spinner,
   Stat,
+  StatHelpText,
   StatLabel,
   StatNumber,
   Table,
@@ -33,11 +37,22 @@ import {
   WrapItem,
   useToast,
 } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet-async';
-import { MdDelete } from 'react-icons/md';
+import {
+  MdDelete,
+  MdGroups,
+  MdReceiptLong,
+  MdPayments,
+  MdInventory2,
+  MdPendingActions,
+  MdAccountBalanceWallet,
+  MdSearch,
+  MdRefresh,
+} from 'react-icons/md';
 import Navbar from '../../../components/Navbar';
+import HBar, { CATEGORY_COLORS, ChartCard, Legend } from './charts';
 import {
   addSettingValue,
   adminCreateCoupon,
@@ -56,6 +71,8 @@ import {
 } from '../../../utils/apis';
 
 const ROLE_COLORS = { admin: 'purple', launderer: 'pink', customer: 'blue' };
+
+const money = (v) => `₹${Number(v || 0).toLocaleString('en-IN')}`;
 
 function ScrollTable({ children }) {
   return (
@@ -99,6 +116,82 @@ function AdminDashboard() {
     minOrder: '',
   };
   const [newCoupon, setNewCoupon] = useState(emptyCoupon);
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Search / filter state for the data tables.
+  const [userSearch, setUserSearch] = useState('');
+  const [userRole, setUserRole] = useState('all');
+  const [orderSearch, setOrderSearch] = useState('');
+  const [orderStatus, setOrderStatus] = useState('all');
+  const [orderPaid, setOrderPaid] = useState('all');
+  const [catalogSearch, setCatalogSearch] = useState('');
+
+  const orderStatusOf = (o) => {
+    if (o.deliveredStatus) return 'delivered';
+    if (o.pickUpStatus) return 'pickedup';
+    if (o.acceptedStatus) return 'accepted';
+    return 'pending';
+  };
+
+  const filteredUsers = useMemo(() => {
+    const q = userSearch.trim().toLowerCase();
+    return users.filter(
+      (u) =>
+        (userRole === 'all' || u.role === userRole) &&
+        (!q ||
+          u.username?.toLowerCase().includes(q) ||
+          u.email?.toLowerCase().includes(q))
+    );
+  }, [users, userSearch, userRole]);
+
+  const filteredOrders = useMemo(() => {
+    const q = orderSearch.trim().toLowerCase();
+    return orders.filter(
+      (o) =>
+        (orderStatus === 'all' || orderStatusOf(o) === orderStatus) &&
+        (orderPaid === 'all' || (orderPaid === 'paid' ? o.paid : !o.paid)) &&
+        (!q ||
+          o.user?.username?.toLowerCase().includes(q) ||
+          o.launderer?.toLowerCase().includes(q))
+    );
+  }, [orders, orderSearch, orderStatus, orderPaid]);
+
+  const filteredCatalog = useMemo(() => {
+    const q = catalogSearch.trim().toLowerCase();
+    if (!q) return catalog;
+    return catalog.filter(
+      (c) =>
+        c.launderer?.username?.toLowerCase().includes(q) ||
+        c.clothingType?.toLowerCase().includes(q) ||
+        c.washType?.toLowerCase().includes(q)
+    );
+  }, [catalog, catalogSearch]);
+
+  // Metrics derived client-side from the already-loaded orders / users, so the
+  // analytics tab shows actionable numbers without extra endpoints.
+  const derived = useMemo(() => {
+    const pendingApprovals = users.filter(
+      (u) => u.role === 'launderer' && !u.approved
+    ).length;
+    const outstanding = orders
+      .filter((o) => !o.paid)
+      .reduce((s, o) => s + (o.orderTotal || 0), 0);
+    const paidOrders = orders.filter((o) => o.paid);
+    const avgOrderValue = paidOrders.length
+      ? Math.round(
+          paidOrders.reduce((s, o) => s + (o.orderTotal || 0), 0) /
+            paidOrders.length
+        )
+      : 0;
+    const statusCounts = orders.reduce(
+      (acc, o) => {
+        acc[orderStatusOf(o)] += 1;
+        return acc;
+      },
+      { pending: 0, accepted: 0, pickedup: 0, delivered: 0 }
+    );
+    return { pendingApprovals, outstanding, avgOrderValue, statusCounts };
+  }, [users, orders]);
 
   const loadAll = async () => {
     const [a, u, o, c, s, cp] = await Promise.allSettled([
@@ -116,6 +209,13 @@ function AdminDashboard() {
     if (s.status === 'fulfilled') setSettings(s.value.data.settings);
     if (cp.status === 'fulfilled') setCoupons(cp.value.data.coupons);
     setLoading(false);
+  };
+
+  const refresh = async () => {
+    setRefreshing(true);
+    await loadAll();
+    setRefreshing(false);
+    notify('Dashboard refreshed', 'success');
   };
 
   const createCoupon = async () => {
@@ -252,9 +352,33 @@ function AdminDashboard() {
         maxW="80rem"
         mx="auto"
       >
-        <Heading size="lg" mb="1.5rem" color="#584BAC">
-          Admin Console
-        </Heading>
+        <Flex
+          justify="space-between"
+          align={{ base: 'start', sm: 'center' }}
+          direction={{ base: 'column', sm: 'row' }}
+          gap={3}
+          mb="1.5rem"
+        >
+          <Box>
+            <Heading size="lg" color="#584BAC">
+              Admin Console
+            </Heading>
+            <Text color="gray.500" fontSize="sm">
+              Marketplace overview and management
+            </Text>
+          </Box>
+          <Button
+            leftIcon={<MdRefresh size={18} />}
+            variant="outline"
+            colorScheme="purple"
+            size="sm"
+            isLoading={refreshing}
+            loadingText="Refreshing"
+            onClick={refresh}
+          >
+            Refresh
+          </Button>
+        </Flex>
         <Tabs colorScheme="purple" variant="enclosed" isLazy>
           <TabList overflowX="auto" overflowY="hidden">
             <Tab>Analytics</Tab>
@@ -270,68 +394,186 @@ function AdminDashboard() {
               {analytics && (
                 <>
                   <SimpleGrid
-                    columns={{ base: 2, md: 4 }}
+                    columns={{ base: 1, sm: 2, lg: 3 }}
                     spacing={4}
-                    mb="2rem"
+                    mb="1.5rem"
                   >
                     <StatCard
                       label="Total Users"
                       value={analytics.totalUsers}
+                      icon={MdGroups}
+                      accent="#584BAC"
+                      help={`${analytics.usersByRole?.customer || 0} customers · ${
+                        analytics.usersByRole?.launderer || 0
+                      } launderers`}
                     />
                     <StatCard
                       label="Total Orders"
                       value={analytics.totalOrders}
+                      icon={MdReceiptLong}
+                      accent="#0E9AA7"
+                      help={`${derived.statusCounts.delivered} delivered`}
                     />
                     <StatCard
                       label="Paid Revenue"
-                      value={`₹${analytics.paidRevenue}`}
+                      value={money(analytics.paidRevenue)}
+                      icon={MdPayments}
+                      accent="#38A169"
+                      help={`Avg ${money(derived.avgOrderValue)} / paid order`}
+                    />
+                    <StatCard
+                      label="Outstanding"
+                      value={money(derived.outstanding)}
+                      icon={MdAccountBalanceWallet}
+                      accent="#DD6B20"
+                      help="Unpaid order value"
                     />
                     <StatCard
                       label="Catalog Items"
                       value={analytics.totalCatalogItems}
+                      icon={MdInventory2}
+                      accent="#CE1567"
+                      help="Across all launderers"
                     />
                     <StatCard
-                      label="Customers"
-                      value={analytics.usersByRole?.customer || 0}
-                    />
-                    <StatCard
-                      label="Launderers"
-                      value={analytics.usersByRole?.launderer || 0}
-                    />
-                    <StatCard
-                      label="Admins"
-                      value={analytics.usersByRole?.admin || 0}
+                      label="Pending Approvals"
+                      value={derived.pendingApprovals}
+                      icon={MdPendingActions}
+                      accent={derived.pendingApprovals ? '#E53E3E' : '#718096'}
+                      help="Launderers awaiting review"
                     />
                   </SimpleGrid>
-                  <Text fontWeight={600} mb="0.5rem">
-                    Orders per launderer
-                  </Text>
-                  {analytics.ordersPerLaunderer?.length ? (
-                    <ScrollTable>
-                      <Thead>
-                        <Tr>
-                          <Th>Launderer</Th>
-                          <Th isNumeric>Orders</Th>
-                        </Tr>
-                      </Thead>
-                      <Tbody>
-                        {analytics.ordersPerLaunderer.map((o) => (
-                          <Tr key={o.launderer}>
-                            <Td>{o.launderer}</Td>
-                            <Td isNumeric>{o.orders}</Td>
-                          </Tr>
-                        ))}
-                      </Tbody>
-                    </ScrollTable>
-                  ) : (
-                    <Text color="gray.500">No orders yet.</Text>
-                  )}
+
+                  <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={5}>
+                    <ChartCard
+                      title="Orders per launderer"
+                      subtitle="Order volume by provider"
+                    >
+                      <HBar
+                        data={(analytics.ordersPerLaunderer || []).map((o) => ({
+                          label: o.launderer,
+                          value: o.orders,
+                        }))}
+                        defaultColor="#584BAC"
+                      />
+                    </ChartCard>
+
+                    <ChartCard
+                      title="Users by role"
+                      subtitle="Marketplace composition"
+                    >
+                      <HBar
+                        labelWidth="6.5rem"
+                        data={['customer', 'launderer', 'admin'].map((r) => ({
+                          label: `${r[0].toUpperCase()}${r.slice(1)}s`,
+                          value: analytics.usersByRole?.[r] || 0,
+                          color: CATEGORY_COLORS[r],
+                        }))}
+                      />
+                      <Legend
+                        items={[
+                          {
+                            label: 'Customers',
+                            color: CATEGORY_COLORS.customer,
+                          },
+                          {
+                            label: 'Launderers',
+                            color: CATEGORY_COLORS.launderer,
+                          },
+                          { label: 'Admins', color: CATEGORY_COLORS.admin },
+                        ]}
+                      />
+                    </ChartCard>
+
+                    <ChartCard
+                      title="Orders by status"
+                      subtitle="Where orders are in the pipeline"
+                    >
+                      <HBar
+                        labelWidth="6.5rem"
+                        data={[
+                          {
+                            label: 'Pending',
+                            value: derived.statusCounts.pending,
+                            color: '#A0AEC0',
+                          },
+                          {
+                            label: 'Accepted',
+                            value: derived.statusCounts.accepted,
+                            color: '#DD6B20',
+                          },
+                          {
+                            label: 'Picked up',
+                            value: derived.statusCounts.pickedup,
+                            color: '#3182CE',
+                          },
+                          {
+                            label: 'Delivered',
+                            value: derived.statusCounts.delivered,
+                            color: '#38A169',
+                          },
+                        ]}
+                      />
+                    </ChartCard>
+
+                    <ChartCard
+                      title="Revenue"
+                      subtitle="Collected vs outstanding"
+                    >
+                      <HBar
+                        labelWidth="6.5rem"
+                        format={money}
+                        data={[
+                          {
+                            label: 'Collected',
+                            value: analytics.paidRevenue || 0,
+                            color: '#38A169',
+                          },
+                          {
+                            label: 'Outstanding',
+                            value: derived.outstanding,
+                            color: '#DD6B20',
+                          },
+                        ]}
+                      />
+                    </ChartCard>
+                  </SimpleGrid>
                 </>
               )}
             </TabPanel>
 
             {/* Users */}
             <TabPanel px={0}>
+              <Flex
+                direction={{ base: 'column', md: 'row' }}
+                gap={3}
+                mb="1rem"
+                align={{ md: 'center' }}
+              >
+                <SearchInput
+                  value={userSearch}
+                  onChange={setUserSearch}
+                  placeholder="Search username or email"
+                />
+                <Select
+                  size="sm"
+                  w={{ base: '100%', md: '10rem' }}
+                  value={userRole}
+                  onChange={(e) => setUserRole(e.target.value)}
+                  bg="white"
+                  borderRadius="md"
+                >
+                  <option value="all">All roles</option>
+                  <option value="customer">Customers</option>
+                  <option value="launderer">Launderers</option>
+                  <option value="admin">Admins</option>
+                </Select>
+                <ResultCount
+                  shown={filteredUsers.length}
+                  total={users.length}
+                  noun="users"
+                />
+              </Flex>
               <ScrollTable>
                 <Thead>
                   <Tr>
@@ -344,7 +586,7 @@ function AdminDashboard() {
                   </Tr>
                 </Thead>
                 <Tbody>
-                  {users.map((u) => (
+                  {filteredUsers.map((u) => (
                     <Tr key={u._id}>
                       <Td>{u.username}</Td>
                       <Td>{u.email}</Td>
@@ -405,6 +647,49 @@ function AdminDashboard() {
 
             {/* Orders */}
             <TabPanel px={0}>
+              <Flex
+                direction={{ base: 'column', md: 'row' }}
+                gap={3}
+                mb="1rem"
+                align={{ md: 'center' }}
+              >
+                <SearchInput
+                  value={orderSearch}
+                  onChange={setOrderSearch}
+                  placeholder="Search customer or launderer"
+                />
+                <Select
+                  size="sm"
+                  w={{ base: '100%', md: '10rem' }}
+                  value={orderStatus}
+                  onChange={(e) => setOrderStatus(e.target.value)}
+                  bg="white"
+                  borderRadius="md"
+                >
+                  <option value="all">All statuses</option>
+                  <option value="pending">Pending</option>
+                  <option value="accepted">Accepted</option>
+                  <option value="pickedup">Picked up</option>
+                  <option value="delivered">Delivered</option>
+                </Select>
+                <Select
+                  size="sm"
+                  w={{ base: '100%', md: '8rem' }}
+                  value={orderPaid}
+                  onChange={(e) => setOrderPaid(e.target.value)}
+                  bg="white"
+                  borderRadius="md"
+                >
+                  <option value="all">All</option>
+                  <option value="paid">Paid</option>
+                  <option value="unpaid">Unpaid</option>
+                </Select>
+                <ResultCount
+                  shown={filteredOrders.length}
+                  total={orders.length}
+                  noun="orders"
+                />
+              </Flex>
               <ScrollTable>
                 <Thead>
                   <Tr>
@@ -416,28 +701,26 @@ function AdminDashboard() {
                   </Tr>
                 </Thead>
                 <Tbody>
-                  {orders.map((o) => (
+                  {filteredOrders.map((o) => (
                     <Tr key={o._id}>
                       <Td>{o.user?.username || '—'}</Td>
                       <Td>{o.launderer}</Td>
-                      <Td isNumeric>₹{o.orderTotal}</Td>
+                      <Td isNumeric>{money(o.orderTotal)}</Td>
                       <Td>
-                        <Tag
-                          size="sm"
-                          colorScheme={
-                            o.deliveredStatus
-                              ? 'green'
-                              : o.acceptedStatus
-                                ? 'orange'
-                                : 'gray'
-                          }
-                        >
-                          {o.deliveredStatus
-                            ? 'Delivered'
-                            : o.acceptedStatus
-                              ? 'Accepted'
-                              : 'Pending'}
-                        </Tag>
+                        {(() => {
+                          const s = orderStatusOf(o);
+                          const map = {
+                            delivered: { c: 'green', t: 'Delivered' },
+                            pickedup: { c: 'blue', t: 'Picked up' },
+                            accepted: { c: 'orange', t: 'Accepted' },
+                            pending: { c: 'gray', t: 'Pending' },
+                          };
+                          return (
+                            <Tag size="sm" colorScheme={map[s].c}>
+                              {map[s].t}
+                            </Tag>
+                          );
+                        })()}
                       </Td>
                       <Td>
                         <Tag size="sm" colorScheme={o.paid ? 'green' : 'red'}>
@@ -448,13 +731,34 @@ function AdminDashboard() {
                   ))}
                 </Tbody>
               </ScrollTable>
-              {orders.length === 0 && (
-                <Text color="gray.500">No orders yet.</Text>
+              {filteredOrders.length === 0 && (
+                <Text color="gray.500" mt="1rem">
+                  {orders.length === 0
+                    ? 'No orders yet.'
+                    : 'No orders match your filters.'}
+                </Text>
               )}
             </TabPanel>
 
             {/* Catalog */}
             <TabPanel px={0}>
+              <Flex
+                direction={{ base: 'column', md: 'row' }}
+                gap={3}
+                mb="1rem"
+                align={{ md: 'center' }}
+              >
+                <SearchInput
+                  value={catalogSearch}
+                  onChange={setCatalogSearch}
+                  placeholder="Search launderer, clothing or wash"
+                />
+                <ResultCount
+                  shown={filteredCatalog.length}
+                  total={catalog.length}
+                  noun="items"
+                />
+              </Flex>
               <ScrollTable>
                 <Thead>
                   <Tr>
@@ -465,18 +769,22 @@ function AdminDashboard() {
                   </Tr>
                 </Thead>
                 <Tbody>
-                  {catalog.map((c) => (
+                  {filteredCatalog.map((c) => (
                     <Tr key={c._id}>
                       <Td>{c.launderer?.username || '—'}</Td>
                       <Td>{c.clothingType}</Td>
                       <Td>{c.washType}</Td>
-                      <Td isNumeric>₹{c.price}</Td>
+                      <Td isNumeric>{money(c.price)}</Td>
                     </Tr>
                   ))}
                 </Tbody>
               </ScrollTable>
-              {catalog.length === 0 && (
-                <Text color="gray.500">No catalog items yet.</Text>
+              {filteredCatalog.length === 0 && (
+                <Text color="gray.500" mt="1rem">
+                  {catalog.length === 0
+                    ? 'No catalog items yet.'
+                    : 'No items match your search.'}
+                </Text>
               )}
             </TabPanel>
 
@@ -676,16 +984,49 @@ function AdminDashboard() {
   );
 }
 
-function StatCard({ label, value }) {
+function StatCard({ label, value, icon, accent, help }) {
   return (
     <Stat
+      position="relative"
       border="1px solid #e2e2e2"
+      borderLeft={`4px solid ${accent}`}
       borderRadius="0.6rem"
-      p="1rem"
+      p="1.1rem 1.25rem"
+      bg="white"
       boxShadow="0px 2px 4px rgba(0,0,0,0.05)"
+      transition="box-shadow .2s ease, transform .2s ease"
+      _hover={{
+        boxShadow: '0px 6px 16px rgba(0,0,0,0.08)',
+        transform: 'translateY(-2px)',
+      }}
     >
-      <StatLabel color="gray.500">{label}</StatLabel>
-      <StatNumber color="#584BAC">{value}</StatNumber>
+      <Flex justify="space-between" align="start">
+        <Box>
+          <StatLabel color="gray.500" fontWeight={500}>
+            {label}
+          </StatLabel>
+          <StatNumber color="gray.800" fontSize="1.9rem" lineHeight="1.2">
+            {value}
+          </StatNumber>
+          {help && (
+            <StatHelpText color="gray.400" mb={0} mt="0.15rem">
+              {help}
+            </StatHelpText>
+          )}
+        </Box>
+        {icon && (
+          <Flex
+            align="center"
+            justify="center"
+            boxSize="2.5rem"
+            borderRadius="0.6rem"
+            bg={`${accent}1A`}
+            flexShrink={0}
+          >
+            <Icon as={icon} boxSize="1.4rem" color={accent} />
+          </Flex>
+        )}
+      </Flex>
     </Stat>
   );
 }
@@ -693,6 +1034,54 @@ function StatCard({ label, value }) {
 StatCard.propTypes = {
   label: PropTypes.string.isRequired,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  icon: PropTypes.elementType,
+  accent: PropTypes.string,
+  help: PropTypes.string,
+};
+
+StatCard.defaultProps = {
+  icon: null,
+  accent: '#584BAC',
+  help: '',
+};
+
+function SearchInput({ value, onChange, placeholder }) {
+  return (
+    <InputGroup size="sm" maxW={{ base: '100%', md: '18rem' }}>
+      <InputLeftElement pointerEvents="none">
+        <Icon as={MdSearch} color="gray.400" />
+      </InputLeftElement>
+      <Input
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        borderRadius="md"
+        bg="white"
+      />
+    </InputGroup>
+  );
+}
+
+SearchInput.propTypes = {
+  value: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+  placeholder: PropTypes.string,
+};
+
+SearchInput.defaultProps = { placeholder: 'Search…' };
+
+function ResultCount({ shown, total, noun }) {
+  return (
+    <Text fontSize="sm" color="gray.500" ml={{ md: 'auto' }}>
+      {shown === total ? `${total} ${noun}` : `${shown} of ${total} ${noun}`}
+    </Text>
+  );
+}
+
+ResultCount.propTypes = {
+  shown: PropTypes.number.isRequired,
+  total: PropTypes.number.isRequired,
+  noun: PropTypes.string.isRequired,
 };
 
 export default AdminDashboard;
