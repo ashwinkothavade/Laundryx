@@ -106,9 +106,21 @@ const customers = [
 
 // ---- Coupons -----------------------------------------------------------------
 const coupons = [
-  { code: 'WELCOME10', discountType: 'percent', value: 10, minOrder: 100, maxDiscount: 50 },
+  {
+    code: 'WELCOME10',
+    discountType: 'percent',
+    value: 10,
+    minOrder: 100,
+    maxDiscount: 50,
+  },
   { code: 'FLAT50', discountType: 'flat', value: 50, minOrder: 200 },
-  { code: 'SAVE20', discountType: 'percent', value: 20, minOrder: 150, maxDiscount: 100 },
+  {
+    code: 'SAVE20',
+    discountType: 'percent',
+    value: 20,
+    minOrder: 150,
+    maxDiscount: 100,
+  },
 ];
 
 const laundererEmails = launderers.map((l) => l.email);
@@ -127,7 +139,10 @@ const buildOrder = ({
   statuses = {}, // { acceptedStatus, pickUpStatus, deliveredStatus, paid }
   daysAgo = 3,
 }) => {
-  const subtotal = items.reduce((s, it) => s + it.pricePerItem * it.quantity, 0);
+  const subtotal = items.reduce(
+    (s, it) => s + it.pricePerItem * it.quantity,
+    0
+  );
   const expressCharge = express ? laundererUser.expressSurcharge : 0;
 
   let discount = 0;
@@ -187,16 +202,25 @@ const run = async () => {
   logger.info('Connected. Clearing previous demo data...');
 
   // ---- Clean up any prior run (cascade) --------------------------------------
-  const priorUsers = await User.find({ email: { $in: allDemoEmails } }, '_id username');
+  const priorUsers = await User.find(
+    { email: { $in: allDemoEmails } },
+    '_id username'
+  );
   const priorUserIds = priorUsers.map((u) => u._id);
   const priorUsernames = priorUsers.map((u) => u.username);
   await Promise.all([
     CatalogItem.deleteMany({ launderer: { $in: priorUserIds } }),
     Order.deleteMany({
-      $or: [{ user: { $in: priorUserIds } }, { launderer: { $in: priorUsernames } }],
+      $or: [
+        { user: { $in: priorUserIds } },
+        { launderer: { $in: priorUsernames } },
+      ],
     }),
     Review.deleteMany({
-      $or: [{ student: { $in: priorUserIds } }, { launderer: { $in: priorUserIds } }],
+      $or: [
+        { student: { $in: priorUserIds } },
+        { launderer: { $in: priorUserIds } },
+      ],
     }),
     Coupon.deleteMany({ code: { $in: couponCodes } }),
     User.deleteMany({ email: { $in: allDemoEmails } }),
@@ -211,42 +235,43 @@ const run = async () => {
 
   // ---- Create launderers + their catalogs ------------------------------------
   const laundererDocs = {};
-  for (const l of launderers) {
-    // eslint-disable-next-line no-await-in-loop
-    const doc = await User.create({
-      username: l.username,
-      email: l.email,
-      password: PASSWORD,
-      phone_number: l.phone_number,
-      role: 'launderer',
-      approved: true,
-      expressSurcharge: l.expressSurcharge,
-      availableTimeSlots: l.availableTimeSlots,
-    });
-    laundererDocs[l.username] = doc;
-    // eslint-disable-next-line no-await-in-loop
-    await CatalogItem.insertMany(
-      l.catalog.map((c) => ({ ...c, launderer: doc._id }))
-    );
-  }
+  await Promise.all(
+    launderers.map(async (l) => {
+      const doc = await User.create({
+        username: l.username,
+        email: l.email,
+        password: PASSWORD,
+        phone_number: l.phone_number,
+        role: 'launderer',
+        approved: true,
+        expressSurcharge: l.expressSurcharge,
+        availableTimeSlots: l.availableTimeSlots,
+      });
+      laundererDocs[l.username] = doc;
+      await CatalogItem.insertMany(
+        l.catalog.map((c) => ({ ...c, launderer: doc._id }))
+      );
+    })
+  );
   logger.info(`Created ${launderers.length} launderers with catalogs.`);
 
   // ---- Create customers ------------------------------------------------------
   const customerDocs = {};
-  for (const c of customers) {
-    // eslint-disable-next-line no-await-in-loop
-    const doc = await User.create({
-      username: c.username,
-      email: c.email,
-      password: PASSWORD,
-      phone_number: c.phone_number,
-      role: 'customer',
-      hostel: c.hostel,
-      room_number: c.room_number,
-      roll_number: c.roll_number,
-    });
-    customerDocs[c.username] = doc;
-  }
+  await Promise.all(
+    customers.map(async (c) => {
+      const doc = await User.create({
+        username: c.username,
+        email: c.email,
+        password: PASSWORD,
+        phone_number: c.phone_number,
+        role: 'customer',
+        hostel: c.hostel,
+        room_number: c.room_number,
+        roll_number: c.roll_number,
+      });
+      customerDocs[c.username] = doc;
+    })
+  );
   logger.info(`Created ${customers.length} customers.`);
 
   // ---- Coupons ---------------------------------------------------------------
@@ -268,11 +293,26 @@ const run = async () => {
       customer: rahul,
       laundererUser: sparkle,
       items: [
-        { name: 'Shirt', washType: 'Wash & Iron', quantity: 3, pricePerItem: 30 },
-        { name: 'Trouser', washType: 'Wash & Iron', quantity: 2, pricePerItem: 40 },
+        {
+          name: 'Shirt',
+          washType: 'Wash & Iron',
+          quantity: 3,
+          pricePerItem: 30,
+        },
+        {
+          name: 'Trouser',
+          washType: 'Wash & Iron',
+          quantity: 2,
+          pricePerItem: 40,
+        },
       ],
       coupon: coupons[0], // WELCOME10
-      statuses: { acceptedStatus: true, pickUpStatus: true, deliveredStatus: true, paid: true },
+      statuses: {
+        acceptedStatus: true,
+        pickUpStatus: true,
+        deliveredStatus: true,
+        paid: true,
+      },
       daysAgo: 6,
       review: { rating: 5, comment: 'Crisp ironing and quick delivery!' },
     },
@@ -285,20 +325,43 @@ const run = async () => {
         { name: 'Shirt', washType: 'Dry Clean', quantity: 2, pricePerItem: 55 },
       ],
       coupon: coupons[1], // FLAT50
-      statuses: { acceptedStatus: true, pickUpStatus: true, deliveredStatus: true, paid: true },
+      statuses: {
+        acceptedStatus: true,
+        pickUpStatus: true,
+        deliveredStatus: true,
+        paid: true,
+      },
       daysAgo: 8,
-      review: { rating: 4, comment: 'Suit came back spotless, a bit pricey though.' },
+      review: {
+        rating: 4,
+        comment: 'Suit came back spotless, a bit pricey though.',
+      },
     },
     // Picked up, not yet delivered (express)
     {
       customer: priya,
       laundererUser: fresh,
       items: [
-        { name: 'Kurta', washType: 'Wash & Iron', quantity: 2, pricePerItem: 35 },
-        { name: 'T-Shirt', washType: 'Wash & Fold', quantity: 4, pricePerItem: 18 },
+        {
+          name: 'Kurta',
+          washType: 'Wash & Iron',
+          quantity: 2,
+          pricePerItem: 35,
+        },
+        {
+          name: 'T-Shirt',
+          washType: 'Wash & Fold',
+          quantity: 4,
+          pricePerItem: 18,
+        },
       ],
       express: true,
-      statuses: { acceptedStatus: true, pickUpStatus: true, deliveredStatus: false, paid: false },
+      statuses: {
+        acceptedStatus: true,
+        pickUpStatus: true,
+        deliveredStatus: false,
+        paid: false,
+      },
       daysAgo: 1,
     },
     // Accepted, awaiting pickup
@@ -306,11 +369,26 @@ const run = async () => {
       customer: amit,
       laundererUser: sparkle,
       items: [
-        { name: 'Bedsheet', washType: 'Wash & Fold', quantity: 2, pricePerItem: 70 },
-        { name: 'Jeans', washType: 'Wash & Fold', quantity: 1, pricePerItem: 45 },
+        {
+          name: 'Bedsheet',
+          washType: 'Wash & Fold',
+          quantity: 2,
+          pricePerItem: 70,
+        },
+        {
+          name: 'Jeans',
+          washType: 'Wash & Fold',
+          quantity: 1,
+          pricePerItem: 45,
+        },
       ],
       coupon: coupons[2], // SAVE20
-      statuses: { acceptedStatus: true, pickUpStatus: false, deliveredStatus: false, paid: false },
+      statuses: {
+        acceptedStatus: true,
+        pickUpStatus: false,
+        deliveredStatus: false,
+        paid: false,
+      },
       daysAgo: 1,
     },
     // Brand new, pending launderer acceptance
@@ -318,7 +396,12 @@ const run = async () => {
       customer: rahul,
       laundererUser: fresh,
       items: [
-        { name: 'Blanket', washType: 'Dry Clean', quantity: 1, pricePerItem: 150 },
+        {
+          name: 'Blanket',
+          washType: 'Dry Clean',
+          quantity: 1,
+          pricePerItem: 150,
+        },
       ],
       statuses: {},
       daysAgo: 0,
@@ -328,27 +411,37 @@ const run = async () => {
       customer: priya,
       laundererUser: sparkle,
       items: [
-        { name: 'T-Shirt', washType: 'Wash & Fold', quantity: 6, pricePerItem: 20 },
+        {
+          name: 'T-Shirt',
+          washType: 'Wash & Fold',
+          quantity: 6,
+          pricePerItem: 20,
+        },
       ],
-      statuses: { acceptedStatus: true, pickUpStatus: true, deliveredStatus: true, paid: true },
+      statuses: {
+        acceptedStatus: true,
+        pickUpStatus: true,
+        deliveredStatus: true,
+        paid: true,
+      },
       daysAgo: 4,
     },
   ];
 
-  for (const spec of orderSpecs) {
-    // eslint-disable-next-line no-await-in-loop
-    const order = await Order.create(buildOrder(spec));
-    if (spec.review) {
-      // eslint-disable-next-line no-await-in-loop
-      await Review.create({
-        launderer: spec.laundererUser._id,
-        student: spec.customer._id,
-        order: order._id,
-        rating: spec.review.rating,
-        comment: spec.review.comment,
-      });
-    }
-  }
+  await Promise.all(
+    orderSpecs.map(async (spec) => {
+      const order = await Order.create(buildOrder(spec));
+      if (spec.review) {
+        await Review.create({
+          launderer: spec.laundererUser._id,
+          student: spec.customer._id,
+          order: order._id,
+          rating: spec.review.rating,
+          comment: spec.review.comment,
+        });
+      }
+    })
+  );
   logger.info(`Created ${orderSpecs.length} orders (2 reviewed).`);
 
   await mongoose.disconnect();
