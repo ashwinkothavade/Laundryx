@@ -19,6 +19,10 @@ const reviewRoutes = require('./routes/reviewRoutes');
 const couponRoutes = require('./routes/couponRoutes');
 
 const app = express();
+// Behind Vercel's (or any) reverse proxy the client IP arrives in the
+// X-Forwarded-For header. Trust the first proxy hop so express-rate-limit can
+// identify clients correctly instead of throwing ERR_ERL_UNEXPECTED_X_FORWARDED_FOR.
+app.set('trust proxy', 1);
 const isTest = process.env.NODE_ENV === 'test';
 
 // Allow the frontend origins to be configured via env (comma-separated),
