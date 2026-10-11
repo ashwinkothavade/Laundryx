@@ -5,8 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "start": "node backend/src/index.js",
-    "startServer": "nodemon backend/src/index.js",
+    "start": "vite",
     "build": "vite build",
     "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint src --ext js,jsx --fix --report-unused-disable-directives --max-warnings 0",
