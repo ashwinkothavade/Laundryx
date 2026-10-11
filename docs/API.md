@@ -7,6 +7,17 @@ at login; send credentials with every request.
 **Auth column:** 🔓 public · 🔒 any logged-in user · 🎓 customer · 🧺 launderer
 (approved where noted) · 🛠️ admin.
 
+## Service health
+
+These are the only routes that answer while the database is unreachable; every
+other route returns **503** with a pointer to `/ready`.
+
+| Method | Path | Auth | Body / notes |
+|---|---|:---:|---|
+| GET | `/` | 🔓 | Liveness ping — returns the API banner |
+| GET | `/health` | 🔓 | `{ status: "ok", uptime }` — process liveness, never touches the database |
+| GET | `/ready` | 🔓 | `{ status, database, mongoUriConfigured }` — **200** when the database is connected, **503** when it is not |
+
 ## Auth & users
 
 | Method | Path | Auth | Body / notes |

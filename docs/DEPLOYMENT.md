@@ -96,14 +96,47 @@ Env vars are managed with `vercel env add <NAME> production` /
 `vercel env ls production`. (The projects can also be connected to the GitHub
 repo for auto-deploy on push.)
 
+## Troubleshooting a down deployment
+
+Check the two endpoints that do not depend on the database:
+
+```bash
+curl -s https://laundrix-api-delta.vercel.app/health   # {"status":"ok",...}
+curl -s https://laundrix-api-delta.vercel.app/ready    # 200 ready | 503 degraded
+```
+
+| Symptom | Meaning | Fix |
+|---|---|---|
+| `/health` → **200**, `/ready` → **503** `database: disconnected` | API is up, MongoDB is not | Check the Atlas cluster exists and is resumed, and that `MONGO_URI` is correct in Vercel |
+| `/ready` → `mongoUriConfigured: false` | `MONGO_URI` is not set on the deployment | `vercel env add MONGO_URI production`, then redeploy |
+| Every route → **500** `FUNCTION_INVOCATION_FAILED`, including `/health` | The function is crashing at import — a bad env var, a missing dependency, or a syntax error | Check the Vercel build and runtime logs for the project |
+| Requests hang, then 504 | Atlas is unreachable from Vercel | Confirm **Network Access → `0.0.0.0/0`** on the Atlas project |
+
+**Is the Atlas cluster still there?** A *paused* cluster keeps its DNS; a
+*deleted* one has no records at all:
+
+```bash
+dig +short SRV _mongodb._tcp.<cluster-host>.mongodb.net
+# no output => the cluster no longer exists; create a new one and update MONGO_URI
+```
+
+Free-tier (M0) clusters pause automatically after prolonged inactivity and are
+eventually removed, so a demo left idle for months will need a fresh cluster and
+a re-seed (`npm run seed:admin && npm run seed:data`).
+
 ## Production notes / caveats
 
 - **`trust proxy`** is enabled in `app.js` so `express-rate-limit` reads the
   real client IP from `X-Forwarded-For` behind Vercel's proxy.
 - **Rate limiting is in-memory** — per serverless instance, so best-effort only.
   Use a shared store (Redis) for strict limits.
-- **The stale-order cron** (`node-cron` in `server.js`) does not fire reliably on
-  serverless. Move it to a Vercel Cron / external scheduler if needed.
+- **The stale-order cron** (`node-cron` in `server.js`) needs a long-lived
+  process, so it is registered only when *not* running on Vercel. Use a Vercel
+  Cron / external scheduler if it is needed in production.
+- **A database outage degrades the API, it does not kill it.** `config/db.js`
+  never calls `process.exit()`; the connection promise is cached per instance
+  and retried on a later invocation, `/health` and `/ready` always answer, and
+  data-backed routes return a 503 that names the cause.
 - **Razorpay** currently uses **test** keys. Real payments need a KYC-activated
   Razorpay account and live keys, with `VITE_RAZORPAY_KEY_ID` and the backend
   `RAZORPAY_KEY_ID` on the **same** account/mode.

@@ -7,6 +7,7 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const logger = require('./utils/logger');
+const DB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const laundererRoutes = require('./routes/laundererRoutes');
 const studentRoutes = require('./routes/studentRoutes');
@@ -29,7 +30,12 @@ const isTest = process.env.NODE_ENV === 'test';
 // falling back to the known local + production domains.
 const defaultOrigins = [
   'http://localhost:5173',
+  'http://localhost:8080', // nginx-served frontend in docker-compose
   'https://laundrix-web.vercel.app',
+  // The production frontend's canonical Vercel alias. Kept in the defaults so
+  // a missing or stale FRONTEND_URL cannot silently break every browser
+  // request with a CORS failure.
+  'https://laundrix-web-five.vercel.app',
 ];
 const envOrigins = (process.env.FRONTEND_URL || '')
   .split(',')
@@ -87,6 +93,47 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors(corsOptions));
 app.use(cookieParser());
+
+// --- Routes that must answer even when the database is unreachable ---------
+// These are registered before the DB guard below so that an outage is
+// diagnosable with a single request instead of an opaque 500.
+
+app.get('/', (req, resp) => {
+  resp.status(200).json('This is the LaundriX backend API.');
+});
+
+// Liveness: is the process up at all? Never touches the database.
+app.get('/health', (req, resp) => {
+  resp.status(200).json({
+    status: 'ok',
+    uptime: Math.round(process.uptime()),
+  });
+});
+
+// Readiness: can we actually serve traffic? 503 when the database is down, so
+// an uptime check or `curl` says *what* is broken, not just *that* it is.
+app.get('/ready', (req, resp) => {
+  const ready = DB.isConnected();
+  resp.status(ready ? 200 : 503).json({
+    status: ready ? 'ready' : 'degraded',
+    database: DB.stateName(),
+    mongoUriConfigured: Boolean(process.env.MONGO_URI),
+  });
+});
+
+// Short-circuit database-backed routes while the connection is down. Without
+// this, Mongoose buffers each query until it times out and the caller gets a
+// slow, generic 500 with no indication that the database is the problem.
+app.use((req, resp, next) => {
+  if (process.env.NODE_ENV === 'test' || DB.isConnected()) return next();
+  logger.warn(`Database unavailable for ${req.method} ${req.originalUrl}`);
+  return resp.status(503).json({
+    message:
+      'Service temporarily unavailable: the database is unreachable. ' +
+      'See /ready for details.',
+  });
+});
+
 app.use(authRoutes);
 app.use(laundererRoutes);
 app.use(studentRoutes);
@@ -97,10 +144,6 @@ app.use(settingRoutes);
 app.use(adminRoutes);
 app.use(reviewRoutes);
 app.use(couponRoutes);
-
-app.get('/', (req, resp) => {
-  resp.status(200).json('This is the LaundriX backend API.');
-});
 
 // Centralized error handler — logs every error that reaches Express with
 // request context, and returns a consistent JSON shape to the client.

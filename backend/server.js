@@ -16,13 +16,21 @@ if (missingEnv.length) {
   );
 }
 
-DB.connect();
-
-// task scheduler to delete the orders that are valid every 2 days
-// Runs every day at midnight
-cron.schedule('0 0 * * *', () => {
-  DB.deleteValidOrders();
+// Start connecting, but never block or crash boot on the result. The app stays
+// up and answers /health and /ready even while the database is unreachable, so
+// an outage is diagnosable instead of being an opaque 500 on every route.
+DB.connect().catch((err) => {
+  logger.error(`Initial database connection failed: ${err.message}`);
 });
+
+// Task scheduler to delete stale completed orders, daily at midnight.
+// node-cron needs a long-lived process; a serverless function is not one, so
+// this is only registered when running as a standalone server.
+if (!process.env.VERCEL) {
+  cron.schedule('0 0 * * *', () => {
+    DB.deleteValidOrders();
+  });
+}
 
 // On Vercel's serverless runtime the app is imported and invoked per-request,
 // so we must export it. Only bind a port when running as a standalone process
