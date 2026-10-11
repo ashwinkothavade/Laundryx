@@ -16,6 +16,9 @@ managed by launderers and admins at runtime.
 > | **API (backend)** | https://laundrix-api-delta.vercel.app |
 >
 > Log in with a **username** (not an email) — see [Demo accounts & test data](#-demo-accounts--test-data).
+>
+> First time here? The **[user guide](docs/USER_GUIDE.md)** walks through every
+> screen for each of the three roles.
 
 <br>
 
@@ -27,6 +30,7 @@ managed by launderers and admins at runtime.
 - [Manual setup](#-manual-setup)
 - [Creating the admin](#-creating-the-admin)
 - [Demo accounts & test data](#-demo-accounts--test-data)
+- [Using the app](#-using-the-app)
 - [Documentation](#-documentation)
 - [Deployment](#-deployment)
 - [License](#-license)
@@ -50,8 +54,8 @@ managed by launderers and admins at runtime.
 ### Launderer
 - **Manage a catalog** — add/edit/delete clothing types, wash types and prices
   from a dedicated dashboard tab.
-- **Fulfil orders** — accept/reject, mark picked-up/delivered, change delivery
-  date.
+- **Fulfil orders** — accept or reject, and mark delivered once the customer
+  has confirmed pickup.
 - Requires **admin approval** before becoming visible to students.
 
 ### Admin
@@ -162,10 +166,29 @@ leaving the admin and any real data untouched.
 
 <br>
 
+## 📖 Using the app
+
+The **[user guide](docs/USER_GUIDE.md)** is a task-by-task walkthrough of the
+whole product:
+
+- **[Customer](docs/USER_GUIDE.md#customer)** — complete your profile, pick a
+  launderer, build and schedule an order, apply a coupon, track it, pay, and
+  rate the service.
+- **[Launderer](docs/USER_GUIDE.md#launderer)** — get approved, build a catalog,
+  publish time slots and express pricing, and work through orders.
+- **[Admin](docs/USER_GUIDE.md#admin)** — approve launderers, manage users and
+  roles, edit the dynamic settings, run coupons, and read the analytics.
+- **[Troubleshooting](docs/USER_GUIDE.md#troubleshooting)** — the gotchas, including
+  why login takes a username and why a new customer has to sign in twice before
+  their first order.
+
+<br>
+
 ## 📚 Documentation
 
 | Doc | What's inside |
 |-----|---------------|
+| [docs/USER_GUIDE.md](docs/USER_GUIDE.md) | How to use the app, role by role — ordering, fulfilment, admin console, troubleshooting |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Data models, roles & permissions, order lifecycle, dynamic-settings design, auth flow |
 | [docs/API.md](docs/API.md) | Complete REST endpoint reference |
 | [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md) | Every environment variable (backend + frontend build args) |
