@@ -110,9 +110,11 @@ app.get('/health', (req, resp) => {
   });
 });
 
-// Readiness: can we actually serve traffic? 503 when the database is down, so
-// an uptime check or `curl` says *what* is broken, not just *that* it is.
-app.get('/ready', (req, resp) => {
+// Readiness: can we actually serve traffic? Actively attempts a connection
+// rather than only reporting the last known state, so this both self-heals and
+// tells the truth. 503 when the database really is unreachable.
+app.get('/ready', async (req, resp) => {
+  if (!DB.isConnected()) await DB.connect();
   const ready = DB.isConnected();
   resp.status(ready ? 200 : 503).json({
     status: ready ? 'ready' : 'degraded',
@@ -121,11 +123,21 @@ app.get('/ready', (req, resp) => {
   });
 });
 
-// Short-circuit database-backed routes while the connection is down. Without
-// this, Mongoose buffers each query until it times out and the caller gets a
-// slow, generic 500 with no indication that the database is the problem.
-app.use((req, resp, next) => {
-  if (process.env.NODE_ENV === 'test' || DB.isConnected()) return next();
+// Ensure a connection before serving database-backed routes.
+//
+// This MUST attempt the connection here rather than only read the last known
+// state. On a serverless runtime the instance is frozen once a response is
+// sent, so a connection started at module load can be suspended mid-handshake
+// and never finish; and a connect that failed at boot would otherwise leave
+// the instance returning 503 forever, because nothing would retry.
+//
+// connect() caches the in-flight promise, so concurrent requests on a cold
+// instance share one attempt instead of opening a connection each.
+app.use(async (req, resp, next) => {
+  if (process.env.NODE_ENV === 'test') return next();
+  if (!DB.isConnected()) await DB.connect();
+  if (DB.isConnected()) return next();
+
   logger.warn(`Database unavailable for ${req.method} ${req.originalUrl}`);
   return resp.status(503).json({
     message:

@@ -34,9 +34,11 @@ const connect = async () => {
   if (!cache.promise) {
     cache.promise = mongoose
       .connect(process.env.MONGO_URI, {
-        // Fail fast instead of letting a request hang for the 30s default —
-        // a clear 503 beats a gateway timeout.
-        serverSelectionTimeoutMS: 8000,
+        // Shorter than the 30s default so a genuinely unreachable database
+        // becomes a clear 503 rather than a gateway timeout, but long enough
+        // to cover a cold start's SRV lookup plus TLS handshake to Atlas,
+        // which is far slower than a warm local connect.
+        serverSelectionTimeoutMS: 15000,
         // Bound the pool so one instance cannot exhaust an Atlas M0.
         maxPoolSize: 10,
       })
