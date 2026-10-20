@@ -51,8 +51,11 @@ Middleware (`backend/middlewares/authMiddleware.js`):
 via a pre-save hook), `role`, `approved` (launderers only, default `false`),
 plus student profile fields (`hostel`, `room_number`, `roll_number`).
 
-> ⚠️ The pre-save hook re-hashes on every `.save()`. To update a user without
-> corrupting the password, use `findByIdAndUpdate` (as approval/role changes do).
+> The pre-save hook hashes only when the password actually changed
+> (`isModified('password')`), so an ordinary `.save()` of an existing user is
+> safe. Note that `findByIdAndUpdate` issues a query rather than saving a
+> document, so the hook does **not** run on that path — never route a password
+> change through it.
 
 ### CatalogItem (`models/catalogModel.js`)
 A per-launderer offering: `launderer` (ref User), `clothingType`, `washType`,

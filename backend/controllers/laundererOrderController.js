@@ -55,7 +55,6 @@ const setAvailability = async (req, resp) => {
     const cleaned = [
       ...new Set(timeSlots.map((t) => String(t).trim()).filter(Boolean)),
     ];
-    // findByIdAndUpdate avoids the password-hashing pre-save hook.
     const user = await User.findByIdAndUpdate(
       req.user.user_id,
       { availableTimeSlots: cleaned },

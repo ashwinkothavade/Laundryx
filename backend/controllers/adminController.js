@@ -94,7 +94,6 @@ const setApproval = async (req, resp) => {
         .status(400)
         .json({ message: 'Only launderers require approval' });
     }
-    // findByIdAndUpdate avoids the password-hashing pre-save hook.
     const updated = await User.findByIdAndUpdate(
       req.params.id,
       { approved },

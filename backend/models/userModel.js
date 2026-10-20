@@ -87,11 +87,16 @@ const userSchema = mongoose.Schema(
   }
 );
 
+// Hash the password on the way in — but only when it actually changed.
+// Without the isModified guard, every save of an existing document re-hashes
+// the stored hash and silently locks the user out of their own account.
+// Must stay a `function` (not an arrow) so `this` is the document.
 // eslint-disable-next-line func-names
 userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
-  next();
+  return next();
 });
 
 module.exports = mongoose.model('User', userSchema);

@@ -26,7 +26,7 @@ other route returns **503** with a pointer to `/ready`.
 | POST | `/login` | 🔓 | `{ username, password }` → sets `jwt` cookie |
 | GET | `/logout` | 🔒 | Clears the cookie |
 | GET | `/me` | 🔒 | Current user (no password) — validates the session |
-| PATCH | `/user` | 🔒 | Update own profile fields |
+| PATCH | `/user` | 🔒 | Update own profile. Accepts only `username`, `email`, `phone_number`, `hostel`, `room_number`, `roll_number`; any other field (`role`, `approved`, `password`) is ignored |
 | GET | `/users` | 🔒 | All users (no password) — legacy/testing |
 | GET | `/launderers` | 🔒 | Approved launderers only |
 | GET | `/launderers/directory` | 🔒 | Approved launderers with `avgRating`, `reviewCount`, `minPrice`, `maxPrice`, `itemCount` |

@@ -140,24 +140,54 @@ const createUser = async (req, resp) => {
   }
 };
 
-// @desc    Create a new user
+// Fields a user may change about their own account.
+//
+// This MUST stay an explicit allow-list. Passing req.body straight into
+// findByIdAndUpdate let any account send `role: "admin"` and escalate itself,
+// let a launderer send `approved: true` to bypass the admin approval gate, and
+// wrote `password` in cleartext — findByIdAndUpdate issues a query rather than
+// saving a document, so the bcrypt pre-save hook never ran.
+//
+// Password changes go through the reset flow; role and approval are admin-only
+// operations with their own endpoints.
+const SELF_EDITABLE_FIELDS = [
+  'username',
+  'email',
+  'phone_number',
+  'hostel',
+  'room_number',
+  'roll_number',
+];
+
+// @desc    Update the authenticated user's own profile
 // @route   PATCH /user
 // @access  Private
 const updateUser = async (req, resp) => {
-  const updates = req.body;
   try {
-    const decodedToken = req.user;
-    const user = await User.findByIdAndUpdate(decodedToken.user_id, updates, {
+    const updates = {};
+    SELF_EDITABLE_FIELDS.forEach((field) => {
+      if (req.body[field] !== undefined) updates[field] = req.body[field];
+    });
+
+    if (Object.keys(updates).length === 0) {
+      return resp
+        .status(400)
+        .json({ message: 'No updatable profile fields were provided' });
+    }
+
+    const user = await User.findByIdAndUpdate(req.user.user_id, updates, {
       new: true,
       runValidators: true,
-    });
+    }).select('-password -__v');
+
     if (!user) {
-      throw new Error('User not found');
+      return resp.status(404).json({ message: 'User not found' });
     }
-    resp.status(200).json(user);
+    return resp.status(200).json(user);
   } catch (err) {
+    // A rejected update is the client's problem, not a server fault.
     const errors = authUtils.handleSignUpError(err);
-    resp.status(500).json({ errors });
+    return resp.status(400).json({ errors });
   }
 };
 
