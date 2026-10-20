@@ -90,226 +90,134 @@ const setExpress = async (req, resp) => {
   }
 };
 
-// @desc    Get all orders
+// @desc    Get all orders placed with this launderer
 // @route   GET /allorders
-// @access  Private
-// when accepted and delivery status are marked as true, the orders will be deleted automatically from the database.
+// @access  Private (launderer)
 const getAllOrders = async (req, resp) => {
   try {
-    const decodedToken = req.user;
-    if (decodedToken.role !== 'launderer') {
-      resp.status(401).json({
-        message: 'User does not have access rights',
-      });
-    } else {
-      // the role is launderer, and the route can now be accessed.
-      const orders = await Order.find({
-        launderer: decodedToken.username,
-      }).populate('user', '-password -__v');
-      resp.status(200).json({
-        orders,
-      });
-    }
+    const orders = await Order.find({
+      launderer: req.user.username,
+    }).populate('user', '-password -__v');
+    return resp.status(200).json({ orders });
   } catch (err) {
     logger.error(err.message, { stack: err.stack });
-    resp.status(500).json({
-      message: 'Error fetching the orders',
-      error: err,
-    });
+    return resp.status(500).json({ message: 'Error fetching the orders' });
   }
 };
 
-// @desc    Get orders of a particular user
+// @desc    Get this launderer's orders for a particular student
 // @route   GET /orders/:username
-// @access  Private
+// @access  Private (launderer)
 const getOrdersByStudent = async (req, resp) => {
   try {
-    const decodedToken = req.user;
-    if (decodedToken.role !== 'launderer') {
-      resp.status(401).json({
-        message: 'User does not have access rights',
-      });
-    } else {
-      // the role is launderer, and the route can now be accessed
-      // Get the username of the student, search in the database for the orders with the username
-      const { username } = req.params;
-      const user = await User.findOne({ username });
-      if (!user) {
-        return resp.status(404).json({
-          message: 'Student not found',
-        });
-      }
-      const userId = user._id;
-      const result = await Order.find({ user: userId });
-      resp.status(200).json({
-        orders: result,
-      });
+    const user = await User.findOne({ username: req.params.username });
+    if (!user) {
+      return resp.status(404).json({ message: 'Student not found' });
     }
+    // Scoped to the relationship, not just the role. Previously this returned
+    // every order that student had ever placed, including ones with competing
+    // launderers, to any launderer who asked.
+    const orders = await Order.find({
+      user: user._id,
+      launderer: req.user.username,
+    });
+    return resp.status(200).json({ orders });
   } catch (err) {
     logger.error(err.message, { stack: err.stack });
-    resp.status(500).json({
-      message: 'Error fetching the orders',
-      error: err,
-    });
+    return resp.status(500).json({ message: 'Error fetching the orders' });
   }
 };
 
-// @desc    Update Order status as accepted by the launderer
+// @desc    Accept an order
 // @route   PUT /acceptorder/:order_id
-// @access  Private
+// @access  Private (launderer, own order)
 const updateOrderAccept = async (req, resp) => {
   try {
-    const decodedToken = req.user;
-    if (decodedToken.role !== 'launderer') {
-      resp.status(401).json({
-        message: 'User does not have access rights',
-      });
-    } else {
-      // the role is launderer, and the route can now be accessed.
-      // launderer can now accept the order
-      const orderId = req.params.order_id;
-      const order = await Order.findById(orderId);
-      if (!order) {
-        return resp.status(404).json({
-          message: 'Order not found',
-        });
-      }
-      if (order.acceptedStatus === true) {
-        resp.status(400).json({
-          message: 'Order is already accepted.',
-        });
-      } else {
-        order.acceptedStatus = true;
-        order.save();
-        resp.status(200).json({
-          updatedOrder: order,
-        });
-      }
+    const { order } = req;
+    if (order.acceptedStatus) {
+      return resp.status(400).json({ message: 'Order is already accepted.' });
     }
+    order.acceptedStatus = true;
+    await order.save();
+    return resp.status(200).json({ updatedOrder: order });
   } catch (err) {
-    resp.status(401).json({
-      message: err,
+    logger.error(`updateOrderAccept error: ${err.message}`, {
+      stack: err.stack,
     });
+    return resp.status(500).json({ message: 'Error accepting the order' });
   }
 };
 
-// @desc    Update Order accepted status as again rejected by the launderer
+// @desc    Reject a previously accepted order
 // @route   PUT /rejectorder/:order_id
-// @access  Private
+// @access  Private (launderer, own order)
 const updateOrderReject = async (req, resp) => {
   try {
-    const decodedToken = req.user;
-    if (decodedToken.role !== 'launderer') {
-      resp.status(401).json({
-        message: 'User does not have access rights',
-      });
-    } else {
-      // the role is launderer, and the route can now be accessed.
-      // launderer can now reject the order
-      const orderId = req.params.order_id;
-      const order = await Order.findById(orderId);
-      if (!order) {
-        return resp.status(404).json({
-          message: 'Order not found',
-        });
-      }
-      if (order.pickUpStatus === true) {
-        resp.status(400).json({
-          message: 'Order is picked up, cannot be rejected.',
-        });
-      } else {
-        order.acceptedStatus = false;
-        order.save();
-        resp.status(201).json({
-          message: 'Order rejected successfully',
-          updatedOrder: order,
-        });
-      }
+    const { order } = req;
+    if (order.pickUpStatus) {
+      return resp
+        .status(400)
+        .json({ message: 'Order is picked up, cannot be rejected.' });
     }
+    order.acceptedStatus = false;
+    await order.save();
+    return resp
+      .status(201)
+      .json({ message: 'Order rejected successfully', updatedOrder: order });
   } catch (err) {
-    resp.status(401).json({
-      message: err,
+    logger.error(`updateOrderReject error: ${err.message}`, {
+      stack: err.stack,
     });
+    return resp.status(500).json({ message: 'Error rejecting the order' });
   }
 };
 
-// @desc    Update Order Delivery Status by the launderer
+// @desc    Mark an order delivered
 // @route   PUT /updatedeliveredstatus/:order_id
-// @access  Private
+// @access  Private (launderer, own order)
 const updateDeliveredStatus = async (req, resp) => {
   try {
-    const decodedToken = req.user;
-    if (decodedToken.role !== 'launderer') {
-      resp.status(401).json({
-        message: 'User does not have access rights',
-      });
-    } else {
-      // the role is launderer, and the route can now be accessed.
-      // launderer can now set the delivered status of the order to be true
-      const orderId = req.params.order_id;
-      const order = await Order.findById(orderId);
-      if (!order) {
-        return resp.status(404).json({
-          message: 'Order not found',
-        });
-      }
-      if (order.acceptedStatus === false) {
-        resp.status(400).json({
-          message: 'Order is not accepted yet.',
-        });
-      } else if (order.pickUpStatus === false) {
-        resp.status(400).json({
-          message: 'Order is not picked up yet.',
-        });
-      } else if (order.deliveredStatus === true) {
-        resp.status(400).json({
-          message: 'Order is already delivered.',
-        });
-      } else {
-        order.deliveredStatus = true;
-        order.save();
-        resp.status(200).json({
-          updatedOrder: order,
-        });
-      }
+    const { order } = req;
+    if (!order.acceptedStatus) {
+      return resp.status(400).json({ message: 'Order is not accepted yet.' });
     }
+    if (!order.pickUpStatus) {
+      return resp.status(400).json({ message: 'Order is not picked up yet.' });
+    }
+    if (order.deliveredStatus) {
+      return resp.status(400).json({ message: 'Order is already delivered.' });
+    }
+    order.deliveredStatus = true;
+    await order.save();
+    return resp.status(200).json({ updatedOrder: order });
   } catch (err) {
-    resp.status(401).json({
-      message: err,
+    logger.error(`updateDeliveredStatus error: ${err.message}`, {
+      stack: err.stack,
     });
+    return resp.status(500).json({ message: 'Error updating the order' });
   }
 };
 
-// @desc    Update Order Delivery Date by the launderer
+// @desc    Change an order's delivery date
 // @route   PUT /updatedeliverydate/:order_id
-// @access  Private
+// @access  Private (launderer, own order)
 const updateOrderDeliveryDate = async (req, resp) => {
   try {
-    const decodedToken = req.user;
-    if (decodedToken.role !== 'launderer') {
-      resp.status(401).json({
-        message: 'User does not have access rights',
-      });
-    } else {
-      // the role is launderer, and the route can now be accessed.
-      // launderer can now update the delivery date
-      const orderId = req.params.order_id;
-      const result = await Order.findByIdAndUpdate(orderId, {
-        deliveryDate: req.body.deliveryDate,
-      });
-      if (!result) {
-        return resp.status(404).json({
-          message: 'Order not found',
-        });
-      }
-      resp.status(201).json({
-        updatedOrder: result,
-      });
+    const { order } = req;
+    const { deliveryDate } = req.body;
+    if (!deliveryDate) {
+      return resp.status(400).json({ message: 'deliveryDate is required' });
     }
+    order.deliveryDate = deliveryDate;
+    await order.save();
+    return resp.status(201).json({ updatedOrder: order });
   } catch (err) {
-    resp.status(401).json({
-      message: err,
+    logger.error(`updateOrderDeliveryDate error: ${err.message}`, {
+      stack: err.stack,
     });
+    return resp
+      .status(500)
+      .json({ message: 'Error updating the delivery date' });
   }
 };
 

@@ -44,6 +44,18 @@ Middleware (`backend/middlewares/authMiddleware.js`):
 - `verifyStudentDetails` — blocks students who haven't set their hostel.
 - `verifyLaunderer` / `verifyAdmin` — role guards (must run after `verifyUser`).
 
+Role guards answer *"may this kind of user do this kind of thing"*. They cannot
+answer *"may this user touch **this** record"*, because that needs the record —
+which is why that check kept ending up inside handlers, where omitting it is
+invisible. `middlewares/orderAccess.js` makes it declarative instead:
+
+- `loadOrder({ as: 'owner' })` — the customer who placed the order.
+- `loadOrder({ as: 'launderer' })` — the launderer it was placed with.
+
+It loads the order, asserts the relationship, and attaches `req.order`. A
+handler mounted without it has no order to work with, so the check cannot be
+forgotten the way it was on the launderer order routes.
+
 ## Data models
 
 ### User (`models/userModel.js`)

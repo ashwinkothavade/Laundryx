@@ -198,19 +198,7 @@ const createStudentOrder = async (req, resp) => {
 // @access  Private
 const updatePickupStatus = async (req, resp) => {
   try {
-    const decodedToken = req.user;
-    const orderId = req.params.order_id;
-    const order = await Order.findById(orderId);
-    if (order === null) {
-      return resp.status(404).json({
-        message: 'Order not found',
-      });
-    }
-    if (order.user.toString() !== decodedToken.user_id) {
-      return resp.status(403).json({
-        message: 'You are not authorized to modify this order',
-      });
-    }
+    const { order } = req;
     if (order.acceptedStatus === false) {
       return resp.status(400).json({
         message: 'Order not accepted yet',
@@ -222,7 +210,7 @@ const updatePickupStatus = async (req, resp) => {
       });
     }
     order.pickUpStatus = true;
-    order.save();
+    await order.save();
     resp.status(200).json({
       message: 'Pickup status updated successfully',
       updatedOrder: order,
@@ -241,22 +229,9 @@ const updatePickupStatus = async (req, resp) => {
 // @access  Private
 const deleteOrder = async (req, resp) => {
   try {
-    const decodedToken = req.user;
-    const orderId = req.params.order_id;
+    const { order } = req;
 
-    const order = await Order.findById(orderId);
-    if (!order) {
-      return resp.status(404).json({
-        message: 'Order not found',
-      });
-    }
-    if (order.user.toString() !== decodedToken.user_id) {
-      return resp.status(403).json({
-        message: 'You are not authorized to delete this order',
-      });
-    }
-
-    await Order.findByIdAndDelete(orderId);
+    await Order.findByIdAndDelete(order._id);
 
     resp.status(200).json({
       message: 'Order deleted successfully',
@@ -276,19 +251,7 @@ const deleteOrder = async (req, resp) => {
 // @access  Private
 const updateDeliveryStatus = async (req, resp) => {
   try {
-    const decodedToken = req.user;
-    const orderId = req.params.order_id;
-    const order = await Order.findById(orderId);
-    if (order === null) {
-      return resp.status(404).json({
-        message: 'Order not found',
-      });
-    }
-    if (order.user.toString() !== decodedToken.user_id) {
-      return resp.status(403).json({
-        message: 'You are not authorized to modify this order',
-      });
-    }
+    const { order } = req;
     if (order.pickUpStatus === false) {
       return resp.status(400).json({
         message: 'Order not picked up yet',
@@ -305,7 +268,7 @@ const updateDeliveryStatus = async (req, resp) => {
       });
     }
     order.deliveredStatus = true;
-    order.save();
+    await order.save();
     resp.status(200).json({
       message: 'Delivery status updated successfully',
       updatedOrder: order,
@@ -324,16 +287,7 @@ const updateDeliveryStatus = async (req, resp) => {
 // @access  Private (student, owner)
 const rescheduleOrder = async (req, resp) => {
   try {
-    const decodedToken = req.user;
-    const order = await Order.findById(req.params.order_id);
-    if (!order) {
-      return resp.status(404).json({ message: 'Order not found' });
-    }
-    if (order.user.toString() !== decodedToken.user_id) {
-      return resp
-        .status(403)
-        .json({ message: 'You are not authorized to modify this order' });
-    }
+    const { order } = req;
     if (order.pickUpStatus) {
       return resp
         .status(400)
@@ -359,16 +313,7 @@ const rescheduleOrder = async (req, resp) => {
 // @access  Private (student, owner)
 const cancelOrder = async (req, resp) => {
   try {
-    const decodedToken = req.user;
-    const order = await Order.findById(req.params.order_id);
-    if (!order) {
-      return resp.status(404).json({ message: 'Order not found' });
-    }
-    if (order.user.toString() !== decodedToken.user_id) {
-      return resp
-        .status(403)
-        .json({ message: 'You are not authorized to cancel this order' });
-    }
+    const { order } = req;
     if (order.pickUpStatus) {
       return resp
         .status(400)
