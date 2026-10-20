@@ -138,14 +138,11 @@ app.use(async (req, resp, next) => {
   if (process.env.NODE_ENV === 'test') return next();
   if (DB.isConnected()) return next();
 
-  // Try twice before giving up. On a cold instance the connection started at
-  // module load can lose a race with the runtime freezing between init and
-  // the first invocation, which showed up in production as the first request
-  // after an idle period getting a 503 while every request after it
-  // succeeded. connect() clears its cached promise on failure, so the second
-  // call is a genuinely fresh attempt rather than a replay of the first
-  // rejection. A database that is actually gone still fails fast, because
-  // the DNS lookup for a dead cluster fails in well under a second.
+  // Try twice before giving up. connect() clears its in-flight promise once
+  // it settles, so the second call is a genuinely fresh attempt rather than a
+  // replay of the first rejection — enough to ride out a transient blip on a
+  // cold instance. A database that is actually gone still fails fast, because
+  // DNS for a dead cluster fails in well under a second.
   await DB.connect();
   if (!DB.isConnected()) await DB.connect();
   if (DB.isConnected()) return next();
