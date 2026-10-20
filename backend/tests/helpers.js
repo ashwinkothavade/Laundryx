@@ -3,6 +3,7 @@ const app = require('../app');
 const User = require('../models/userModel');
 const CatalogItem = require('../models/catalogModel');
 const Setting = require('../models/settingModel');
+const Order = require('../models/orderModel');
 
 const PASSWORD = 'Test@1234';
 
@@ -105,5 +106,5 @@ module.exports = {
   seedSettings,
   addCatalogItem,
   orderBody,
-  models: { User, CatalogItem, Setting },
+  models: { User, CatalogItem, Setting, Order },
 };

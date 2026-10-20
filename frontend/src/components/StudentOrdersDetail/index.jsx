@@ -123,9 +123,9 @@ function OrderDetail() {
 
   const handlePayment = async (order) => {
     try {
-      const receipt = Math.random().toString(36).substring(7);
-      const body = { amount: order.orderTotal * 100, currency: 'INR', receipt };
-      const response = await makePayment(body);
+      // Send only which order is being paid for. The server reads the amount
+      // from that order, so nothing here can change what is charged.
+      const response = await makePayment({ orderId: order._id });
       const orderDetails = await response.data;
 
       const options = {
@@ -138,7 +138,9 @@ function OrderDetail() {
         order_id: orderDetails.id,
         async handler(resp) {
           try {
-            await validatePayment({ ...resp, order_id: order._id });
+            // The server resolves which order this settles from the
+            // signed razorpay_order_id; it does not take our word for it.
+            await validatePayment(resp);
             const notification = {
               student: userName,
               launderer: order.launderer,

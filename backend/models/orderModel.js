@@ -102,6 +102,19 @@ const orderSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    // The Razorpay order this order's payment was initiated against. Payment
+    // confirmation looks our order up by THIS value rather than trusting an
+    // order id supplied by the client, so a signature obtained for one payment
+    // cannot be replayed against a different order.
+    razorpayOrderId: {
+      type: String,
+      default: '',
+      index: true,
+    },
+    paymentId: {
+      type: String,
+      default: '',
+    },
     launderer: {
       type: String,
       required: true,

@@ -128,8 +128,12 @@ All under `/admin` require an admin.
 
 | Method | Path | Auth | Body / notes |
 |---|---|:---:|---|
-| POST | `/payment` | 🔒 | `{ amount, currency, receipt }` → creates a Razorpay order |
-| PUT | `/payment/validate` | 🔒 | `{ razorpay_order_id, razorpay_payment_id, razorpay_signature, order_id }` — verifies signature, marks order paid |
+| POST | `/payment` | 🎓 | `{ orderId }` → creates a Razorpay order. The **amount is read from the order**, never from the request; 403 if the caller does not own it, 409 if already paid |
+| PUT | `/payment/validate` | 🎓 | `{ razorpay_order_id, razorpay_payment_id, razorpay_signature }` — verifies the signature (constant-time), resolves **which** order from the signed `razorpay_order_id`, checks ownership, then marks it paid. Idempotent |
+
+> The caller never states an amount, and never states which order a payment
+> settles — both are derived server-side. A signature obtained for one payment
+> therefore cannot be replayed against a different or larger order.
 
 ## Notifications
 
