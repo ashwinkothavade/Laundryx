@@ -38,8 +38,10 @@ const connect = async () => {
         // to cover a cold start's SRV lookup plus TLS handshake to Atlas,
         // which is far slower than a warm local connect.
         serverSelectionTimeoutMS: 15000,
-        // Bound the pool so one instance cannot exhaust an Atlas M0.
-        maxPoolSize: 10,
+        // Bound the pool hard. Each serverless instance keeps its own, and
+        // Atlas shared tiers cap total connections, so a traffic spike that
+        // spawns many instances is the realistic way to hit that ceiling.
+        maxPoolSize: 5,
       })
       .then((m) => {
         logger.info(`MongoDB connected: ${m.connection.host}`);

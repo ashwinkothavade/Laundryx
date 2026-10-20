@@ -115,6 +115,7 @@ app.get('/health', (req, resp) => {
 // tells the truth. 503 when the database really is unreachable.
 app.get('/ready', async (req, resp) => {
   if (!DB.isConnected()) await DB.connect();
+  if (!DB.isConnected()) await DB.connect();
   const ready = DB.isConnected();
   resp.status(ready ? 200 : 503).json({
     status: ready ? 'ready' : 'degraded',
@@ -135,6 +136,17 @@ app.get('/ready', async (req, resp) => {
 // instance share one attempt instead of opening a connection each.
 app.use(async (req, resp, next) => {
   if (process.env.NODE_ENV === 'test') return next();
+  if (DB.isConnected()) return next();
+
+  // Try twice before giving up. On a cold instance the connection started at
+  // module load can lose a race with the runtime freezing between init and
+  // the first invocation, which showed up in production as the first request
+  // after an idle period getting a 503 while every request after it
+  // succeeded. connect() clears its cached promise on failure, so the second
+  // call is a genuinely fresh attempt rather than a replay of the first
+  // rejection. A database that is actually gone still fails fast, because
+  // the DNS lookup for a dead cluster fails in well under a second.
+  await DB.connect();
   if (!DB.isConnected()) await DB.connect();
   if (DB.isConnected()) return next();
 
