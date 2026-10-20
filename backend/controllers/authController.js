@@ -7,19 +7,6 @@ const logger = require('../utils/logger');
 
 const maxAge = 86400; // 3 days in seconds
 
-// @desc    Get all users
-// @route   GET /users
-// For testing purposes
-// @access  Private
-const getAllUsers = async (req, resp) => {
-  try {
-    const result = await User.find().select('-password -__v');
-    resp.status(200).json(result);
-  } catch (err) {
-    resp.status(500).json('UserModel error');
-  }
-};
-
 // @desc    Get all launderers
 // @route   GET /launderers
 // For testing purposes
@@ -371,7 +358,6 @@ const postResetPassword = async (req, resp) => {
   }
 };
 module.exports = {
-  getAllUsers,
   getAllLaunderers,
   getLaundererDirectory,
   getMe,

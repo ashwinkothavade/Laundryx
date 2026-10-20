@@ -122,3 +122,17 @@ describe('Password hashing is idempotent across saves', () => {
     expect(res.status).toBe(200);
   });
 });
+
+describe('The unguarded user listing is gone', () => {
+  test('GET /users no longer exists, so it cannot leak the user table', async () => {
+    const s = await makeStudent();
+    const res = await request(app).get('/users').set('Cookie', s.cookie);
+    expect(res.status).toBe(404);
+  });
+
+  test('listing users requires an admin', async () => {
+    const s = await makeStudent();
+    const res = await request(app).get('/admin/users').set('Cookie', s.cookie);
+    expect(res.status).toBe(403);
+  });
+});
