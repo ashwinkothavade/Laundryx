@@ -1,5 +1,7 @@
 node_modules
-package-lock.json
+# package-lock.json is committed on purpose: CI installs with
+# `npm ci`, which needs it and which guarantees CI resolves the
+# same dependency tree the developer tested against.
 .env
 ../vscode/*
 Testing
