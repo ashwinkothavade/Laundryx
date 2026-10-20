@@ -1,6 +1,6 @@
+const mongoose = require('mongoose');
 const { app, request } = require('./helpers');
 const DB = require('../config/db');
-const mongoose = require('mongoose');
 
 describe('Health and readiness', () => {
   test('GET /health reports liveness without touching the database', async () => {
