@@ -130,9 +130,6 @@ a re-seed (`npm run seed:admin && npm run seed:data`).
   real client IP from `X-Forwarded-For` behind Vercel's proxy.
 - **Rate limiting is in-memory** — per serverless instance, so best-effort only.
   Use a shared store (Redis) for strict limits.
-- **The stale-order cron** (`node-cron` in `server.js`) needs a long-lived
-  process, so it is registered only when *not* running on Vercel. Use a Vercel
-  Cron / external scheduler if it is needed in production.
 - **A database outage degrades the API, it does not kill it.** `config/db.js`
   never calls `process.exit()`; the connection promise is cached per instance
   and retried on a later invocation, `/health` and `/ready` always answer, and

@@ -1,6 +1,5 @@
 // eslint-disable-next-line no-unused-vars
 const dotenv = require('dotenv').config();
-const cron = require('node-cron');
 const app = require('./app');
 const DB = require('./config/db');
 const logger = require('./utils/logger');
@@ -22,15 +21,6 @@ if (missingEnv.length) {
 DB.connect().catch((err) => {
   logger.error(`Initial database connection failed: ${err.message}`);
 });
-
-// Task scheduler to delete stale completed orders, daily at midnight.
-// node-cron needs a long-lived process; a serverless function is not one, so
-// this is only registered when running as a standalone server.
-if (!process.env.VERCEL) {
-  cron.schedule('0 0 * * *', () => {
-    DB.deleteValidOrders();
-  });
-}
 
 // On Vercel's serverless runtime the app is imported and invoked per-request,
 // so we must export it. Only bind a port when running as a standalone process

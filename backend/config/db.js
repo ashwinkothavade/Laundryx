@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const Order = require('../models/orderModel');
 const logger = require('../utils/logger');
 
 // On a serverless runtime this module is evaluated once per *instance* and then
@@ -65,34 +64,8 @@ const connect = async () => {
   return cache.conn;
 };
 
-// db optimization: delete orders that are paid, accepted, delivered and picked up every 2 days
-const deleteValidOrders = async () => {
-  if (!isConnected()) {
-    logger.warn('Stale order cleanup skipped: no database connection.');
-    return;
-  }
-  try {
-    const now = new Date();
-    const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000); // 2 days ago
-
-    const result = await Order.deleteMany({
-      paid: true,
-      acceptedStatus: true,
-      deliveredStatus: true,
-      pickUpStatus: true,
-      updatedAt: { $lte: twoDaysAgo },
-    });
-    logger.info(`Stale order cleanup: ${result.deletedCount} orders deleted.`);
-  } catch (err) {
-    logger.error(`Error deleting stale orders: ${err.message}`, {
-      stack: err.stack,
-    });
-  }
-};
-
 module.exports = {
   connect,
-  deleteValidOrders,
   isConnected,
   stateName,
 };

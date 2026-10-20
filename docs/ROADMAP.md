@@ -47,8 +47,8 @@ Legend: `[ ]` todo · `[~]` partially done · `[x]` done.
 
 ## 3. Reliability & infrastructure
 
-- [ ] **[P0]** Move the stale-order cron off serverless (Vercel Cron / worker) —
-  `cron.schedule` won't fire reliably on Vercel.
+- [x] ~~Move the stale-order cron off serverless~~ — removed outright: it
+  deleted paid, completed orders, destroying financial records.
 - [ ] **[P1]** Error monitoring (Sentry) with request IDs threaded through the
   existing structured logs.
 - [ ] **[P1]** `/health` + `/ready` endpoints and uptime monitoring.
