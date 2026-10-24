@@ -9,4 +9,9 @@ const { verifyUser } = require('../middlewares/authMiddleware');
 router.post('/payment', verifyUser, razorpayController.createOrder);
 router.put('/payment/validate', verifyUser, razorpayController.validatePayment);
 
+// Razorpay's server-to-server confirmation. Deliberately unauthenticated:
+// the caller is Razorpay, not a signed-in user, and it is authenticated by
+// the HMAC signature over the raw body instead of by a session cookie.
+router.post('/payment/webhook', razorpayController.handleWebhook);
+
 module.exports = router;

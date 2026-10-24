@@ -11,6 +11,7 @@ Copy `.env.example` to `.env` and fill these in. Docker Compose reads the root
 | `ACCESS_TOKEN_SECRET` | ✅ | Secret for signing/verifying the JWT auth cookie. |
 | `RAZORPAY_KEY_ID` | ✅ (boot) | Razorpay key id. Must be non-empty or the server won't boot; use a dummy for local dev without payments. |
 | `RAZORPAY_SECRET` | ✅ (boot) | Razorpay secret (used to verify payment signatures). |
+| `RAZORPAY_WEBHOOK_SECRET` | Secret for the webhook endpoint, set per-webhook in the Razorpay dashboard. **Not** the API key secret. Without it `/payment/webhook` returns 500 and payments are only confirmed when the customer's tab returns. |
 | `JWT_SECRET` | for reset | Secret for password-reset tokens. |
 | `GMAIL_ADDRESS` | for reset | Gmail address used to send reset emails. |
 | `GMAIL_PASSWORD` | for reset | Gmail **app password** (not the login password). |

@@ -137,5 +137,9 @@ a re-seed (`npm run seed:admin && npm run seed:data`).
 - **Razorpay** currently uses **test** keys. Real payments need a KYC-activated
   Razorpay account and live keys, with `VITE_RAZORPAY_KEY_ID` and the backend
   `RAZORPAY_KEY_ID` on the **same** account/mode.
-- **Payment confirmation** is client-side (signature verified server-side) with
-  no webhook fallback; a Razorpay webhook is the standard hardening step.
+- **Payment confirmation** arrives by webhook at `POST /payment/webhook`,
+  which is authoritative; the browser handler is an optimistic UI path. The
+  webhook needs `RAZORPAY_WEBHOOK_SECRET` set on the API project and the URL
+  registered in the Razorpay dashboard (Settings -> Webhooks), subscribed to
+  `payment.captured` and/or `order.paid`. Razorpay disables an endpoint that
+  fails for 24 hours, so check it after any API outage.

@@ -89,6 +89,12 @@ if (!isTest) {
   );
 }
 
+// The Razorpay webhook signature is an HMAC over the raw request bytes, so
+// this route must keep them. Mounted before express.json(): body-parser marks
+// the body as read, so the JSON parser below skips this path instead of
+// replacing the Buffer with a parsed object.
+app.use('/payment/webhook', express.raw({ type: 'application/json' }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors(corsOptions));

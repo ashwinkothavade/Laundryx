@@ -33,9 +33,9 @@ Legend: `[ ]` todo · `[~]` partially done · `[x]` done.
 
 ## 2. Payments & billing
 
-- [ ] **[P0]** Harden the Razorpay integration: idempotency keys, webhook-based
-  confirmation (don't trust only the client handler), refunds, and failed-/
-  pending-payment reconciliation.
+- [~] **[P0]** Harden the Razorpay integration — **webhook confirmation,
+  amount reconciliation and event de-duplication are done**; refunds and
+  pending-payment reconciliation remain.
 - [ ] **[P1]** Configurable payment timing (pay-on-order vs pay-on-delivery).
 - [ ] **[P1]** Payout/settlement flow to launderers (marketplace take-rate,
   ledger, statements).
