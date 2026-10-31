@@ -27,6 +27,7 @@ import {
   postNotif,
   previewCoupon,
 } from '../../utils/apis';
+import { useAsyncAction } from '../../hooks/useAsyncAction';
 
 function ScheduleCard() {
   const {
@@ -69,6 +70,8 @@ function ScheduleCard() {
   const [timeSlots, setTimeSlots] = useState([]);
 
   const toast = useToast();
+
+  const { run, isPending, busy } = useAsyncAction();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -445,7 +448,13 @@ function ScheduleCard() {
               setCouponStatus(null);
             }}
           />
-          <Button variant="outline" colorScheme="purple" onClick={applyCoupon}>
+          <Button
+            variant="outline"
+            colorScheme="purple"
+            isLoading={isPending('coupon')}
+            isDisabled={busy}
+            onClick={() => run('coupon', applyCoupon)}
+          >
             Apply
           </Button>
         </Flex>
@@ -494,7 +503,10 @@ function ScheduleCard() {
           bg="#CE1567"
           color="#FFFFFF"
           _hover={{ bg: '#bf0055' }}
-          onClick={handleConfirmOrder}
+          isLoading={isPending('place-order')}
+          loadingText="Placing order"
+          isDisabled={busy}
+          onClick={(e) => run('place-order', () => handleConfirmOrder(e))}
         >
           Confirm Order
         </Button>

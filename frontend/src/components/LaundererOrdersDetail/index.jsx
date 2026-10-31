@@ -45,6 +45,15 @@ import {
   updateAcceptedStatus,
   updateDeliveryStatus,
 } from '../../utils/apis';
+import {
+  formatCurrency,
+  formatDate,
+  orderStatus,
+  paidStatus,
+  shortOrderRef,
+} from '../../utils/format';
+import EmptyState from '../EmptyState';
+import { useAsyncAction } from '../../hooks/useAsyncAction';
 
 function LaundererOrdersDetail() {
   const [orders, setOrders] = useState([]);
@@ -54,6 +63,7 @@ function LaundererOrdersDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const toast = useToast();
+  const { run, isPending, busy } = useAsyncAction();
   const { userName } = useAuthStore((state) => ({
     userName: state.userName,
   }));
@@ -255,37 +265,43 @@ function LaundererOrdersDetail() {
           <Table variant="simple">
             <Thead>
               <Tr>
-                <Th textAlign="center">Order ID</Th>
-                <Th textAlign="center">Order Total</Th>
-                <Th textAlign="center">Customer Username</Th>
-                <Th textAlign="center">Hostel</Th>
-                <Th textAlign="center">Delivery Date</Th>
-                <Th textAlign="center">Pickup Status</Th>
-                <Th textAlign="center">Payment Status</Th>
+                <Th>Order</Th>
+                <Th isNumeric>Total</Th>
+                <Th>Customer</Th>
+                <Th>Hostel</Th>
+                <Th>Delivery</Th>
+                <Th>Status</Th>
+                <Th>Payment</Th>
               </Tr>
             </Thead>
             <Tbody>
               {filteredOrders.map((order) => (
                 <Tr key={order._id}>
-                  <Td textAlign="center">{order._id}</Td>
-                  <Td textAlign="center">₹{order.orderTotal}</Td>
-                  <Td textAlign="center">{order.user.username}</Td>
-                  <Td textAlign="center">{order.user.hostel}</Td>
-                  <Td textAlign="center">{order.deliveryDate}</Td>
-                  <Td textAlign="center">
-                    <Tag
-                      size="lg"
-                      colorScheme={order.pickUpStatus ? 'green' : 'red'}
-                    >
-                      {order.pickUpStatus ? 'Picked Up' : 'Not Picked Up'}
+                  <Td
+                    fontFamily="mono"
+                    fontSize="sm"
+                    title={order._id}
+                    whiteSpace="nowrap"
+                  >
+                    {shortOrderRef(order._id)}
+                  </Td>
+                  <Td isNumeric whiteSpace="nowrap">
+                    {formatCurrency(order.orderTotal)}
+                  </Td>
+                  <Td>{order.user?.username}</Td>
+                  <Td>{order.user?.hostel}</Td>
+                  <Td whiteSpace="nowrap">{formatDate(order.deliveryDate)}</Td>
+                  <Td>
+                    <Tag size="sm" colorScheme={orderStatus(order).scheme}>
+                      {orderStatus(order).label}
                     </Tag>
                   </Td>
-                  <Td textAlign="center">
-                    <Tag size="lg" colorScheme={order.paid ? 'green' : 'red'}>
-                      {order.paid ? 'Paid' : 'Not Paid'}
+                  <Td>
+                    <Tag size="sm" colorScheme={paidStatus(order).scheme}>
+                      {paidStatus(order).label}
                     </Tag>
                   </Td>
-                  <Td textAlign="center">
+                  <Td textAlign="right">
                     <Button
                       color="#ce1567"
                       onClick={() => handleCardClick(order)}
@@ -297,6 +313,18 @@ function LaundererOrdersDetail() {
               ))}
             </Tbody>
           </Table>
+          {orders.length === 0 && (
+            <EmptyState
+              title="No orders yet"
+              description="Orders customers place with you will appear here."
+            />
+          )}
+          {orders.length > 0 && filteredOrders.length === 0 && (
+            <EmptyState
+              title="No orders match these filters"
+              description="Clear a filter above to see the rest of your orders."
+            />
+          )}
         </Box>
       </Box>
       {/* Order Details Modal */}
@@ -369,7 +397,8 @@ function LaundererOrdersDetail() {
                 </GridItem>
                 <GridItem>
                   <Text>
-                    <strong>Pickup Date:</strong> {selectedOrder.pickupDate}
+                    <strong>Pickup Date:</strong>{' '}
+                    {formatDate(selectedOrder.pickupDate)}
                   </Text>
                 </GridItem>
                 <GridItem>
@@ -379,7 +408,8 @@ function LaundererOrdersDetail() {
                 </GridItem>
                 <GridItem>
                   <Text>
-                    <strong>Delivery Date:</strong> {selectedOrder.deliveryDate}
+                    <strong>Delivery Date:</strong>{' '}
+                    {formatDate(selectedOrder.deliveryDate)}
                   </Text>
                 </GridItem>
                 <GridItem>
@@ -417,10 +447,14 @@ function LaundererOrdersDetail() {
                     ml={2}
                     colorScheme="green"
                     display={selectedOrder.acceptedStatus ? 'none' : ''}
+                    isDisabled={busy}
                     onChange={() =>
-                      handleUpdateAcceptedStatus(selectedOrder._id)
+                      run('accept', () =>
+                        handleUpdateAcceptedStatus(selectedOrder._id)
+                      )
                     }
                   />
+                  {isPending('accept') ? <Spinner size="sm" ml={2} /> : null}
                 </GridItem>
                 <GridItem>
                   <Text>
@@ -447,10 +481,14 @@ function LaundererOrdersDetail() {
                         ? 'none'
                         : ''
                     }
+                    isDisabled={busy}
                     onChange={() =>
-                      handleUpdateDeliveredStatus(selectedOrder._id)
+                      run('deliver', () =>
+                        handleUpdateDeliveredStatus(selectedOrder._id)
+                      )
                     }
                   />
+                  {isPending('deliver') ? <Spinner size="sm" ml={2} /> : null}
                 </GridItem>
                 <GridItem>
                   <Text>

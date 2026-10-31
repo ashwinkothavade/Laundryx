@@ -23,6 +23,7 @@ import {
   getMyCatalog,
   updateCatalogItem,
 } from '../../utils/apis';
+import { useAsyncAction } from '../../hooks/useAsyncAction';
 
 const emptyForm = { clothingType: '', washType: '', price: '' };
 
@@ -33,6 +34,7 @@ function LaundererCatalog() {
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState(emptyForm);
   const toast = useToast();
+  const { run, isPending, busy } = useAsyncAction();
 
   const notify = (title, status, description = '') =>
     toast({
@@ -151,7 +153,10 @@ function LaundererCatalog() {
       {/* Add form */}
       <Box
         as="form"
-        onSubmit={handleAdd}
+        onSubmit={(e) => {
+          e.preventDefault();
+          run('add-item', () => handleAdd(e));
+        }}
         border="2px solid #584BAC"
         borderRadius="0.8rem"
         p={{ base: '1rem', md: '1.5rem' }}
@@ -197,6 +202,9 @@ function LaundererCatalog() {
           </FormControl>
           <Button
             type="submit"
+            isLoading={isPending('add-item')}
+            loadingText="Adding"
+            isDisabled={busy}
             bg="#CE1567"
             color="white"
             _hover={{ bg: '#bf0055' }}

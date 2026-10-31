@@ -63,6 +63,8 @@ import {
   shortOrderRef,
 } from '../../utils/format';
 import { getApiErrorMessage } from '../../utils/errors';
+import { useAsyncAction } from '../../hooks/useAsyncAction';
+import EmptyState from '../EmptyState';
 import RateOrderModal from '../RateOrderModal';
 import RescheduleModal from '../RescheduleModal';
 import OrderTimeline from '../OrderTimeline';
@@ -83,6 +85,7 @@ function OrderDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const toast = useToast();
+  const { run, isPending, busy } = useAsyncAction();
   const navigate = useNavigate();
   const { userName, userHostel } = useAuthStore((state) => ({
     userName: state.userName,
@@ -420,14 +423,18 @@ function OrderDetail() {
                         size="sm"
                         color="#ffffff"
                         bgColor="green.500"
-                        isDisabled={order.paid}
+                        isDisabled={order.paid || busy}
                         display={
                           !order.acceptedStatus || !order.pickUpStatus
                             ? 'none'
                             : 'block'
                         }
                         _hover={{ bgColor: 'green.600' }}
-                        onClick={() => handlePayment(order)}
+                        isLoading={isPending(`pay-${order._id}`)}
+                        loadingText="Opening"
+                        onClick={() =>
+                          run(`pay-${order._id}`, () => handlePayment(order))
+                        }
                       >
                         Pay
                       </Button>
@@ -470,7 +477,13 @@ function OrderDetail() {
                             ? 'block'
                             : 'none'
                         }
-                        onClick={() => handleCancelOrder(order._id)}
+                        isLoading={isPending(`cancel-${order._id}`)}
+                        isDisabled={busy}
+                        onClick={() =>
+                          run(`cancel-${order._id}`, () =>
+                            handleCancelOrder(order._id)
+                          )
+                        }
                       >
                         Cancel
                       </Button>
@@ -495,6 +508,18 @@ function OrderDetail() {
               ))}
             </Tbody>
           </Table>
+          {orders.length === 0 && (
+            <EmptyState
+              title="No orders yet"
+              description="When you place an order it will appear here, with its status and receipt."
+            />
+          )}
+          {orders.length > 0 && filteredOrders.length === 0 && (
+            <EmptyState
+              title="No orders match these filters"
+              description="Clear a filter above to see the rest of your orders."
+            />
+          )}
         </Box>
       </Box>
 
@@ -742,11 +767,13 @@ function OrderDetail() {
               </Button>
               <Button
                 colorScheme="red"
+                isLoading={isPending('delete-order')}
+                loadingText="Deleting"
                 onClick={() => {
                   const id = orderToDelete?._id;
                   confirmDelete.onClose();
                   setOrderToDelete(null);
-                  if (id) handleDeleteOrder(id);
+                  if (id) run('delete-order', () => handleDeleteOrder(id));
                 }}
               >
                 Delete order

@@ -32,6 +32,7 @@ import {
 import useAuthStore from '../Store/AuthStore';
 import { updateUserDetails } from '../../utils/apis';
 import { getApiErrorMessage } from '../../utils/errors';
+import { useAsyncAction } from '../../hooks/useAsyncAction';
 
 function StudentDetails() {
   const {
@@ -94,6 +95,7 @@ function StudentDetails() {
 
   const [isEditMode, setIsEditMode] = useState(true);
   const toast = useToast();
+  const { run, isPending, busy } = useAsyncAction();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isLargerThan768px] = useMediaQuery('(min-width: 768px)');
 
@@ -295,7 +297,12 @@ function StudentDetails() {
               shadow="md"
               bg="white"
             >
-              <form onSubmit={handleSubmit}>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  run('save-profile', () => handleSubmit(e));
+                }}
+              >
                 <Stack spacing={4}>
                   <FormControl id="username" isRequired>
                     <FormLabel>Username</FormLabel>
@@ -357,6 +364,9 @@ function StudentDetails() {
                 {isEditMode && (
                   <Button
                     type="submit"
+                    isLoading={isPending('save-profile')}
+                    loadingText="Saving"
+                    isDisabled={busy}
                     width="full"
                     mt="2rem"
                     bgColor="#ce1567"

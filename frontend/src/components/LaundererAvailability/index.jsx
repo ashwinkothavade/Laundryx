@@ -18,12 +18,14 @@ import {
   setLaundererAvailability,
   setLaundererExpress,
 } from '../../utils/apis';
+import { useAsyncAction } from '../../hooks/useAsyncAction';
 
 function LaundererAvailability() {
   const [slots, setSlots] = useState([]);
   const [input, setInput] = useState('');
   const [express, setExpress] = useState('');
   const toast = useToast();
+  const { run, isPending, busy } = useAsyncAction();
 
   useEffect(() => {
     getMe()
@@ -106,7 +108,10 @@ function LaundererAvailability() {
           <WrapItem key={s}>
             <Tag colorScheme="purple" borderRadius="full">
               <TagLabel>{s}</TagLabel>
-              <TagCloseButton onClick={() => remove(s)} />
+              <TagCloseButton
+                isDisabled={busy}
+                onClick={() => run(`remove-${s}`, () => remove(s))}
+              />
             </Tag>
           </WrapItem>
         ))}
@@ -125,7 +130,13 @@ function LaundererAvailability() {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && add()}
         />
-        <Button size="sm" colorScheme="purple" onClick={add}>
+        <Button
+          size="sm"
+          colorScheme="purple"
+          isLoading={isPending('add-slot')}
+          isDisabled={busy}
+          onClick={() => run('add-slot', add)}
+        >
           Add
         </Button>
       </HStack>
@@ -147,7 +158,14 @@ function LaundererAvailability() {
           value={express}
           onChange={(e) => setExpress(e.target.value)}
         />
-        <Button size="sm" colorScheme="purple" onClick={saveExpress}>
+        <Button
+          size="sm"
+          colorScheme="purple"
+          isLoading={isPending('save-express')}
+          loadingText="Saving"
+          isDisabled={busy}
+          onClick={() => run('save-express', saveExpress)}
+        >
           Save
         </Button>
       </HStack>

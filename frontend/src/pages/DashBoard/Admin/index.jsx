@@ -69,6 +69,7 @@ import {
   removeSettingValue,
   upsertSetting,
 } from '../../../utils/apis';
+import { useAsyncAction } from '../../../hooks/useAsyncAction';
 
 const ROLE_COLORS = { admin: 'purple', launderer: 'pink', customer: 'blue' };
 
@@ -90,6 +91,7 @@ ScrollTable.propTypes = {
 
 function AdminDashboard() {
   const toast = useToast();
+  const { run, isPending, busy } = useAsyncAction();
   const notify = (title, status, description = '') =>
     toast({
       position: 'top',
@@ -608,7 +610,13 @@ function AdminDashboard() {
                               size="xs"
                               variant="outline"
                               colorScheme={u.approved ? 'red' : 'green'}
-                              onClick={() => toggleApproval(u._id, !u.approved)}
+                              isLoading={isPending(`approval-${u._id}`)}
+                              isDisabled={busy}
+                              onClick={() =>
+                                run(`approval-${u._id}`, () =>
+                                  toggleApproval(u._id, !u.approved)
+                                )
+                              }
                             >
                               {u.approved ? 'Revoke' : 'Approve'}
                             </Button>
@@ -622,7 +630,12 @@ function AdminDashboard() {
                           size="sm"
                           w="9rem"
                           value={u.role}
-                          onChange={(e) => changeRole(u._id, e.target.value)}
+                          isDisabled={busy}
+                          onChange={(e) =>
+                            run(`role-${u._id}`, () =>
+                              changeRole(u._id, e.target.value)
+                            )
+                          }
                         >
                           <option value="customer">customer</option>
                           <option value="launderer">launderer</option>
@@ -636,7 +649,11 @@ function AdminDashboard() {
                           colorScheme="red"
                           variant="ghost"
                           icon={<MdDelete size={18} />}
-                          onClick={() => removeUser(u._id)}
+                          isLoading={isPending(`remove-user-${u._id}`)}
+                          isDisabled={busy}
+                          onClick={() =>
+                            run(`remove-user-${u._id}`, () => removeUser(u._id))
+                          }
                         />
                       </Td>
                     </Tr>
@@ -891,7 +908,13 @@ function AdminDashboard() {
                           colorScheme="red"
                           variant="ghost"
                           icon={<MdDelete size={18} />}
-                          onClick={() => removeCoupon(c._id)}
+                          isLoading={isPending(`remove-coupon-${c._id}`)}
+                          isDisabled={busy}
+                          onClick={() =>
+                            run(`remove-coupon-${c._id}`, () =>
+                              removeCoupon(c._id)
+                            )
+                          }
                         />
                       </Td>
                     </Tr>
@@ -925,7 +948,14 @@ function AdminDashboard() {
                       <WrapItem key={v}>
                         <Tag colorScheme="purple" borderRadius="full">
                           <TagLabel>{v}</TagLabel>
-                          <TagCloseButton onClick={() => removeValue(key, v)} />
+                          <TagCloseButton
+                            isDisabled={busy}
+                            onClick={() =>
+                              run(`remove-${key}-${v}`, () =>
+                                removeValue(key, v)
+                              )
+                            }
+                          />
                         </Tag>
                       </WrapItem>
                     ))}
@@ -951,7 +981,9 @@ function AdminDashboard() {
                     <Button
                       size="sm"
                       colorScheme="purple"
-                      onClick={() => addValue(key)}
+                      isLoading={isPending(`add-${key}`)}
+                      isDisabled={busy}
+                      onClick={() => run(`add-${key}`, () => addValue(key))}
                     >
                       Add
                     </Button>
