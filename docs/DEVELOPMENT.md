@@ -132,8 +132,8 @@ approved, publishing a catalog and availability, and appearing to customers;
 a customer registering, completing their profile, re-signing-in, ordering at
 server-derived prices and rescheduling; the launderer accepting, the customer
 confirming pickup, the launderer delivering, the customer rating; a
-notification reaching the other party; and the authorization guards that
-should still refuse (anonymous payment, client-set price, cross-tenant order
+notification reaching the other party; signing out; and the authorization
+guards that should still refuse (anonymous payment, client-set price, cross-tenant order
 control, the removed user listing).
 
 Everything it creates is uniquely named and removed at the end, and the run

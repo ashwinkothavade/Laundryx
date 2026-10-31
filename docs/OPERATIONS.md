@@ -109,6 +109,7 @@ It needs admin credentials, taken from `ADMIN_USERNAME` / `ADMIN_PASSWORD`
 | Customer ordering | register, read options, complete profile and re-sign-in, read catalog, **order priced by the server not the client**, appears in their list, reschedule |
 | Fulfilment | launderer sees and accepts, customer confirms pickup, launderer delivers, customer rates, rating reaches the directory |
 | Notifications | customer messages their launderer, launderer receives it |
+| Signing out | `/logout` ends the session; `/me` then returns 401 |
 | Guards | anonymous payment refused, client-set price refused, admin routes refused, removed user listing stays removed, **cross-tenant order control refused** |
 | Cleanup | removes everything the run created, and fails if anything is left |
 

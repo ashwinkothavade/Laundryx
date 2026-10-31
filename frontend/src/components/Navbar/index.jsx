@@ -23,15 +23,22 @@ import {
   TagLabel,
   Text,
   useDisclosure,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
   useToast,
 } from '@chakra-ui/react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { BiBell, BiLogOut, BiUserCheck, BiUserPlus } from 'react-icons/bi';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { IoIosClose } from 'react-icons/io';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../Store/AuthStore';
 import { deleteNotif, fetchNotifs, logout } from '../../utils/apis';
+import { getApiErrorMessage } from '../../utils/errors';
 
 function Navbar() {
   const {
@@ -71,6 +78,13 @@ function Navbar() {
     setUserRollNumber: state.setUserRollNumber,
   }));
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  // Signing out is easy to hit by accident — the control sits next to the
+  // notification bell and the account menu — and it throws away an
+  // in-progress order draft along with the session.
+  const confirmLogout = useDisclosure();
+  const cancelLogoutRef = useRef(null);
+  const [loggingOut, setLoggingOut] = useState(false);
   const navigate = useNavigate();
   const toast = useToast();
 
@@ -97,42 +111,54 @@ function Navbar() {
     }
   }, [isAuth, updateUserNotifications, setUnreadCount]);
 
+  // Clearing the client's idea of the session. The server also expires the
+  // cookie, but the user asked to leave, so this happens either way.
+  const clearSession = () => {
+    removeAuth();
+    clearUserNotifications();
+    setUnreadCount(0);
+    setUserName(null);
+    setUserRole(null);
+    setUserEmail(null);
+    setUserPhone(null);
+    setUserHostel(null);
+    setUserRoomNumber(null);
+    setUserRollNumber(null);
+  };
+
   const logOut = async () => {
+    setLoggingOut(true);
     try {
-      // eslint-disable-next-line
-      const response = await logout();
+      await logout();
       toast({
-        title: 'Success',
-        description: 'User Logged Out Successfully',
+        title: 'Signed out',
         status: 'success',
         duration: 2000,
         isClosable: true,
         position: 'top',
       });
-      removeAuth();
-      clearUserNotifications();
-      setUnreadCount(0);
-      setUserName(null);
-      setUserRole(null);
-      setUserEmail(null);
-      setUserPhone(null);
-      setUserHostel(null);
-      setUserRoomNumber(null);
-      setUserRollNumber(null);
-      navigate('/');
     } catch (err) {
+      // A failure here means the cookie may still be live on the server, but
+      // refusing to sign out locally would strand the user on a session they
+      // asked to end. Clear it anyway and say what happened, rather than the
+      // previous blanket "Unauthorized" — which was also shown when the
+      // server was simply unreachable.
       toast({
-        title: 'Error',
-        description: 'Unauthorized',
-        status: 'error',
-        duration: 2000,
+        title: 'Signed out on this device',
+        description: getApiErrorMessage(
+          err,
+          'We could not reach the server to end the session everywhere.'
+        ),
+        status: 'warning',
+        duration: 4000,
         isClosable: true,
         position: 'top',
-        onCloseComplete: () => {
-          navigate('/login');
-        },
       });
-      removeAuth();
+    } finally {
+      clearSession();
+      setLoggingOut(false);
+      confirmLogout.onClose();
+      navigate('/');
     }
   };
 
@@ -280,7 +306,7 @@ function Navbar() {
                 bg: '#dbdbdb',
                 color: '#ce1567',
               }}
-              onClick={logOut}
+              onClick={confirmLogout.onOpen}
             >
               Log Out
             </Button>
@@ -404,7 +430,7 @@ function Navbar() {
 
               <MenuItem
                 icon={<BiLogOut size={24} color="#584bac" />}
-                onClick={() => logOut()}
+                onClick={confirmLogout.onOpen}
               >
                 Logout
               </MenuItem>
@@ -427,6 +453,43 @@ function Navbar() {
           )}
         </Menu>
       </Flex>
+      <AlertDialog
+        isOpen={confirmLogout.isOpen}
+        leastDestructiveRef={cancelLogoutRef}
+        onClose={confirmLogout.onClose}
+        isCentered
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent mx="1rem">
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Sign out of LaundriX?
+            </AlertDialogHeader>
+            <AlertDialogBody>
+              {userName ? `You are signed in as ${userName}. ` : ''}
+              Any order you have started but not placed will be lost.
+            </AlertDialogBody>
+            <AlertDialogFooter gap={3}>
+              <Button
+                ref={cancelLogoutRef}
+                onClick={confirmLogout.onClose}
+                isDisabled={loggingOut}
+              >
+                Stay signed in
+              </Button>
+              <Button
+                bg="#CE1567"
+                color="white"
+                _hover={{ bg: '#b01256' }}
+                onClick={logOut}
+                isLoading={loggingOut}
+                loadingText="Signing out"
+              >
+                Sign out
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </Flex>
   );
 }

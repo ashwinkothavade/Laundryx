@@ -576,6 +576,23 @@ const run = async () => {
     );
   });
 
+  flow('Signing out');
+  await step('ends the session server-side', async () => {
+    expect(await call('customer', 'GET', '/logout'), 200, 'logout');
+    // The cookie should no longer authenticate anything.
+    expect(await call('customer', 'GET', '/me'), 401, 'post-logout /me');
+  });
+  await step('customer signs back in for cleanup', async () => {
+    expect(
+      await call('customer', 'POST', '/login', {
+        username: names.customer,
+        password: PASSWORD,
+      }),
+      200,
+      'relogin'
+    );
+  });
+
   await cleanup();
   return finish();
 };
