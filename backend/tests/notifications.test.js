@@ -6,7 +6,6 @@ const {
   seedSettings,
   addCatalogItem,
   orderBody,
-  models,
 } = require('./helpers');
 
 const Notification = require('../models/notificationModel');
