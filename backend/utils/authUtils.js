@@ -52,7 +52,9 @@ const handleSignUpError = (err) => {
     // above matched it, so the caller used to receive `{}` — a duplicate
     // signup produced an error dialog with nothing in it.
     const message = String(err.message || '');
-    const field = DUPLICATE_FIELDS.find(({ test }) => test.test(message));
+    const field = DUPLICATE_PHRASE.test(message)
+      ? DUPLICATE_FIELDS.find(({ test }) => test.test(message))
+      : null;
     if (field) {
       error[field.name] = message;
     } else {
@@ -63,11 +65,15 @@ const handleSignUpError = (err) => {
   return error;
 };
 
+// A duplicate complaint says so in words. Matching on the field name alone
+// also caught ordinary validation messages — "Username must be at least 4
+// characters long" mentions the field too — and reported them as 409.
+const DUPLICATE_PHRASE = /already taken|already exists|duplicate key|E11000/i;
+
 // Whether this is a "that value is already taken" failure, in either of the
 // two shapes Mongoose produces for it.
 const isDuplicateError = (err) =>
-  err?.code === 11000 ||
-  DUPLICATE_FIELDS.some(({ test }) => test.test(String(err?.message || '')));
+  err?.code === 11000 || DUPLICATE_PHRASE.test(String(err?.message || ''));
 
 const handleLogInError = (err) => {
   const errors = { username: '', password: '' };

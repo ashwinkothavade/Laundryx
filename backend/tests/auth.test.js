@@ -26,6 +26,20 @@ describe('Auth', () => {
     expect(res.body.errors.username).toMatch(/already taken/i);
   });
 
+  test('a validation failure is a 400, not a 409', async () => {
+    // "Username must be at least 4 characters long" mentions the field, so a
+    // looser duplicate check reported it as a conflict.
+    const res = await request(app).post('/signup').send({
+      username: 'ab',
+      email: 'bad',
+      password: 'weak',
+      role: 'customer',
+      phone_number: '123',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.errors.username).toMatch(/at least 4/i);
+  });
+
   test('login succeeds with correct credentials', async () => {
     const { body } = await signup();
     const { res } = await login(body.username);
