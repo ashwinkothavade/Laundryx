@@ -6,7 +6,9 @@ describe('Auth', () => {
     expect(res.status).toBe(201);
     expect(res.headers['set-cookie']).toBeDefined();
     expect(res.body.role).toBe('customer');
-    expect(res.body.newUser.username).toBe(body.username);
+    expect(res.body.username).toBe(body.username);
+    // The document used to be echoed wholesale, bcrypt hash included.
+    expect(res.body.password).toBeUndefined();
   });
 
   test('signup rejects a duplicate username', async () => {
@@ -18,8 +20,10 @@ describe('Auth', () => {
         email: 'other@test.com',
         phone_number: '+919111111111',
       });
-    expect(res.status).toBe(500);
-    expect(res.body.errors).toBeDefined();
+    // A duplicate is the client's input being wrong, not a server fault,
+    // and the message must actually say which field clashed.
+    expect(res.status).toBe(409);
+    expect(res.body.errors.username).toMatch(/already taken/i);
   });
 
   test('login succeeds with correct credentials', async () => {

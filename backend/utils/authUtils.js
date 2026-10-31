@@ -1,5 +1,12 @@
 const jwt = require('jsonwebtoken');
 
+// The unique fields, and how to recognise a duplicate complaint about each.
+const DUPLICATE_FIELDS = [
+  { name: 'username', test: /username/i },
+  { name: 'email', test: /email/i },
+  { name: 'phone_number', test: /phone/i },
+];
+
 const handleSignUpError = (err) => {
   const error = {
     username: '',
@@ -40,12 +47,27 @@ const handleSignUpError = (err) => {
       error.phone_number = err.errors.phone_number.message;
     }
   } else {
-    // If no specific errors are found, return the whole error object
-    return err;
+    // Mongoose renders `unique: [true, 'message']` as a plain MongooseError
+    // carrying that message, with no `code` and no `errors`. Neither branch
+    // above matched it, so the caller used to receive `{}` — a duplicate
+    // signup produced an error dialog with nothing in it.
+    const message = String(err.message || '');
+    const field = DUPLICATE_FIELDS.find(({ test }) => test.test(message));
+    if (field) {
+      error[field.name] = message;
+    } else {
+      error.general = message || 'Could not complete the request';
+    }
   }
 
   return error;
 };
+
+// Whether this is a "that value is already taken" failure, in either of the
+// two shapes Mongoose produces for it.
+const isDuplicateError = (err) =>
+  err?.code === 11000 ||
+  DUPLICATE_FIELDS.some(({ test }) => test.test(String(err?.message || '')));
 
 const handleLogInError = (err) => {
   const errors = { username: '', password: '' };
@@ -73,6 +95,7 @@ const createToken = (username, role, userId, hostel) => {
 
 module.exports = {
   handleSignUpError,
+  isDuplicateError,
   handleLogInError,
   createToken,
 };

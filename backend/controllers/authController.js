@@ -115,15 +115,20 @@ const createUser = async (req, resp) => {
       sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax', // if backend and frontend are on different domains
     }); // Set the cookie
 
+    // Never echo the document: it carries the bcrypt hash.
     resp.status(201).json({
-      newUser: user,
+      username: user.username,
       role: user.role,
       email: user.email,
       phone_number: user.phone_number,
     });
   } catch (err) {
     const errors = authUtils.handleSignUpError(err);
-    resp.status(500).json({ errors });
+    // A rejected signup is the client's input being wrong, not a server
+    // fault. 500 told the caller to retry something that will never succeed,
+    // and polluted error monitoring with ordinary validation failures.
+    const status = authUtils.isDuplicateError(err) ? 409 : 400;
+    resp.status(status).json({ errors });
   }
 };
 
@@ -265,9 +270,6 @@ const forgotPassword = async (req, resp) => {
       const backendUrl = process.env.BACKEND_URL || 'http://localhost:4000';
       const url = `${backendUrl}/resetpassword/${user._id}/${token}`;
 
-      // eslint-disable-next-line no-unused-vars
-      const testAccount = await nodemailer.createTestAccount();
-      // connect with smtp
       const transporter = await nodemailer.createTransport({
         service: 'gmail',
         host: 'smtp.gmail.com',
@@ -288,7 +290,13 @@ const forgotPassword = async (req, resp) => {
       resp.status(200).json(info);
     }
   } catch (err) {
-    resp.status(404).json({ message: err.message });
+    if (err.message === 'User not found') {
+      return resp.status(404).json({ message: 'User not found' });
+    }
+    logger.error(`forgotPassword error: ${err.message}`, { stack: err.stack });
+    return resp
+      .status(502)
+      .json({ message: 'Could not send the reset email right now' });
   }
 };
 

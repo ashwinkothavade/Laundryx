@@ -188,7 +188,6 @@ const createStudentOrder = async (req, resp) => {
     logger.error(err.message, { stack: err.stack });
     resp.status(500).json({
       message: 'Error creating the order',
-      error: err,
     });
   }
 };
@@ -219,7 +218,6 @@ const updatePickupStatus = async (req, resp) => {
     logger.error(err.message, { stack: err.stack });
     resp.status(500).json({
       message: 'Error updating the pickup status',
-      error: err,
     });
   }
 };
@@ -241,7 +239,6 @@ const deleteOrder = async (req, resp) => {
     logger.error(err.message, { stack: err.stack });
     resp.status(500).json({
       message: 'Error deleting the order',
-      error: err,
     });
   }
 };
@@ -277,7 +274,6 @@ const updateDeliveryStatus = async (req, resp) => {
     logger.error(err.message, { stack: err.stack });
     resp.status(500).json({
       message: 'Error updating the delivery status',
-      error: err,
     });
   }
 };
@@ -345,7 +341,6 @@ const getAllLaunderers = async (req, resp) => {
   } catch (err) {
     resp.status(500).json({
       message: 'Error fetching the launderers',
-      error: err,
     });
   }
 };
