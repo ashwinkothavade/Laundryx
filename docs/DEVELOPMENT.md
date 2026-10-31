@@ -6,8 +6,9 @@
 Laundryx/
 ├── backend/
 │   ├── server.js              # app wiring: middleware, routes, error handler, export
-│   ├── config/db.js           # Mongo connection + stale-order cron
-│   ├── models/                # User, Order, CatalogItem, Setting, Review, Notification
+│   ├── config/db.js           # Mongo connection (cached, serverless-safe)
+│   ├── models/                # User, Order, CatalogItem, Setting, Review,
+│   │                          # Notification, Coupon, WebhookEvent
 │   ├── controllers/           # one per domain (auth, student/launderer orders,
 │   │                          #   catalog, setting, admin, review, razorpay, notification)
 │   ├── routes/                # express routers, mounted in server.js
@@ -113,9 +114,38 @@ Steps:
 3. Point the backend's `FRONTEND_URL` at the deployed frontend origin for CORS.
 4. Deploy on push (CI must be green first).
 
-> **Production caveats:** rate limiting is in-memory (per-instance) — use a
-> shared store (Redis) for strict limits on serverless; and the stale-order
-> cron won't fire reliably on serverless — move it to a Vercel Cron / worker.
+## Verifying the flows
+
+The unit suite proves handlers behave. `npm run verify` proves the *journeys*
+still join up — it drives the real HTTP API the way each role's UI does:
+
+```bash
+cd backend
+npm run verify                              # against http://localhost:4000
+node scripts/verifyFlows.js --url https://laundrix-api-delta.vercel.app
+node scripts/verifyFlows.js --keep          # don't clean up afterwards
+```
+
+It covers, in order: service health; the admin console; a launderer
+registering, being invisible until approved, failing to approve itself, being
+approved, publishing a catalog and availability, and appearing to customers;
+a customer registering, completing their profile, re-signing-in, ordering at
+server-derived prices and rescheduling; the launderer accepting, the customer
+confirming pickup, the launderer delivering, the customer rating; a
+notification reaching the other party; and the authorization guards that
+should still refuse (anonymous payment, client-set price, cross-tenant order
+control, the removed user listing).
+
+Everything it creates is uniquely named and removed at the end, and the run
+fails if anything is left behind. Each step is timed and written to
+`backend/flow-verification.log`; the process exits non-zero if any step
+fails, so it can gate a deploy.
+
+<br>
+
+> **Production caveat:** rate limiting is in-memory and therefore
+> per-instance, so the budget multiplies as the platform scales out. Use a
+> shared store (Redis) if the limits need to be strict.
 
 ## Git conventions
 

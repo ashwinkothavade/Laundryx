@@ -69,6 +69,12 @@ plus student profile fields (`hostel`, `room_number`, `roll_number`).
 > document, so the hook does **not** run on that path — never route a password
 > change through it.
 
+### WebhookEvent (`models/webhookEventModel.js`)
+Every Razorpay webhook accepted, keyed by Razorpay's `x-razorpay-event-id`
+(unique). Razorpay delivers at-least-once and retries for 24 hours, so this
+index is what makes a re-delivery a no-op rather than a second state
+transition; the stored payload is the audit trail for payment disputes.
+
 ### CatalogItem (`models/catalogModel.js`)
 A per-launderer offering: `launderer` (ref User), `clothingType`, `washType`,
 `price`, `image`. Unique on `(launderer, clothingType, washType)`.
@@ -106,9 +112,25 @@ Student builds order ─► placed (acceptedStatus=false)
   price from the chosen launderer's catalog and computes `orderTotal` itself,
   and validates locations/times against the dynamic settings — the client
   cannot tamper with prices or invent options.
-- Stale, fully-completed orders are cleaned up by a daily cron
-  (`config/db.js#deleteValidOrders`). *(Note: on Vercel serverless this cron is
-  best-effort; move to a scheduled function for production.)*
+- Orders are never deleted on a schedule. A daily job used to remove paid,
+  completed orders, which destroyed financial records, orphaned the reviews
+  that reference them and made the revenue figure decay; it was removed.
+
+## Observability
+
+- **Request correlation.** Every request is assigned an id (or adopts an
+  inbound `x-request-id`), returned in the `x-request-id` response header,
+  included in the access log and in any error the central handler reports.
+  A user quoting the id from a failed request makes it findable in the logs.
+- **Structured logs.** Winston emits colourised lines in development and JSON
+  in production so a log drain can query them; Morgan's HTTP lines flow
+  through it, and both are silent under test.
+- **Health.** `GET /health` is process liveness and touches nothing.
+  `GET /ready` reports the database connection and returns 503 when it is
+  down, so an outage says *what* is broken.
+- **Flow verification.** `npm run verify` drives every role's full journey
+  against a running server and writes a timestamped log. See
+  [DEVELOPMENT.md](DEVELOPMENT.md#verifying-the-flows).
 
 ## Dynamic-by-design
 

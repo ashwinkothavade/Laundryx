@@ -11,9 +11,9 @@ Legend: `[ ]` todo · `[~]` partially done · `[x]` done.
 
 ## 1. Security & auth
 
-- [ ] **[P0]** Wire the `/me` auth guard on the frontend — validate the session
-  on load, gate protected routes, and redirect unauthenticated users (backend
-  endpoint exists; UI still trusts `sessionStorage`).
+- [x] ~~Wire the `/me` auth guard on the frontend~~ — `ProtectedRoute`
+  validates the session against `/me` before rendering, and a 401 interceptor
+  clears client state and redirects.
 - [ ] **[P0]** Email verification on signup (verify address before ordering).
 - [ ] **[P0]** CSRF protection for cookie-based state-changing requests
   (`SameSite=None` cross-site cookies need CSRF tokens).
@@ -49,11 +49,12 @@ Legend: `[ ]` todo · `[~]` partially done · `[x]` done.
 
 - [x] ~~Move the stale-order cron off serverless~~ — removed outright: it
   deleted paid, completed orders, destroying financial records.
-- [ ] **[P1]** Error monitoring (Sentry) with request IDs threaded through the
-  existing structured logs.
-- [ ] **[P1]** `/health` + `/ready` endpoints and uptime monitoring.
-- [ ] **[P1]** Database indexes on hot queries; connection pooling review;
-  backups + restore drills; a staging environment.
+- [~] **[P1]** Error monitoring (Sentry) — request IDs are now threaded
+  through the logs and returned to the client; an aggregator is still to do.
+- [~] **[P1]** `/health` and `/ready` exist; uptime monitoring still to do.
+- [~] **[P1]** Indexes on the hot order queries and a bounded, cached
+  connection pool are done; backups, restore drills and a staging
+  environment are still to do.
 - [ ] **[P1]** Caching for settings/catalog reads (currently refetched often).
 - [ ] **[P2]** Image storage/CDN (S3/Cloudinary) for catalog + order photos.
 - [ ] **[P2]** Load/perf testing and autoscaling review.
@@ -84,7 +85,9 @@ Legend: `[ ]` todo · `[~]` partially done · `[x]` done.
 - [ ] **[P1]** Browser E2E tests (Playwright) for signup → order → pay → rate.
 - [ ] **[P1]** Coverage reporting + a threshold gate in CI.
 - [ ] **[P2]** Contract/API tests and load tests.
-- [x] Backend end-to-end/integration suite (Jest + supertest, 44 tests) in CI.
+- [x] Backend integration suite (Jest + supertest, 103 tests) in CI.
+- [x] End-to-end flow verification (`npm run verify`) covering every role's
+      journey against a running server.
 
 ## 6. UX & accessibility
 

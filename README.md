@@ -105,6 +105,8 @@ cd backend
 npm install
 npm run server        # nodemon on :4000  (npm start for plain node)
 npm run seed:admin    # once, to create the admin
+npm test              # 103 integration tests against an in-memory MongoDB
+npm run verify        # drive every role's full journey against a running server
 ```
 
 **Frontend**
@@ -194,6 +196,7 @@ whole product:
 | [docs/ENVIRONMENT.md](docs/ENVIRONMENT.md) | Every environment variable (backend + frontend build args) |
 | [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Project layout, running, linting, testing, CI, deployment |
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Live deployment — what is deployed where, env vars per project, how to redeploy |
+| [docs/OPERATIONS.md](docs/OPERATIONS.md) | Health endpoints, request correlation, reading the logs, verifying the flows |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Market-readiness checklist of remaining work |
 
 <br>

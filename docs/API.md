@@ -56,6 +56,8 @@ other route returns **503** with a pointer to `/ready`.
 | PUT | `/student/updatepickupstatus/:order_id` | 🎓 | Owner only |
 | PUT | `/student/updatedeliverystatus/:order_id` | 🎓 | Owner only |
 | DELETE | `/student/deleteorder/:order_id` | 🎓 | Owner only |
+| PUT | `/student/reschedule/:order_id` | 🎓 | `{ pickupDate?, pickupTime?, deliveryDate?, deliveryTime? }` — owner only, blocked once picked up |
+| PUT | `/student/cancelorder/:order_id` | 🎓 | Owner only, blocked once picked up |
 
 ## Launderer orders
 

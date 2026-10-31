@@ -16,6 +16,7 @@ Copy `.env.example` to `.env` and fill these in. Docker Compose reads the root
 | `GMAIL_ADDRESS` | for reset | Gmail address used to send reset emails. |
 | `GMAIL_PASSWORD` | for reset | Gmail **app password** (not the login password). |
 | `NODE_ENV` | recommended | `production` behind HTTPS (Secure cookies), else `development`. |
+| `LOG_LEVEL` | Winston level (`error`/`warn`/`info`/`http`/`debug`). Defaults to `info` in production and `debug` elsewhere. |
 | `LOG_LEVEL` | optional | `error \| warn \| info \| http \| verbose \| debug`. Defaults to `debug` (dev) / `info` (prod). |
 | `FRONTEND_URL` | optional | Extra CORS origins (comma-separated). `localhost:5173` + `laundrix-web.vercel.app` are always allowed. |
 | `BACKEND_URL` | optional | Base URL used to build the password-reset link. Defaults to `http://localhost:4000`. |
