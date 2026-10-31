@@ -34,9 +34,15 @@ import {
   Tr,
   VStack,
   useDisclosure,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
   useToast,
 } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { MdDelete } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../Store/AuthStore';
@@ -49,6 +55,14 @@ import {
   updatePickupStatus,
   validatePayment,
 } from '../../utils/apis';
+import {
+  formatCurrency,
+  formatDate,
+  orderStatus,
+  paidStatus,
+  shortOrderRef,
+} from '../../utils/format';
+import { getApiErrorMessage } from '../../utils/errors';
 import RateOrderModal from '../RateOrderModal';
 import RescheduleModal from '../RescheduleModal';
 import OrderTimeline from '../OrderTimeline';
@@ -220,6 +234,12 @@ function OrderDetail() {
     }
   };
 
+  // Deleting an order is irreversible — the server hard-deletes it. A single
+  // click on a small red icon should not be able to do that.
+  const [orderToDelete, setOrderToDelete] = useState(null);
+  const confirmDelete = useDisclosure();
+  const cancelDeleteRef = useRef(null);
+
   const handleDeleteOrder = async (order_id) => {
     try {
       const response = await deleteOrder(order_id);
@@ -230,11 +250,7 @@ function OrderDetail() {
         );
       }
     } catch (err) {
-      handleToast(
-        'Error Deleting Order',
-        err.message || err.error.message,
-        'error'
-      );
+      handleToast('Error Deleting Order', getApiErrorMessage(err), 'error');
     }
   };
 
@@ -294,7 +310,7 @@ function OrderDetail() {
   return (
     <VStack align="start" gap={{ base: 8, md: 14 }} w="100%" minW={0}>
       <Text fontSize={{ base: '1.5rem', md: '2rem' }} fontWeight="bold">
-        Order Details:
+        Your Orders
       </Text>
       <CheckboxGroup>
         <HStack
@@ -344,40 +360,43 @@ function OrderDetail() {
           <Table variant="simple">
             <Thead>
               <Tr>
-                <Th textAlign="center">Order ID</Th>
-                <Th textAlign="center">Order Total</Th>
-                <Th textAlign="center">Pickup Date</Th>
-                <Th textAlign="center">Total Items</Th>
-                <Th textAlign="center">Accepted Status</Th>
-                <Th textAlign="center">Delivery Status</Th>
-                <Th textAlign="center">Actions</Th>
+                <Th>Order</Th>
+                <Th isNumeric>Total</Th>
+                <Th>Pickup</Th>
+                <Th isNumeric>Items</Th>
+                <Th>Status</Th>
+                <Th>Payment</Th>
+                <Th textAlign="right">Actions</Th>
               </Tr>
             </Thead>
             <Tbody>
               {filteredOrders.map((order) => (
                 <Tr key={order._id}>
-                  <Td textAlign="center">{order._id}</Td>
-                  <Td textAlign="center">₹{order.orderTotal}</Td>
-                  <Td textAlign="center">{order.pickupDate}</Td>
-                  <Td textAlign="center">{getTotalQuantity(order.items)}</Td>
-                  <Td textAlign="center">
-                    <Tag
-                      size="lg"
-                      colorScheme={order.acceptedStatus ? 'green' : 'red'}
-                    >
-                      {order.acceptedStatus ? 'Accepted' : 'Not Accepted'}
+                  <Td
+                    fontFamily="mono"
+                    fontSize="sm"
+                    title={order._id}
+                    whiteSpace="nowrap"
+                  >
+                    {shortOrderRef(order._id)}
+                  </Td>
+                  <Td isNumeric whiteSpace="nowrap">
+                    {formatCurrency(order.orderTotal)}
+                  </Td>
+                  <Td whiteSpace="nowrap">{formatDate(order.pickupDate)}</Td>
+                  <Td isNumeric>{getTotalQuantity(order.items)}</Td>
+                  <Td>
+                    <Tag size="sm" colorScheme={orderStatus(order).scheme}>
+                      {orderStatus(order).label}
                     </Tag>
                   </Td>
-                  <Td textAlign="center">
-                    <Tag
-                      size="lg"
-                      colorScheme={order.deliveredStatus ? 'green' : 'red'}
-                    >
-                      {order.deliveredStatus ? 'Delivered' : 'Not Delivered'}
+                  <Td>
+                    <Tag size="sm" colorScheme={paidStatus(order).scheme}>
+                      {paidStatus(order).label}
                     </Tag>
                   </Td>
-                  <Td textAlign="center" whiteSpace="nowrap">
-                    <Flex gap={2} justify="center" align="center">
+                  <Td textAlign="right" whiteSpace="nowrap">
+                    <Flex gap={2} justify="flex-end" align="center">
                       <Button
                         size="sm"
                         color="#ce1567"
@@ -465,7 +484,10 @@ function OrderDetail() {
                           order.acceptedStatus &&
                           (!order.paid || !order.deliveredStatus)
                         }
-                        onClick={() => handleDeleteOrder(order._id)}
+                        onClick={() => {
+                          setOrderToDelete(order);
+                          confirmDelete.onOpen();
+                        }}
                       />
                     </Flex>
                   </Td>
@@ -494,7 +516,8 @@ function OrderDetail() {
               <OrderTimeline order={selectedOrder} />
               <Divider my={2} />
               <Text fontSize="xl" fontWeight="bold">
-                <strong>Order Total:</strong> ${selectedOrder.orderTotal}
+                <strong>Order Total:</strong>{' '}
+                {formatCurrency(selectedOrder.orderTotal)}
               </Text>
               <Divider my={2} />
               <Grid
@@ -515,7 +538,8 @@ function OrderDetail() {
                 </GridItem>
                 <GridItem>
                   <Text>
-                    <strong>Pickup Date:</strong> {selectedOrder.pickupDate}
+                    <strong>Pickup Date:</strong>{' '}
+                    {formatDate(selectedOrder.pickupDate)}
                   </Text>
                 </GridItem>
                 <GridItem>
@@ -525,7 +549,8 @@ function OrderDetail() {
                 </GridItem>
                 <GridItem>
                   <Text>
-                    <strong>Delivery Date:</strong> {selectedOrder.deliveryDate}
+                    <strong>Delivery Date:</strong>{' '}
+                    {formatDate(selectedOrder.deliveryDate)}
                   </Text>
                 </GridItem>
                 <GridItem>
@@ -695,6 +720,41 @@ function OrderDetail() {
         onClose={invoice.onClose}
         order={orderForInvoice}
       />
+
+      <AlertDialog
+        isOpen={confirmDelete.isOpen}
+        leastDestructiveRef={cancelDeleteRef}
+        onClose={confirmDelete.onClose}
+        isCentered
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Delete order {shortOrderRef(orderToDelete?._id)}?
+            </AlertDialogHeader>
+            <AlertDialogBody>
+              This permanently removes the order and its receipt. It cannot be
+              undone.
+            </AlertDialogBody>
+            <AlertDialogFooter gap={3}>
+              <Button ref={cancelDeleteRef} onClick={confirmDelete.onClose}>
+                Keep order
+              </Button>
+              <Button
+                colorScheme="red"
+                onClick={() => {
+                  const id = orderToDelete?._id;
+                  confirmDelete.onClose();
+                  setOrderToDelete(null);
+                  if (id) handleDeleteOrder(id);
+                }}
+              >
+                Delete order
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </VStack>
   );
 }
