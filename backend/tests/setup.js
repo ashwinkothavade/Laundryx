@@ -19,6 +19,15 @@ beforeAll(async () => {
     uri = mongo.getUri();
   }
   await mongoose.connect(uri);
+
+  // Mongoose builds indexes in the background after a model is compiled, so a
+  // test asserting a unique constraint can run before the index exists and
+  // see the duplicate succeed. Model.init() resolves once the indexes are
+  // actually built; waiting here makes the suite deterministic instead of
+  // dependent on how long the suites before it happened to take.
+  await Promise.all(
+    mongoose.modelNames().map((name) => mongoose.model(name).init())
+  );
 });
 
 afterEach(async () => {
