@@ -1,5 +1,10 @@
 const jwt = require('jsonwebtoken');
 
+// A duplicate complaint says so in words. Matching on the field name alone
+// also caught ordinary validation messages — "Username must be at least 4
+// characters long" mentions the field too — and reported them as 409.
+const DUPLICATE_PHRASE = /already taken|already exists|duplicate key|E11000/i;
+
 // The unique fields, and how to recognise a duplicate complaint about each.
 const DUPLICATE_FIELDS = [
   { name: 'username', test: /username/i },
@@ -64,11 +69,6 @@ const handleSignUpError = (err) => {
 
   return error;
 };
-
-// A duplicate complaint says so in words. Matching on the field name alone
-// also caught ordinary validation messages — "Username must be at least 4
-// characters long" mentions the field too — and reported them as 409.
-const DUPLICATE_PHRASE = /already taken|already exists|duplicate key|E11000/i;
 
 // Whether this is a "that value is already taken" failure, in either of the
 // two shapes Mongoose produces for it.
