@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 const useOrderStore = create(
   persist(
@@ -205,7 +205,7 @@ const useOrderStore = create(
     }),
     {
       name: 'order-store',
-      getStorage: () => sessionStorage,
+      storage: createJSONStorage(() => sessionStorage),
     }
   )
 );

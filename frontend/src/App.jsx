@@ -1,6 +1,7 @@
 import React, { Suspense, useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import PreLoader from './Animation/PreLoader';
+import ProtectedRoute from './components/ProtectedRoute';
 import useAuthStore from './components/Store/AuthStore';
 
 // Route-level code splitting — each page becomes its own chunk that loads on
@@ -17,10 +18,17 @@ const OrderList = React.lazy(() => import('./pages/OrderList'));
 const Signup = React.lazy(() => import('./pages/Signup'));
 
 function App() {
-  // Show the intro preloader only once per browser session, not on every visit.
-  const [isLoading, setIsLoading] = useState(
-    () => !sessionStorage.getItem('preloaded')
-  );
+  // Intro animation, once per browser session. Deliberately short: this sits
+  // in front of the landing page, which is also where login lands you, so
+  // every second here is a second the app feels slow for no reason.
+  const INTRO_MS = 1200;
+  const [isLoading, setIsLoading] = useState(() => {
+    try {
+      return !sessionStorage.getItem('preloaded');
+    } catch (e) {
+      return false;
+    }
+  });
   const { userRole } = useAuthStore((state) => ({
     userRole: state.userRole,
   }));
@@ -28,8 +36,12 @@ function App() {
     if (!isLoading) return undefined;
     const timer = setTimeout(() => {
       setIsLoading(false);
-      sessionStorage.setItem('preloaded', 'true');
-    }, 4000);
+      try {
+        sessionStorage.setItem('preloaded', 'true');
+      } catch (e) {
+        // storage blocked; the intro just plays again next time
+      }
+    }, INTRO_MS);
     return () => clearTimeout(timer);
   }, [isLoading]);
 
@@ -41,11 +53,28 @@ function App() {
     <Suspense fallback={<PreLoader />}>
       <Routes>
         <Route path="/" element={isLoading ? <PreLoader /> : <LandingPage />} />
-        <Route path="/OrderList" element={<OrderList />} />
-        <Route path="/CheckoutPage" element={<CheckoutPage />} />
+        <Route
+          path="/OrderList"
+          element={
+            <ProtectedRoute roles={['customer']}>
+              <OrderList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/CheckoutPage"
+          element={
+            <ProtectedRoute roles={['customer']}>
+              <CheckoutPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/dashboard" element={dashboardElement} />
+        <Route
+          path="/dashboard"
+          element={<ProtectedRoute>{dashboardElement}</ProtectedRoute>}
+        />
       </Routes>
     </Suspense>
   );

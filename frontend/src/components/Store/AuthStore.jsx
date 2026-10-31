@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 const useAuthStore = create(
   persist(
@@ -14,6 +14,23 @@ const useAuthStore = create(
       userRollNumber: '', // userCredentials
       userNotifications: [], // userCredentials
       unreadCount: 0, // userCredentials
+      // One write for the whole identity. Login used to call seven separate
+      // setters in a row, which meant seven store notifications and seven
+      // re-render passes before the user saw anything.
+      setUser: (user) => {
+        set((state) => ({
+          ...state,
+          isAuth: true,
+          userName: user.username ?? state.userName,
+          userEmail: user.email ?? state.userEmail,
+          Phone: user.phone_number ?? state.Phone,
+          userRole: user.role ?? state.userRole,
+          userHostel: user.hostel ?? state.userHostel,
+          userRoomNumber: user.room_number ?? state.userRoomNumber,
+          userRollNumber: user.roll_number ?? state.userRollNumber,
+        }));
+      },
+
       addAuth: () => {
         set((state) => {
           return { ...state, isAuth: true };
@@ -95,7 +112,7 @@ const useAuthStore = create(
     }),
     {
       name: 'auth-store',
-      getStorage: () => sessionStorage,
+      storage: createJSONStorage(() => sessionStorage),
     }
   )
 );

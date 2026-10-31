@@ -17,6 +17,7 @@ import { HiArrowLongRight } from 'react-icons/hi2';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../Store/AuthStore';
 import { signup } from '../../utils/apis';
+import { getApiErrorMessage } from '../../utils/errors';
 
 export default function SignupForm() {
   const [loading, setLoading] = useState(false);
@@ -98,22 +99,11 @@ export default function SignupForm() {
         'You have successfully created an account',
         'success'
       );
-      navigate('/');
+      navigate('/dashboard', { replace: true });
       setLoading(false);
     } catch (err) {
       setLoading(false);
-      let errorDescription = '';
-      if (err.response.data.errors.username) {
-        errorDescription += err.response.data.errors.username;
-      } else if (err.response.data.errors.email) {
-        errorDescription += err.response.data.errors.email;
-      } else if (err.response.data.errors.password) {
-        errorDescription += err.response.data.errors.password;
-      } else if (err.response.data.errors.role) {
-        errorDescription += err.response.data.errors.role;
-      } else if (err.response.data.errors.phone_number) {
-        errorDescription += err.response.data.errors.phone_number;
-      }
+      const errorDescription = getApiErrorMessage(err);
       handleToast('Error', errorDescription, 'error');
     }
   };
@@ -149,6 +139,7 @@ export default function SignupForm() {
                   bg="#ecedf6"
                   id="username"
                   name="username"
+                  autoComplete="username"
                   ref={usernameRef}
                   placeholder="Name..."
                 />
@@ -183,6 +174,7 @@ export default function SignupForm() {
                 bg="#ecedf6"
                 id="email"
                 name="email"
+                autoComplete="email"
                 ref={emailRef}
                 placeholder="Email..."
               />
@@ -201,6 +193,7 @@ export default function SignupForm() {
                   bg="#ecedf6"
                   id="password"
                   name="password"
+                  autoComplete="new-password"
                   ref={passwordRef}
                   placeholder="Password..."
                 />

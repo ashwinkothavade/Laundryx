@@ -31,6 +31,7 @@ import {
 } from 'react-icons/fa';
 import useAuthStore from '../Store/AuthStore';
 import { updateUserDetails } from '../../utils/apis';
+import { getApiErrorMessage } from '../../utils/errors';
 
 function StudentDetails() {
   const {
@@ -155,16 +156,7 @@ function StudentDetails() {
       handleToast('Updated', 'Customer details updated', 'success');
       setIsEditMode(false);
     } catch (err) {
-      let errorDescription = '';
-      if (err.response.data.errors.username) {
-        errorDescription += err.response.data.errors.username;
-      } else if (err.response.data.errors.email) {
-        errorDescription += err.response.data.errors.email;
-      } else if (err.response.data.errors.role) {
-        errorDescription += err.response.data.errors.role;
-      } else if (err.response.data.errors.phone_number) {
-        errorDescription += err.response.data.errors.phone_number;
-      }
+      const errorDescription = getApiErrorMessage(err);
       handleToast(
         'Error while updating customer data',
         errorDescription,

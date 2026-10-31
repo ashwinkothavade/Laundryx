@@ -24,9 +24,10 @@ import {
 import { useRef, useState } from 'react';
 import { BiHide, BiShow } from 'react-icons/bi';
 import { HiArrowLongRight } from 'react-icons/hi2';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import useAuthStore from '../Store/AuthStore';
 import { login, forgotPassword } from '../../utils/apis';
+import { getApiErrorMessage } from '../../utils/errors';
 
 export default function LoginForm() {
   const [loading, setLoading] = useState(false);
@@ -36,26 +37,11 @@ export default function LoginForm() {
   const usernameRef = useRef(null);
   const passwordRef = useRef(null);
 
-  const {
-    addAuth,
-    setUserName,
-    setUserRole,
-    setUserEmail,
-    setUserPhone,
-    setUserHostel,
-    setUserRoomNumber,
-    setUserRollNumber,
-  } = useAuthStore((state) => ({
-    addAuth: state.addAuth,
-    setUserName: state.setUserName,
-    setUserRole: state.setUserRole,
-    setUserEmail: state.setUserEmail,
-    setUserPhone: state.setUserPhone,
-    setUserHostel: state.setUserHostel,
-    setUserRoomNumber: state.setUserRoomNumber,
-    setUserRollNumber: state.setUserRollNumber,
+  const { setUser } = useAuthStore((state) => ({
+    setUser: state.setUser,
   }));
   const navigate = useNavigate();
+  const location = useLocation();
   const toast = useToast();
 
   const handleToast = (title, description, status) => {
@@ -83,27 +69,21 @@ export default function LoginForm() {
     try {
       const response = await login(credentials);
 
-      addAuth();
-      setUserName(credentials.username);
-      setUserRole(response.data.role);
-      setUserEmail(response.data.email);
-      setUserPhone(response.data.phone_number);
-      setUserHostel(response.data.hostel);
-      setUserRoomNumber(response.data.room_number);
-      setUserRollNumber(response.data.roll_number);
+      setUser({ ...response.data, username: credentials.username });
 
       handleToast('Success', 'Successfully logged in!', 'success');
-      navigate('/');
+      // Land on the dashboard, not the marketing page. Signing in is a
+      // request to get to your account; bouncing through the landing page
+      // made the app feel slow and left the user to find their own way.
+      // If a guard sent them here, return them where they were going.
+      const from = location.state?.from;
+      navigate(from && from !== '/login' ? from : '/dashboard', {
+        replace: true,
+      });
       setLoading(false);
     } catch (err) {
       setLoading(false);
-      let errorDescription = '';
-      if (err.response.data.errors.username) {
-        errorDescription += err.response.data.errors.username;
-      } else if (err.response.data.errors.password) {
-        errorDescription += err.response.data.errors.password;
-      }
-      handleToast('Error', errorDescription, 'error');
+      handleToast('Could not log in', getApiErrorMessage(err), 'error');
     }
   };
 
@@ -155,6 +135,8 @@ export default function LoginForm() {
                 bg="#ecedf6"
                 id="username"
                 name="username"
+                autoComplete="username"
+                autoFocus
                 ref={usernameRef}
                 placeholder="Enter your username  ..."
               />
@@ -172,6 +154,7 @@ export default function LoginForm() {
                   bg="#ecedf6"
                   id="password"
                   name="password"
+                  autoComplete="current-password"
                   ref={passwordRef}
                   placeholder="Enter your password..."
                 />

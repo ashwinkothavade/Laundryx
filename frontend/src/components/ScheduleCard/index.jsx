@@ -19,6 +19,7 @@ import { TbTruckDelivery } from 'react-icons/tb';
 import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../Store/AuthStore';
 import useOrderStore from '../Store/OrderStore';
+import { getApiErrorMessage } from '../../utils/errors';
 import {
   createOrder,
   getLaundererCatalog,
@@ -194,7 +195,7 @@ function ScheduleCard() {
       clearItems();
       navigate('/OrderList');
     } catch (err) {
-      handleToast('Error', err.response.data.message, 'error');
+      handleToast('Error', getApiErrorMessage(err), 'error');
     }
   };
 

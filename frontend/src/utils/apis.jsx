@@ -2,6 +2,34 @@ import axios from 'axios';
 
 axios.defaults.withCredentials = true;
 
+// The auth cookie lasts 24 hours and the SPA has no idea when it lapses, so
+// an expired session used to surface as every panel on the page failing
+// separately. Catch it once, here: clear the client's idea of who is logged
+// in and send them to the login screen with a reason.
+//
+// Only for 401 (no/!invalid session). A 403 is a real authorization refusal —
+// the user IS logged in and simply may not do that — so it must not log them
+// out.
+let redirecting = false;
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error?.response?.status;
+    const onLoginScreen = /\/(login|signup)$/.test(window.location.pathname);
+
+    if (status === 401 && !onLoginScreen && !redirecting) {
+      redirecting = true;
+      try {
+        sessionStorage.removeItem('auth-store');
+      } catch (e) {
+        // private mode / blocked storage — the redirect still matters
+      }
+      window.location.assign('/login?expired=1');
+    }
+    return Promise.reject(error);
+  }
+);
+
 // Prefer an explicit VITE_API_URL; fall back to the legacy VITE_DEV_ENV switch
 // so existing deployments keep working. Exported so other modules use one URL.
 const dev_env = import.meta.env.VITE_DEV_ENV;
@@ -24,7 +52,7 @@ const validatePayment = (body) => {
 };
 
 const forgotPassword = (email) => {
-  return axios.post(`${API_URL}/forgot-password`, { email });
+  return axios.post(`${API_URL}/forgotpassword`, { email });
 };
 const signup = (credentials) => {
   return axios.post(`${API_URL}/signup`, credentials);
