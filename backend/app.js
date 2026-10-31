@@ -1,3 +1,4 @@
+const { randomUUID } = require('crypto');
 const express = require('express');
 // eslint-disable-next-line no-unused-vars
 const colors = require('colors');
@@ -6,6 +7,10 @@ const cors = require('cors');
 const morgan = require('morgan');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+
+// `:req[x-request-id]` reads the *inbound* header, which callers do not send,
+// so the id we generate has to be exposed as its own token.
+morgan.token('id', (req) => req.id || '-');
 const logger = require('./utils/logger');
 const DB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
@@ -50,6 +55,19 @@ const corsOptions = {
   optionsSuccessStatus: 200,
 };
 
+// Correlate everything that happens during one request.
+//
+// Logs previously carried only "METHOD /path - message", so a user reporting
+// a failure gave you no way to find their request among everyone else's. Each
+// request now gets an id, echoed in the response header and included in every
+// log line and error body for that request, which is what makes a support
+// report actionable.
+app.use((req, resp, next) => {
+  req.id = req.get('x-request-id') || randomUUID();
+  resp.set('x-request-id', req.id);
+  next();
+});
+
 app.set('view engine', 'ejs');
 
 // Security headers. CSP is disabled because the only HTML this API serves is
@@ -83,9 +101,12 @@ if (!isTest) {
   app.use(generalLimiter);
   app.use(['/login', '/signup', '/forgotpassword'], authLimiter);
   app.use(
-    morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev', {
-      stream: logger.stream,
-    })
+    morgan(
+      process.env.NODE_ENV === 'production'
+        ? ':id :remote-addr :method :url :status :res[content-length] - :response-time ms'
+        : ':method :url :status :response-time ms :id',
+      { stream: logger.stream }
+    )
   );
 }
 
@@ -153,7 +174,9 @@ app.use(async (req, resp, next) => {
   if (!DB.isConnected()) await DB.connect();
   if (DB.isConnected()) return next();
 
-  logger.warn(`Database unavailable for ${req.method} ${req.originalUrl}`);
+  logger.warn(`Database unavailable for ${req.method} ${req.originalUrl}`, {
+    requestId: req.id,
+  });
   return resp.status(503).json({
     message:
       'Service temporarily unavailable: the database is unreachable. ' +
@@ -177,9 +200,13 @@ app.use(couponRoutes);
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, resp, next) => {
   logger.error(`${req.method} ${req.originalUrl} - ${err.message}`, {
+    requestId: req.id,
+    userId: req.user?.user_id,
     stack: err.stack,
   });
-  resp.status(err.status || 500).json({ message: 'Internal Server Error' });
+  resp
+    .status(err.status || 500)
+    .json({ message: 'Internal Server Error', requestId: req.id });
 });
 
 module.exports = app;

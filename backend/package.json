@@ -9,7 +9,8 @@
     "seed:admin": "node scripts/seedAdmin.js",
     "seed:data": "node scripts/seedData.js",
     "lint": "eslint .  --ext js --report-unused-disable-directives --max-warnings 0 --ignore-pattern coverage",
-    "lint:fix": "eslint  . --ext js --fix --report-unused-disable-directives --max-warnings 0 --ignore-pattern coverage"
+    "lint:fix": "eslint  . --ext js --fix --report-unused-disable-directives --max-warnings 0 --ignore-pattern coverage",
+    "verify": "node scripts/verifyFlows.js"
   },
   "keywords": [],
   "author": "",
