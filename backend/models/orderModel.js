@@ -126,4 +126,17 @@ const orderSchema = new mongoose.Schema(
   }
 );
 
+// The two access patterns that carry all the traffic, neither of which was
+// indexed — every student opening their orders and every launderer opening
+// their queue was a full collection scan.
+//
+//   { user }                      -> a student's own orders
+//   { user, launderer }           -> the scoped history a launderer may see
+// A compound index serves both, because a query on a prefix of the key uses it.
+orderSchema.index({ user: 1, launderer: 1 });
+
+// A launderer's own queue, newest first — the sort is part of the index so
+// the server does not have to collect and sort the whole result set.
+orderSchema.index({ launderer: 1, createdAt: -1 });
+
 module.exports = mongoose.model('Order', orderSchema);
