@@ -52,7 +52,11 @@ import {
   MdRefresh,
 } from 'react-icons/md';
 import Navbar from '../../../components/Navbar';
-import HBar, { CATEGORY_COLORS, ChartCard, Legend } from './charts';
+import HBar, {
+  CATEGORY_COLORS,
+  ChartCard,
+  Legend,
+} from '../../../components/Charts';
 import {
   addSettingValue,
   adminCreateCoupon,

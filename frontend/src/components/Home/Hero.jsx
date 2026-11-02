@@ -100,7 +100,7 @@ function Hero() {
             <LandingButton
               onClick={() => {
                 if (isAuth) {
-                  navigate('/OrderList');
+                  navigate('/dashboard/place-order');
                 } else {
                   toast({
                     title: 'Please login to place an order',

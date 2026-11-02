@@ -35,7 +35,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { BiBell, BiLogOut, BiUserCheck, BiUserPlus } from 'react-icons/bi';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { IoIosClose } from 'react-icons/io';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import useAuthStore from '../Store/AuthStore';
 import { deleteNotif, fetchNotifs, logout } from '../../utils/apis';
 import { getApiErrorMessage } from '../../utils/errors';
@@ -45,6 +45,7 @@ function Navbar() {
     isAuth,
     removeAuth,
     userName,
+    userRole,
     userNotifications,
     unreadCount,
     updateUserNotifications,
@@ -61,6 +62,7 @@ function Navbar() {
   } = useAuthStore((state) => ({
     isAuth: state.isAuth,
     userName: state.userName,
+    userRole: state.userRole,
     userNotifications: state.userNotifications,
     unreadCount: state.unreadCount,
     updateUserNotifications: state.updateUserNotifications,
@@ -86,7 +88,26 @@ function Navbar() {
   const cancelLogoutRef = useRef(null);
   const [loggingOut, setLoggingOut] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const toast = useToast();
+
+  // The sections worth reaching in one click, per role. Before this the only
+  // signed-in link was "Account", so every task was at least two navigations
+  // away and the way back was the browser's back button.
+  const NAV_BY_ROLE = {
+    customer: [
+      { label: 'Place order', to: '/dashboard/place-order' },
+      { label: 'My orders', to: '/dashboard/orders' },
+    ],
+    launderer: [
+      { label: 'Overview', to: '/dashboard/overview' },
+      { label: 'Orders', to: '/dashboard/orders' },
+      { label: 'Catalog', to: '/dashboard/catalog' },
+    ],
+    admin: [{ label: 'Console', to: '/dashboard' }],
+  };
+  const navLinks = NAV_BY_ROLE[userRole] || [];
+  const isCurrent = (to) => location.pathname === to;
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -187,7 +208,7 @@ function Navbar() {
       bgColor="white"
       zIndex="1"
     >
-      <Link to="/">
+      <Link to={isAuth ? '/dashboard' : '/'}>
         <Text
           color="#584BAC"
           fontWeight="600"
@@ -201,6 +222,31 @@ function Navbar() {
       <Flex display={{ base: 'none', md: 'block' }}>
         {isAuth ? (
           <Flex justify="center" align="center" gap="1.5rem">
+            <Flex
+              align="center"
+              gap="0.25rem"
+              display={{ base: 'none', lg: 'flex' }}
+            >
+              {navLinks.map((link) => (
+                <Button
+                  key={link.to}
+                  as={Link}
+                  to={link.to}
+                  variant="ghost"
+                  size="sm"
+                  fontSize="1rem"
+                  fontWeight={isCurrent(link.to) ? 700 : 500}
+                  color={isCurrent(link.to) ? '#CE1567' : '#584BAC'}
+                  aria-current={isCurrent(link.to) ? 'page' : undefined}
+                  borderBottom="2px solid"
+                  borderColor={isCurrent(link.to) ? '#CE1567' : 'transparent'}
+                  borderRadius="0"
+                  _hover={{ color: '#CE1567', bg: 'transparent' }}
+                >
+                  {link.label}
+                </Button>
+              ))}
+            </Flex>
             <Menu>
               <MenuButton
                 as={Button}
@@ -267,7 +313,9 @@ function Navbar() {
                 )}
               </MenuList>
             </Menu>
-            <Link to="/dashboard">
+            <Link
+              to={userRole === 'admin' ? '/dashboard' : '/dashboard/profile'}
+            >
               <Tag
                 size="lg"
                 cursor="pointer"
@@ -352,11 +400,26 @@ function Navbar() {
           />
           {isAuth ? (
             <MenuList fontSize="1.1rem">
-              <Link to="/dashboard">
-                <MenuItem icon={<Avatar name={userName} size="sm" />}>
-                  Dashboard
+              {navLinks.map((link) => (
+                <MenuItem
+                  key={link.to}
+                  onClick={() => navigate(link.to)}
+                  fontWeight={isCurrent(link.to) ? 700 : 500}
+                  color={isCurrent(link.to) ? '#CE1567' : undefined}
+                >
+                  {link.label}
                 </MenuItem>
-              </Link>
+              ))}
+              <MenuItem
+                icon={<Avatar name={userName} size="sm" />}
+                onClick={() =>
+                  navigate(
+                    userRole === 'admin' ? '/dashboard' : '/dashboard/profile'
+                  )
+                }
+              >
+                Account
+              </MenuItem>
               <MenuItem
                 icon={
                   <Box position="relative">

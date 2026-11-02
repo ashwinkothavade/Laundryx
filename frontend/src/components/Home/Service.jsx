@@ -70,7 +70,7 @@ function Service(props) {
                 margin="auto"
                 w="85%"
                 onClick={() => {
-                  navigate('/OrderList');
+                  navigate('/dashboard/place-order');
                 }}
               />
             </Circle>

@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect, useState } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import PreLoader from './Animation/PreLoader';
 import ProtectedRoute from './components/ProtectedRoute';
 import useAuthStore from './components/Store/AuthStore';
@@ -14,7 +14,6 @@ const StudentDashBoard = React.lazy(() => import('./pages/DashBoard/Student'));
 const AdminDashboard = React.lazy(() => import('./pages/DashBoard/Admin'));
 const LandingPage = React.lazy(() => import('./pages/LandingPage'));
 const Login = React.lazy(() => import('./pages/Login'));
-const OrderList = React.lazy(() => import('./pages/OrderList'));
 const Signup = React.lazy(() => import('./pages/Signup'));
 
 function App() {
@@ -53,13 +52,11 @@ function App() {
     <Suspense fallback={<PreLoader />}>
       <Routes>
         <Route path="/" element={isLoading ? <PreLoader /> : <LandingPage />} />
+        {/* Placing an order is a section of the dashboard now, not a page of
+            its own. Kept as a redirect so older links still land somewhere. */}
         <Route
           path="/OrderList"
-          element={
-            <ProtectedRoute roles={['customer']}>
-              <OrderList />
-            </ProtectedRoute>
-          }
+          element={<Navigate to="/dashboard/place-order" replace />}
         />
         <Route
           path="/CheckoutPage"
@@ -71,8 +68,14 @@ function App() {
         />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        {/* The dashboard section lives in the URL so it can be linked to and
+            returned to with the back button. */}
         <Route
           path="/dashboard"
+          element={<ProtectedRoute>{dashboardElement}</ProtectedRoute>}
+        />
+        <Route
+          path="/dashboard/:tab"
           element={<ProtectedRoute>{dashboardElement}</ProtectedRoute>}
         />
       </Routes>

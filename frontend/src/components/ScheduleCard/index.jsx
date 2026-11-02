@@ -196,7 +196,8 @@ function ScheduleCard() {
       }
       clearSchedule();
       clearItems();
-      navigate('/OrderList');
+      // Land on the order that was just placed, not back on an empty basket.
+      navigate('/dashboard/orders');
     } catch (err) {
       handleToast('Error', getApiErrorMessage(err), 'error');
     }

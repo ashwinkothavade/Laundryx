@@ -1,94 +1,38 @@
-import { Box, Button, Flex, HStack, Stack, Text } from '@chakra-ui/react';
-import React, { useState } from 'react';
-import { FiBox } from 'react-icons/fi';
-
-import { Helmet } from 'react-helmet-async';
-import { MdKeyboardArrowRight } from 'react-icons/md';
-import { RiAccountBoxLine, RiSettingsLine } from 'react-icons/ri';
-import Navbar from '../../../components/Navbar';
+import React from 'react';
+import { FiBox, FiShoppingBag } from 'react-icons/fi';
+import { RiAccountBoxLine } from 'react-icons/ri';
+import DashboardShell from '../../../components/DashboardShell';
+import OrderCard from '../../../components/OrderCard';
 import StudentDetails from '../../../components/StudentDetails';
 import OrderDetail from '../../../components/StudentOrdersDetail';
 
-function StudentDashBoard() {
-  const [isActive, setIsActive] = useState(0);
-  return (
-    <>
-      <Helmet>
-        <title>LaundriX - Dashboard</title>
-        <meta name="description" content="" />
-      </Helmet>
-      <Navbar />
-      <Box
-        position={{ base: 'static', md: 'fixed' }}
-        left={0}
-        top={['50px', '55px', '70px']}
-        bottom={{ base: 'auto', md: 0 }}
-        w={{ base: '100%', md: '15rem' }}
-        boxShadow="0px 2px 3px lightgray"
-        pl={{ base: '1rem', md: '2rem' }}
-        pr="1rem"
-        pt="2rem"
-        mt={{ base: '50px', xs: '55px', sm: '70px', md: 0 }}
-      >
-        <HStack mb="2rem" display={{ base: 'none', md: 'flex' }}>
-          <RiSettingsLine size={35} />
-          <Text fontWeight={600} fontSize="1.4rem">
-            Dashboard
-          </Text>
-        </HStack>
-        <Stack
-          direction={{ base: 'row', md: 'column' }}
-          gap={{ base: 2, md: 4 }}
-        >
-          <Button
-            p={0}
-            color={!isActive ? 'white' : '#9197B3'}
-            bgColor={!isActive ? '#CE1567' : 'transparent'}
-            onClick={() => setIsActive(0)}
-            _hover={{
-              bgColor: `${!isActive ? '#bf0055' : 'transparent'}`,
-            }}
-          >
-            <Flex w="100%" justify="space-between" align="center" px="1rem">
-              <Flex align="center" gap={2}>
-                <RiAccountBoxLine size={20} />
-                <Text>Profile</Text>
-              </Flex>
-              <MdKeyboardArrowRight />
-            </Flex>
-          </Button>
-          <Button
-            p={0}
-            color={isActive ? 'white' : '#9197B3'}
-            bgColor={isActive ? '#CE1567' : 'transparent'}
-            onClick={() => setIsActive(1)}
-            _hover={{
-              bgColor: `${isActive ? '#bf0055' : 'transparent'}`,
-            }}
-          >
-            <Flex w="100%" justify="space-between" align="center" px="1rem">
-              <Flex align="center" gap={2}>
-                <FiBox size={20} />
-                <Text>Orders</Text>
-              </Flex>
-              <MdKeyboardArrowRight />
-            </Flex>
-          </Button>
-        </Stack>
-      </Box>
+// Placing an order is the reason a student opens LaundriX, so it is the
+// section they land on. It used to live on its own route that the dashboard
+// never linked to, which meant a signed-in student had no way to reach the
+// one thing they came to do without going back to the marketing page.
+const TABS = [
+  {
+    key: 'place-order',
+    label: 'Place order',
+    icon: FiShoppingBag,
+    render: () => <OrderCard />,
+  },
+  {
+    key: 'orders',
+    label: 'My orders',
+    icon: FiBox,
+    render: () => <OrderDetail />,
+  },
+  {
+    key: 'profile',
+    label: 'Profile',
+    icon: RiAccountBoxLine,
+    render: () => <StudentDetails />,
+  },
+];
 
-      <Flex
-        justify="flex-start"
-        align="stretch"
-        pt={{ base: '2rem', md: '5rem' }}
-        pl={{ base: '1rem', md: '16rem' }}
-        pr={{ base: '1rem', md: '2rem' }}
-        mt={{ base: '0', md: '70px' }}
-        minW={0}
-      >
-        {!isActive ? <StudentDetails /> : <OrderDetail />}
-      </Flex>
-    </>
-  );
+function StudentDashBoard() {
+  return <DashboardShell title="Your laundry" tabs={TABS} />;
 }
+
 export default StudentDashBoard;
