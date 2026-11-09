@@ -13,6 +13,7 @@ import {
 import React, { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { AiFillStar } from 'react-icons/ai';
+import { MdLocationOn } from 'react-icons/md';
 import { fetchLaundererDirectory } from '../../utils/apis';
 
 function LaundererPicker({ selected, onSelect }) {
@@ -56,7 +57,8 @@ function LaundererPicker({ selected, onSelect }) {
   if (directory.length === 0) {
     return (
       <Text color="gray.500" textAlign="center">
-        No launderers are available yet.
+        No launderers currently cover your hostel. Check your hostel is set on
+        your profile, or try again once more launderers join.
       </Text>
     );
   }
@@ -121,6 +123,21 @@ function LaundererPicker({ selected, onSelect }) {
                     : 'No items yet'}
                 </Text>
                 <Text>{l.itemCount} items</Text>
+              </HStack>
+              {/* Coverage, so a student can tell whether a launderer collects
+                  from their block before choosing one. */}
+              <HStack
+                spacing={1}
+                mt="0.5rem"
+                color="gray.500"
+                fontSize="0.8rem"
+              >
+                <MdLocationOn />
+                <Text noOfLines={1}>
+                  {l.serviceAreas && l.serviceAreas.length
+                    ? `Collects from ${l.serviceAreas.join(', ')}`
+                    : 'Collects from anywhere on campus'}
+                </Text>
               </HStack>
             </Box>
           );

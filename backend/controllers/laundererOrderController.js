@@ -2,6 +2,7 @@ const Order = require('../models/orderModel');
 const User = require('../models/userModel');
 const CatalogItem = require('../models/catalogModel');
 const Review = require('../models/reviewModel');
+const Setting = require('../models/settingModel');
 const logger = require('../utils/logger');
 
 // How many days of history the trend series carries.
@@ -197,6 +198,87 @@ const getLaundererAnalytics = async (req, resp) => {
   }
 };
 
+// @desc    Set the areas this launderer collects from / delivers to
+// @route   PUT /launderer/areas
+// @access  Private (launderer)
+//
+// Validated against the admin-managed `locations` list: an area outside it
+// could never match a student's address, so accepting it would only look like
+// it worked. An empty list clears the restriction.
+const setServiceAreas = async (req, resp) => {
+  try {
+    const { areas } = req.body;
+    if (!Array.isArray(areas)) {
+      return resp.status(400).json({ message: 'areas must be an array' });
+    }
+    const cleaned = [
+      ...new Set(areas.map((a) => String(a).trim()).filter(Boolean)),
+    ];
+
+    const setting = await Setting.findOne({ key: 'locations' });
+    const known = setting ? setting.values : [];
+    const unknown = cleaned.filter((a) => !known.includes(a));
+    if (known.length && unknown.length) {
+      return resp.status(400).json({
+        message: `Not a serviceable location: ${unknown.join(', ')}`,
+      });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user.user_id,
+      { serviceAreas: cleaned },
+      { new: true }
+    ).select('-password -__v');
+    return resp.status(200).json({ serviceAreas: user.serviceAreas });
+  } catch (err) {
+    logger.error(`setServiceAreas error: ${err.message}`, { stack: err.stack });
+    return resp.status(500).json({ message: 'Error updating service areas' });
+  }
+};
+
+// @desc    Move one line of an order to a new stage
+// @route   PUT /launderer/orders/:order_id/items/:item_id/stage
+// @access  Private (launderer the order was placed with)
+//
+// req.order is attached by loadOrder({ as: 'launderer' }), so a launderer
+// cannot touch an order that was not placed with them.
+const updateItemStage = async (req, resp) => {
+  try {
+    const { stage } = req.body;
+    if (!Order.ITEM_STAGES.includes(stage)) {
+      return resp.status(400).json({
+        message: `stage must be one of: ${Order.ITEM_STAGES.join(', ')}`,
+      });
+    }
+
+    const { order } = req;
+    // Tracking an order nobody has agreed to do yet would show students
+    // progress on work that is not happening.
+    if (!order.acceptedStatus) {
+      return resp
+        .status(409)
+        .json({ message: 'Accept the order before tracking its items' });
+    }
+
+    const item = order.items.id(req.params.item_id);
+    if (!item) {
+      return resp.status(404).json({ message: 'Item not found on this order' });
+    }
+
+    item.stage = stage;
+    await order.save();
+
+    logger.info(
+      `Order ${order._id} item ${item._id} (${item.name}) -> ${stage} ` +
+        `by ${req.user.username}`
+    );
+    return resp.status(200).json({ order });
+  } catch (err) {
+    logger.error(`updateItemStage error: ${err.message}`, { stack: err.stack });
+    return resp.status(500).json({ message: 'Error updating the item' });
+  }
+};
+
 // @desc    Set the launderer's own available time slots
 // @route   PUT /launderer/availability
 // @access  Private (launderer)
@@ -377,6 +459,8 @@ const updateOrderDeliveryDate = async (req, resp) => {
 
 module.exports = {
   getLaundererAnalytics,
+  setServiceAreas,
+  updateItemStage,
   setAvailability,
   setExpress,
   getAllOrders,

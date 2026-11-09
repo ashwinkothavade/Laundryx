@@ -105,6 +105,16 @@ const cancelOrder = (order_id) => {
 const setLaundererAvailability = (timeSlots) => {
   return axios.put(`${API_URL}/launderer/availability`, { timeSlots });
 };
+const setLaundererAreas = (areas) => {
+  return axios.put(`${API_URL}/launderer/areas`, { areas });
+};
+// Move one line of an order to a new stage: pending | washing | ready | returned
+const updateItemStage = (order_id, item_id, stage) => {
+  return axios.put(
+    `${API_URL}/launderer/orders/${order_id}/items/${item_id}/stage`,
+    { stage }
+  );
+};
 
 const makePayment = (body) => {
   return axios.post(`${API_URL}/payment`, body);
@@ -193,6 +203,8 @@ export {
   rescheduleOrder,
   cancelOrder,
   setLaundererAvailability,
+  setLaundererAreas,
+  updateItemStage,
   updateAcceptedStatus,
   updateDeliveryStatus,
   getLaundererAnalytics,

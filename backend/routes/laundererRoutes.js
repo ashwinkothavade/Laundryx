@@ -32,7 +32,16 @@ router.get(
   laundererOrderController.getLaundererAnalytics
 );
 router.put('/launderer/availability', laundererOrderController.setAvailability);
+router.put('/launderer/areas', laundererOrderController.setServiceAreas);
 router.put('/launderer/express', laundererOrderController.setExpress);
+
+// Per-item tracking. ownOrder means a launderer can only move items on an
+// order that was placed with them.
+router.put(
+  '/launderer/orders/:order_id/items/:item_id/stage',
+  ownOrder,
+  laundererOrderController.updateItemStage
+);
 
 router.get('/allorders', laundererOrderController.getAllOrders);
 router.get('/orders/:username', laundererOrderController.getOrdersByStudent);

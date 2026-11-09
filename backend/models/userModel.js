@@ -44,6 +44,14 @@ const userSchema = mongoose.Schema(
       type: [String],
       default: [],
     },
+    // The pickup/delivery points this launderer actually covers, drawn from
+    // the admin-managed `locations` setting. An empty list means "no stated
+    // restriction" rather than "serves nowhere", so launderers who predate
+    // this field keep receiving orders instead of silently going dark.
+    serviceAreas: {
+      type: [String],
+      default: [],
+    },
     // Flat surcharge a launderer charges for express service. 0 = not offered.
     expressSurcharge: {
       type: Number,

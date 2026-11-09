@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, Stack } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import { FiBarChart2, FiBox, FiList } from 'react-icons/fi';
+import { FiBarChart2, FiBox, FiClock, FiList } from 'react-icons/fi';
 import { RiAccountBoxLine } from 'react-icons/ri';
 import DashboardShell from '../../../components/DashboardShell';
 import LaundererAnalytics from '../../../components/LaundererAnalytics';
@@ -8,6 +8,7 @@ import LaundererAvailability from '../../../components/LaundererAvailability';
 import LaundererCatalog from '../../../components/LaundererCatalog';
 import LaundererDetails from '../../../components/LaundererDetails';
 import LaundererOrdersDetail from '../../../components/LaundererOrdersDetail';
+import LaundererServiceAreas from '../../../components/LaundererServiceAreas';
 import { getMe } from '../../../utils/apis';
 
 // A launderer signs in to find out how the business is doing, so the overview
@@ -29,10 +30,18 @@ const TABS = [
     key: 'catalog',
     label: 'Catalog',
     icon: FiList,
+    render: () => <LaundererCatalog />,
+  },
+  // Where you work and when, kept apart from what you charge for — they are
+  // different questions and were previously stacked on one screen.
+  {
+    key: 'availability',
+    label: 'Areas & hours',
+    icon: FiClock,
     render: () => (
       <Stack w="100%" align="center" gap={8}>
+        <LaundererServiceAreas />
         <LaundererAvailability />
-        <LaundererCatalog />
       </Stack>
     ),
   },

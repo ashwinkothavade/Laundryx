@@ -44,6 +44,7 @@ import {
   postNotif,
   updateAcceptedStatus,
   updateDeliveryStatus,
+  updateItemStage,
 } from '../../utils/apis';
 import {
   formatCurrency,
@@ -52,7 +53,9 @@ import {
   paidStatus,
   shortOrderRef,
 } from '../../utils/format';
+import { getApiErrorMessage } from '../../utils/errors';
 import EmptyState from '../EmptyState';
+import ItemTracker from '../ItemTracker';
 import { useAsyncAction } from '../../hooks/useAsyncAction';
 
 function LaundererOrdersDetail() {
@@ -77,6 +80,33 @@ function LaundererOrdersDetail() {
       isClosable: true,
     });
   };
+
+  // Move one line of the open order to a new stage. The server returns the
+  // whole order, so the modal and the row behind it are both refreshed from
+  // the same response rather than from a guess about what changed.
+  const changeItemStage = (item, stage, key) =>
+    run(key, async () => {
+      try {
+        const res = await updateItemStage(selectedOrder._id, item._id, stage);
+        const updated = res.data.order;
+        setSelectedOrder((prev) =>
+          prev && prev._id === updated._id
+            ? { ...prev, items: updated.items }
+            : prev
+        );
+        setOrders((prev) =>
+          prev.map((o) =>
+            o._id === updated._id ? { ...o, items: updated.items } : o
+          )
+        );
+      } catch (err) {
+        handleToast(
+          'Could not update the item',
+          getApiErrorMessage(err),
+          'error'
+        );
+      }
+    });
 
   useEffect(() => {
     const getOrders = async () => {
@@ -342,6 +372,22 @@ function LaundererOrdersDetail() {
               <Text fontSize="xl" fontWeight="bold">
                 Order ID: {selectedOrder._id}
               </Text>
+              <Divider my={2} />
+              <Text fontSize="lg" fontWeight="bold" color="purple.500">
+                Item tracking:
+              </Text>
+              <Text fontSize="sm" color="gray.500" mb={2}>
+                {selectedOrder.acceptedStatus
+                  ? 'What you set here is what the customer sees.'
+                  : 'Accept the order before tracking its items.'}
+              </Text>
+              <ItemTracker
+                items={selectedOrder.items}
+                editable
+                disabled={!selectedOrder.acceptedStatus || busy}
+                isPending={isPending}
+                onStageChange={changeItemStage}
+              />
               <Divider my={2} />
               <Text fontSize="lg" fontWeight="bold" color="purple.500">
                 Customer Details:

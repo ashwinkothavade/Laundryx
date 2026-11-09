@@ -28,8 +28,33 @@ const getAllLaunderers = async (req, resp) => {
 // @access  Private
 const getLaundererDirectory = async (req, resp) => {
   try {
+    // This is the list students actually choose from, so service-area
+    // filtering belongs here. The hostel is read from the record rather than
+    // the token, which carries whatever was set at sign-in.
+    const stages = [{ $match: { role: 'launderer', approved: true } }];
+
+    if (req.user.role === 'customer') {
+      const student = await User.findById(req.user.user_id)
+        .select('hostel')
+        .lean();
+      const hostel = student?.hostel || '';
+      if (hostel) {
+        stages.push({
+          $match: {
+            $or: [
+              // Launderers who state no areas are unrestricted — including
+              // those created before the field existed.
+              { serviceAreas: { $exists: false } },
+              { serviceAreas: { $size: 0 } },
+              { serviceAreas: hostel },
+            ],
+          },
+        });
+      }
+    }
+
     const directory = await User.aggregate([
-      { $match: { role: 'launderer', approved: true } },
+      ...stages,
       {
         $lookup: {
           from: 'CatalogItem',
@@ -51,6 +76,9 @@ const getLaundererDirectory = async (req, resp) => {
           _id: 0,
           username: 1,
           phone_number: 1,
+          serviceAreas: 1,
+          availableTimeSlots: 1,
+          expressSurcharge: 1,
           itemCount: { $size: '$catalog' },
           minPrice: { $min: '$catalog.price' },
           maxPrice: { $max: '$catalog.price' },

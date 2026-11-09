@@ -74,9 +74,20 @@ const makeAdmin = async () => {
   return { username: payload.username, cookie };
 };
 
+// Upsert rather than create: `key` is unique, so a suite that seeds more than
+// once — or a test that builds two fixtures through the same helper — would
+// otherwise fail on a duplicate key rather than on anything it meant to test.
 const seedSettings = async () => {
-  await Setting.create({ key: 'locations', values: ['H1', 'H3', 'H4'] });
-  await Setting.create({ key: 'timeSlots', values: ['12:00 PM', '04:00 PM'] });
+  await Setting.updateOne(
+    { key: 'locations' },
+    { $set: { values: ['H1', 'H3', 'H4'] } },
+    { upsert: true }
+  );
+  await Setting.updateOne(
+    { key: 'timeSlots' },
+    { $set: { values: ['12:00 PM', '04:00 PM'] } },
+    { upsert: true }
+  );
 };
 
 const addCatalogItem = (cookie, item) =>

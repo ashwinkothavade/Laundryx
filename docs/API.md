@@ -28,7 +28,7 @@ other route returns **503** with a pointer to `/ready`.
 | GET | `/me` | 🔒 | Current user (no password) — validates the session |
 | PATCH | `/user` | 🔒 | Update own profile. Accepts only `username`, `email`, `phone_number`, `hostel`, `room_number`, `roll_number`; any other field (`role`, `approved`, `password`) is ignored |
 | GET | `/launderers` | 🔒 | Approved launderers only |
-| GET | `/launderers/directory` | 🔒 | Approved launderers with `avgRating`, `reviewCount`, `minPrice`, `maxPrice`, `itemCount` |
+| GET | `/launderers/directory` | 🔒 | Approved launderers with `avgRating`, `reviewCount`, `minPrice`, `maxPrice`, `itemCount`, `serviceAreas`. For a customer, filtered to those covering their hostel |
 | POST | `/forgotpassword` | 🔓 | `{ email }` → emails a reset link |
 | GET | `/resetpassword/:id/:token` | 🔓 | Renders the reset page |
 | POST | `/resetpassword/:id/:token` | 🔓 | `{ password }` |
@@ -51,7 +51,7 @@ other route returns **503** with a pointer to `/ready`.
 | Method | Path | Auth | Body / notes |
 |---|---|:---:|---|
 | GET | `/student/orders` | 🎓 | The customer's orders |
-| GET | `/student/launderers` | 🔒 | Launderers (username + phone) |
+| GET | `/student/launderers` | 🔒 | Approved launderers that cover the caller's hostel, with their areas, slots and express fee |
 | POST | `/student/createorder` | 🎓 | `{ items, launderer, pickup/delivery date/time/address }` — **prices computed server-side from the catalog** |
 | PUT | `/student/updatepickupstatus/:order_id` | 🎓 | Owner only |
 | PUT | `/student/updatedeliverystatus/:order_id` | 🎓 | Owner only |
@@ -77,6 +77,8 @@ other route returns **503** with a pointer to `/ready`.
 | GET | `/launderer/analytics` | 🧺 | The launderer's own order/revenue/rating stats |
 | PUT | `/launderer/availability` | 🧺 | `{ timeSlots: [] }` — the launderer's own time slots |
 | PUT | `/launderer/express` | 🧺 | `{ expressSurcharge }` — flat express fee (0 = off) |
+| PUT | `/launderer/areas` | 🧺 | `{ areas: [] }` — pickup points served; must exist in the `locations` setting. Empty = no restriction |
+| PUT | `/launderer/orders/:order_id/items/:item_id/stage` | 🧺 | `{ stage }` — one of `pending` \| `washing` \| `ready` \| `returned`. 409 until the order is accepted |
 
 ## Coupons
 

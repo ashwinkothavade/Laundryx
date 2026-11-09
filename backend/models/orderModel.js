@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
 
+// Ordered: an item moves forward through these, and the UI reads progress
+// from the index rather than from a pile of booleans.
+const ITEM_STAGES = ['pending', 'washing', 'ready', 'returned'];
+
 // Clothing and wash types are no longer a fixed list — they come from each
 // launderer's catalog, so these are free-form strings rather than enums.
 const itemSchema = new mongoose.Schema({
@@ -18,6 +22,18 @@ const itemSchema = new mongoose.Schema({
   pricePerItem: {
     type: Number,
     required: true,
+  },
+  // Where this line of the order has got to inside the laundry. The order's
+  // own booleans say where the *order* is (accepted, picked up, delivered);
+  // they cannot say that the shirts are done while the bedsheets are still
+  // in the wash, which is the thing students actually ask about.
+  //
+  // One stage covers the whole line, so "Shirt x 5" moves together. Tracking
+  // part of a line would mean a count per stage rather than a single value.
+  stage: {
+    type: String,
+    enum: ITEM_STAGES,
+    default: 'pending',
   },
 });
 
@@ -139,4 +155,7 @@ orderSchema.index({ user: 1, launderer: 1 });
 // the server does not have to collect and sort the whole result set.
 orderSchema.index({ launderer: 1, createdAt: -1 });
 
-module.exports = mongoose.model('Order', orderSchema);
+const Order = mongoose.model('Order', orderSchema);
+
+module.exports = Order;
+module.exports.ITEM_STAGES = ITEM_STAGES;

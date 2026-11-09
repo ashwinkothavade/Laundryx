@@ -77,10 +77,15 @@ Open the navbar menu → **Profile**, and fill in **hostel**, **room number** an
 
 ### 2. Choose a launderer
 
-The dashboard lists every **admin-approved** launderer with their average
-rating, number of catalog items and price range. You can search by name and
-sort by **rating**, **lowest price** or **name**. Pick the one you want — the
-catalog you order from is that launderer's own.
+The dashboard lists every **admin-approved** launderer that **covers your
+hostel**, with their average rating, number of catalog items, price range and
+the areas they collect from. You can search by name and sort by **rating**,
+**lowest price** or **name**. Pick the one you want — the catalog you order
+from is that launderer's own.
+
+> If the list is empty, check your hostel is set on your profile. Launderers
+> choose which areas they serve, so one who does not cover your block will not
+> appear.
 
 ### 3. Build your order
 
@@ -122,6 +127,18 @@ timeline per order. An order moves through:
 placed ──▶ accepted ──▶ picked up ──▶ delivered ──▶ paid ──▶ rated
          (launderer)    (you)      (you or them)   (you)   (you)
 ```
+
+Open an order to see **your items** tracked individually. The timeline above
+tells you where the *order* is; the item list tells you where each garment is,
+which is usually the thing you actually want to know:
+
+```
+not started ──▶ in the wash ──▶ ready ──▶ returned to you
+```
+
+So a shirt can read *ready* while a bedsheet is still *in the wash*. The header
+summarises it — "2 of 3 ready". Your launderer sets these as they work; items
+stay *not started* until they accept the order.
 
 Before pickup you can also:
 
@@ -175,11 +192,21 @@ delete an entry at any time.
 Editing a price affects new orders only — orders already placed keep the price
 captured at the time they were placed.
 
-### 3. Set availability and express service
+### 3. Set where and when you work
 
+Everything here lives on the **Areas & hours** tab.
+
+- **Where you serve** — tick the pickup points you collect from and deliver to.
+  Students outside those areas will not see you and cannot order from you, and
+  an order from an area you do not cover is rejected by the server. The list
+  comes from the admin's locations, so you can only pick places the platform
+  actually serves. **Leaving everything unticked means you accept orders from
+  everywhere** — it is the permissive setting, not the restrictive one.
 - **Availability** — publish your own pickup/delivery time slots. Customers
-  ordering from you see these instead of the global slots. Leave it empty to
-  use the global ones.
+  ordering from you see these instead of the global slots. The platform's
+  standard slots are offered as one-click additions, so your times match the
+  format used everywhere else; you can still add a custom time. Leave it empty
+  to use the global ones.
 - **Express** — set a flat surcharge for express turnaround. Set it to **0** to
   stop offering express; the option then disappears from your checkout.
 
@@ -194,6 +221,12 @@ and the full item breakdown.
 | **Reject** | any time before the customer marks it picked up |
 | **Mark delivered** | after the customer has marked it picked up |
 
+Open an order to set the **stage of each item** — *not started*, *in the wash*,
+*ready*, *returned*. What you set is what the customer sees on their order, so
+they can stop asking whether their shirts are done. The control is locked until
+you accept the order, since tracking work nobody has agreed to do would show
+progress that is not happening.
+
 Note that **the customer marks the order picked up**, not you — that step
 confirms the hand-over from their side. Rescheduling a delivery date is
 available in the API (`PUT /updatedeliverydate/:order_id`) but is not yet wired
@@ -201,9 +234,23 @@ into the dashboard; ask the customer to use **Reschedule** instead.
 
 ### 5. Watch your numbers
 
-The **Analytics** tab shows total orders, how many are pending, in progress and
-delivered, revenue from paid orders, catalog size, and your average rating with
-its review count.
+**Overview** is where you land when you sign in. It leads with revenue
+collected and how much is still owed to you, then this week's orders and
+earnings against last week's, your average order value and your rating.
+
+Below that:
+
+- **Revenue collected** and **orders placed**, day by day over the last two
+  weeks. Hover a chart for exact figures, or press **Table** to read them as
+  numbers.
+- **Where your orders are** — how far each one has got, from placed through to
+  paid. Each stage includes the ones past it, so it reads as a funnel.
+- **Most washed** — your highest-volume items.
+- Splits for **pickup vs drop-off**, **express demand**, and **repeat
+  customers**.
+
+A launderer with no orders yet sees the headline figures and a note rather than
+a screen of empty charts.
 
 <br>
 

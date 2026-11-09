@@ -121,6 +121,14 @@ const createStudentOrder = async (req, resp) => {
         .status(400)
         .json({ message: 'Invalid pickup/delivery location' });
     }
+    // A launderer who states the areas they cover only receives orders from
+    // those areas. An empty list is "no stated restriction", not "nowhere".
+    const areas = laundererUser.serviceAreas || [];
+    if (isHomePickup && areas.length && !areas.includes(pickupAddress)) {
+      return resp.status(400).json({
+        message: `${launderer} does not collect from ${pickupAddress}`,
+      });
+    }
     if (![pickupTime, deliveryTime].every((t) => timeSlots.includes(t))) {
       return resp.status(400).json({ message: 'Invalid pickup/delivery time' });
     }
@@ -328,18 +336,51 @@ const cancelOrder = async (req, resp) => {
 // @access  Private
 const getAllLaunderers = async (req, resp) => {
   try {
-    const launderers = await User.find({ role: 'launderer' });
-    const laundererDetails = launderers.map((launderer) => {
-      return {
-        username: launderer.username,
-        phone_number: launderer.phone_number,
-      };
-    });
-    resp.status(200).json({
+    // Unapproved launderers were listed here, so a student could pick one and
+    // only then be told the order could not be placed — createStudentOrder
+    // has always required approved: true. The list now matches what can
+    // actually be ordered from.
+    const launderers = await User.find({
+      role: 'launderer',
+      approved: true,
+    })
+      .select(
+        'username phone_number serviceAreas availableTimeSlots expressSurcharge'
+      )
+      .lean();
+
+    // Read the student's hostel from the record rather than the token: the
+    // token carries whatever hostel was set at sign-in, so a student who just
+    // filled their profile in would otherwise be filtered against a stale one.
+    const student = await User.findById(req.user.user_id)
+      .select('hostel')
+      .lean();
+    const hostel = student?.hostel || '';
+
+    const serves = (launderer) => {
+      const areas = launderer.serviceAreas || [];
+      if (!areas.length) return true; // no stated restriction
+      if (!hostel) return true; // nothing to filter against yet
+      return areas.includes(hostel);
+    };
+
+    const laundererDetails = launderers.filter(serves).map((launderer) => ({
+      username: launderer.username,
+      phone_number: launderer.phone_number,
+      serviceAreas: launderer.serviceAreas || [],
+      availableTimeSlots: launderer.availableTimeSlots || [],
+      expressSurcharge: launderer.expressSurcharge || 0,
+    }));
+
+    return resp.status(200).json({
       launderers: laundererDetails,
+      hostel,
     });
   } catch (err) {
-    resp.status(500).json({
+    logger.error(`getAllLaunderers error: ${err.message}`, {
+      stack: err.stack,
+    });
+    return resp.status(500).json({
       message: 'Error fetching the launderers',
     });
   }

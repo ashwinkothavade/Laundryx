@@ -103,6 +103,7 @@ function Navbar() {
       { label: 'Overview', to: '/dashboard/overview' },
       { label: 'Orders', to: '/dashboard/orders' },
       { label: 'Catalog', to: '/dashboard/catalog' },
+      { label: 'Areas & hours', to: '/dashboard/availability' },
     ],
     admin: [{ label: 'Console', to: '/dashboard' }],
   };

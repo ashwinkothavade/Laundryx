@@ -68,6 +68,7 @@ import EmptyState from '../EmptyState';
 import RateOrderModal from '../RateOrderModal';
 import RescheduleModal from '../RescheduleModal';
 import OrderTimeline from '../OrderTimeline';
+import ItemTracker from '../ItemTracker';
 import InvoiceModal from '../InvoiceModal';
 
 function OrderDetail() {
@@ -539,6 +540,16 @@ function OrderDetail() {
               </Text>
               <Divider my={2} />
               <OrderTimeline order={selectedOrder} />
+              <Divider my={2} />
+              {/* The timeline says where the order is; this says where each
+                  garment is, which is the thing students actually ask. */}
+              <Text fontSize="md" fontWeight="bold" mb={2}>
+                Your items
+              </Text>
+              <ItemTracker
+                items={selectedOrder.items}
+                emptyHint="This order has no items listed."
+              />
               <Divider my={2} />
               <Text fontSize="xl" fontWeight="bold">
                 <strong>Order Total:</strong>{' '}

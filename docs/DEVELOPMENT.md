@@ -18,9 +18,11 @@ Laundryx/
 │   └── views/                 # EJS reset-password page
 ├── frontend/
 │   └── src/
-│       ├── pages/             # LandingPage, Login, Signup, OrderList, CheckoutPage,
+│       ├── pages/             # LandingPage, Login, Signup, CheckoutPage,
 │       │                      #   DashBoard/{Student,Launderer,Admin}
-│       ├── components/        # Navbar, OrderCard, ScheduleCard, LaundererCatalog,
+│       ├── components/        # Navbar, DashboardShell (URL-driven sections),
+│       │                      #   OrderCard, ScheduleCard, ItemTracker, Charts,
+│       │                      #   LaundererCatalog, LaundererServiceAreas,
 │       │                      #   LaundererPicker, RateOrderModal, *Details, *OrdersDetail…
 │       ├── components/Store/  # Zustand stores (AuthStore, OrderStore) — sessionStorage
 │       └── utils/apis.jsx     # all axios API calls + single API_URL
