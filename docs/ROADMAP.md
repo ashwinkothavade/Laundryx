@@ -71,6 +71,12 @@ Legend: `[ ]` todo · `[~]` partially done · `[x]` done.
 - [ ] **[P1]** Search & pagination on all admin lists (users/orders/catalog/
   coupons) — they currently load everything.
 - [ ] **[P2]** Live order tracking / ETA for pickup & delivery.
+- [ ] **[P1]** Reference the launderer on `Order` and `Notification` by `_id`
+  rather than by username string, as `CatalogItem` and `Review` already do.
+  Username is editable, so the string is a foreign key that can change out
+  from under the records pointing at it. `PATCH /user` currently carries a
+  rename across both collections, which closes the hole but leaves two
+  writes where there should be none.
 - [ ] **[P2]** Chat/support between student and launderer.
 - [ ] **[P2]** Multi-currency / multi-region; localization (i18n).
 - [ ] **[P2]** Referral program; loyalty points.

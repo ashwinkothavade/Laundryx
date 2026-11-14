@@ -26,7 +26,7 @@ other route returns **503** with a pointer to `/ready`.
 | POST | `/login` | 🔓 | `{ username, password }` → sets `jwt` cookie |
 | GET | `/logout` | 🔒 | Clears the cookie |
 | GET | `/me` | 🔒 | Current user (no password) — validates the session |
-| PATCH | `/user` | 🔒 | Update own profile. Accepts only `username`, `email`, `phone_number`, `hostel`, `room_number`, `roll_number`; any other field (`role`, `approved`, `password`) is ignored |
+| PATCH | `/user` | 🔒 | Update own profile. Accepts only `username`, `email`, `phone_number`, `hostel`, `room_number`, `roll_number`; any other field (`role`, `approved`, `password`) is ignored. Changing `username` or `hostel` re-issues the auth cookie, since both are JWT claims. A launderer's rename is carried across their orders and notifications. 409 if the name is taken |
 | GET | `/launderers` | 🔒 | Approved launderers only |
 | GET | `/launderers/directory` | 🔒 | Approved launderers with `avgRating`, `reviewCount`, `minPrice`, `maxPrice`, `itemCount`, `serviceAreas`. For a customer, filtered to those covering their hostel |
 | POST | `/forgotpassword` | 🔓 | `{ email }` → emails a reset link |
