@@ -157,14 +157,18 @@ function ItemTracker({
                 w={{ base: '100%', sm: 'auto' }}
               >
                 <StageBar stage={stage} />
-                <Text
-                  fontSize="xs"
-                  fontWeight={600}
-                  color={STAGE_TEXT[stage]}
-                  whiteSpace="nowrap"
-                >
-                  {STAGE_LABEL[stage]}
-                </Text>
+                {/* The dropdown already names the stage, so repeating it here
+                    only duplicates the word and crowds the row. */}
+                {!editable && (
+                  <Text
+                    fontSize="xs"
+                    fontWeight={600}
+                    color={STAGE_TEXT[stage]}
+                    whiteSpace="nowrap"
+                  >
+                    {STAGE_LABEL[stage]}
+                  </Text>
+                )}
               </HStack>
 
               {editable && (
