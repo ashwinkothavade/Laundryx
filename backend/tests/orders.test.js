@@ -175,3 +175,85 @@ describe('Order lifecycle', () => {
     expect(res.status).toBe(403);
   });
 });
+
+// The client replaces its copy of an order with whatever a mutation returns,
+// so every one of these has to carry the launderer's name — not the bare
+// reference req.order holds. A raw id here renders as an ObjectId in the UI
+// and makes the follow-up notification post an undefined launderer.
+describe('Order mutations return a usable launderer', () => {
+  const expectPopulated = (order, username) => {
+    expect(order.launderer).toBeDefined();
+    expect(order.launderer.username).toBe(username);
+  };
+
+  test('creating an order', async () => {
+    const { launderer, student } = await setupOrderWorld();
+    const res = await create(
+      student.cookie,
+      orderBody(launderer.username, ITEM)
+    );
+    expectPopulated(res.body.order, launderer.username);
+  });
+
+  test('listing a student’s orders', async () => {
+    const { launderer, student } = await setupOrderWorld();
+    await create(student.cookie, orderBody(launderer.username, ITEM));
+
+    const res = await request(app)
+      .get('/student/orders')
+      .set('Cookie', student.cookie);
+
+    expectPopulated(res.body.orders[0], launderer.username);
+  });
+
+  test('rescheduling', async () => {
+    const { launderer, student } = await setupOrderWorld();
+    const made = await create(
+      student.cookie,
+      orderBody(launderer.username, ITEM)
+    );
+
+    const res = await request(app)
+      .put(`/student/reschedule/${made.body.order._id}`)
+      .set('Cookie', student.cookie)
+      .send({ pickupTime: '04:00 PM' });
+
+    expect(res.status).toBe(200);
+    expectPopulated(res.body.updatedOrder, launderer.username);
+  });
+
+  test('confirming pickup', async () => {
+    const { launderer, student } = await setupOrderWorld();
+    const made = await create(
+      student.cookie,
+      orderBody(launderer.username, ITEM)
+    );
+    // A student can only confirm pickup once the launderer has accepted.
+    await request(app)
+      .put(`/acceptorder/${made.body.order._id}`)
+      .set('Cookie', launderer.cookie)
+      .send({});
+
+    const res = await request(app)
+      .put(`/student/updatepickupstatus/${made.body.order._id}`)
+      .set('Cookie', student.cookie);
+
+    expect(res.status).toBe(200);
+    expectPopulated(res.body.updatedOrder, launderer.username);
+  });
+
+  test('cancelling', async () => {
+    const { launderer, student } = await setupOrderWorld();
+    const made = await create(
+      student.cookie,
+      orderBody(launderer.username, ITEM)
+    );
+
+    const res = await request(app)
+      .put(`/student/cancelorder/${made.body.order._id}`)
+      .set('Cookie', student.cookie);
+
+    expect(res.status).toBe(200);
+    expectPopulated(res.body.order, launderer.username);
+  });
+});

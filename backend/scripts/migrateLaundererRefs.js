@@ -13,6 +13,14 @@ const User = require('../models/userModel');
 const logger = require('../utils/logger');
 
 const DRY_RUN = process.argv.includes('--dry-run');
+const BATCH = 500;
+
+const chunk = (arr, size) =>
+  arr.reduce((acc, item, i) => {
+    if (i % size === 0) acc.push([]);
+    acc[acc.length - 1].push(item);
+    return acc;
+  }, []);
 // collection -> the fields that used to hold a username.
 const COLLECTIONS = [
   ['Order', ['launderer']],
@@ -30,28 +38,51 @@ const convert = async (db, name, field, idByName) => {
     .project({ [field]: 1 })
     .toArray();
 
-  // A launderer who no longer exists is reported rather than guessed at or
+  // A notification names only one of its two parties, and the unused side was
+  // written as ''. That is not a missing user — clear it rather than warning
+  // about a name that was never there, and leave no empty string sitting in a
+  // field the schema now types as an ObjectId.
+  const blanks = stale.filter((d) => d[field] === '');
+
+  // A name with no user behind it is reported rather than guessed at or
   // deleted — losing the record silently is the failure mode this migration
   // exists to fix.
   const unmatched = [
     ...new Set(
-      stale.filter((d) => !idByName.has(d[field])).map((d) => d[field])
+      stale
+        .filter((d) => d[field] !== '' && !idByName.has(d[field]))
+        .map((d) => d[field])
     ),
   ];
 
-  const ops = stale
-    .filter((d) => idByName.has(d[field]))
-    .map((d) => ({
+  const ops = [
+    ...stale
+      .filter((d) => idByName.has(d[field]))
+      .map((d) => ({
+        updateOne: {
+          filter: { _id: d._id },
+          update: { $set: { [field]: idByName.get(d[field]) } },
+        },
+      })),
+    ...blanks.map((d) => ({
       updateOne: {
         filter: { _id: d._id },
-        update: { $set: { [field]: idByName.get(d[field]) } },
+        update: { $unset: { [field]: '' } },
       },
-    }));
+    })),
+  ];
 
-  if (ops.length && !DRY_RUN) await collection.bulkWrite(ops);
+  // Batched: a production Order collection can be far larger than one write
+  // should carry, and the driver has its own limit on a single bulkWrite.
+  if (!DRY_RUN) {
+    await chunk(ops, BATCH).reduce(async (prev, batch) => {
+      await prev;
+      return collection.bulkWrite(batch);
+    }, Promise.resolve());
+  }
 
   logger.info(
-    `${name}.${field}: ${stale.length} with a username, ${ops.length} ` +
+    `${name}.${field}: ${stale.length} stale, ${ops.length} ` +
       `${DRY_RUN ? 'would be converted' : 'converted'}${
         unmatched.length ? `, ${unmatched.length} unmatched name(s)` : ''
       }`
@@ -63,7 +94,12 @@ const convert = async (db, name, field, idByName) => {
     );
   }
 
-  return { stale: stale.length, converted: ops.length, unmatched };
+  return {
+    stale: stale.length,
+    converted: ops.length,
+    blanks: blanks.length,
+    unmatched,
+  };
 };
 
 const run = async () => {

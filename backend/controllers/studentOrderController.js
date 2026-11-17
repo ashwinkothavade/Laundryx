@@ -222,6 +222,11 @@ const updatePickupStatus = async (req, resp) => {
     }
     order.pickUpStatus = true;
     await order.save();
+    // req.order comes from loadOrder, which deliberately does NOT populate —
+    // the authorization check compares ids and a populated document would not
+    // compare. The client replaces its copy of the order with what we return,
+    // so the name has to be resolved here instead.
+    await order.populate('launderer', 'username phone_number');
     resp.status(200).json({
       message: 'Pickup status updated successfully',
       updatedOrder: order,
@@ -278,6 +283,7 @@ const updateDeliveryStatus = async (req, resp) => {
     }
     order.deliveredStatus = true;
     await order.save();
+    await order.populate('launderer', 'username phone_number');
     resp.status(200).json({
       message: 'Delivery status updated successfully',
       updatedOrder: order,
@@ -307,6 +313,7 @@ const rescheduleOrder = async (req, resp) => {
     if (deliveryDate) order.deliveryDate = deliveryDate;
     if (deliveryTime) order.deliveryTime = deliveryTime;
     await order.save();
+    await order.populate('launderer', 'username phone_number');
     return resp
       .status(200)
       .json({ message: 'Order rescheduled', updatedOrder: order });
@@ -327,6 +334,7 @@ const cancelOrder = async (req, resp) => {
         .status(400)
         .json({ message: 'Order already picked up; cannot cancel' });
     }
+    await order.populate('launderer', 'username phone_number');
     await Order.findByIdAndDelete(order._id);
     return resp.status(200).json({ message: 'Order cancelled', order });
   } catch (err) {

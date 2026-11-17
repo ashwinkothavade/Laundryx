@@ -62,7 +62,7 @@ function RateOrderModal({ isOpen, onClose, order, onRated }) {
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
       <ModalContent maxWidth={{ base: '90vw', md: '440px' }}>
-        <ModalHeader>Rate {order?.launderer}</ModalHeader>
+        <ModalHeader>Rate {order?.launderer?.username}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <HStack justify="center" mb="1rem">
@@ -113,7 +113,8 @@ RateOrderModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   order: PropTypes.shape({
     _id: PropTypes.string,
-    launderer: PropTypes.string,
+    // Populated from the server, not a bare name.
+    launderer: PropTypes.shape({ username: PropTypes.string }),
   }),
   onRated: PropTypes.func,
 };
