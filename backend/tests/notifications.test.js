@@ -33,7 +33,8 @@ describe('Sending a notification', () => {
       .send({ launderer: launderer.username, message: 'Running late' });
 
     expect(res.status).toBe(201);
-    expect(res.body.notification.launderer).toBe(launderer.username);
+    // The notification references the launderer rather than naming them.
+    expect(String(res.body.notification.launderer)).toBe(launderer.id);
   });
 
   test('a customer cannot message a launderer they have no order with', async () => {
@@ -119,4 +120,32 @@ describe('Deleting a notification', () => {
 
 afterAll(async () => {
   await Notification.deleteMany({}).catch(() => {});
+});
+
+// Both parties on a notification are references, so neither can rename
+// themselves out of their own messages.
+describe('A rename does not detach notifications', () => {
+  test('a customer still sees their notifications after renaming', async () => {
+    const { launderer, student, orderId } = await withOrder();
+    await request(app)
+      .post('/notifications')
+      .set('Cookie', launderer.cookie)
+      .send({ orderId, message: 'Your order is ready' });
+
+    const before = await request(app)
+      .get('/notifications')
+      .set('Cookie', student.cookie);
+    expect(before.body.notifications).toHaveLength(1);
+
+    const renamed = await request(app)
+      .patch('/user')
+      .set('Cookie', student.cookie)
+      .send({ username: 'renamedstudent' });
+    expect(renamed.status).toBe(200);
+
+    const after = await request(app)
+      .get('/notifications')
+      .set('Cookie', renamed.headers['set-cookie']);
+    expect(after.body.notifications).toHaveLength(1);
+  });
 });

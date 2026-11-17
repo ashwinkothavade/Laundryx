@@ -169,7 +169,7 @@ const buildOrder = ({
 
   return {
     user: customer._id,
-    launderer: laundererUser.username,
+    launderer: laundererUser._id,
     items,
     fulfilmentMode: 'home_pickup',
     pickupDate: fmt(pickup),
@@ -207,13 +207,12 @@ const run = async () => {
     '_id username'
   );
   const priorUserIds = priorUsers.map((u) => u._id);
-  const priorUsernames = priorUsers.map((u) => u.username);
   await Promise.all([
     CatalogItem.deleteMany({ launderer: { $in: priorUserIds } }),
     Order.deleteMany({
       $or: [
         { user: { $in: priorUserIds } },
-        { launderer: { $in: priorUsernames } },
+        { launderer: { $in: priorUserIds } },
       ],
     }),
     Review.deleteMany({

@@ -175,7 +175,7 @@ const cleanup = async () => {
       Promise.resolve()
     );
     const users = expect(
-      await call('admin', 'GET', '/admin/users'),
+      await call('admin', 'GET', '/admin/users?q=vf_&limit=100'),
       200,
       'admin users'
     );
@@ -263,7 +263,7 @@ const run = async () => {
     );
     if (d.password) throw new Error('signup echoed the password hash');
     const users = expect(
-      await call('admin', 'GET', '/admin/users'),
+      await call('admin', 'GET', `/admin/users?q=${names.launderer}`),
       200,
       'admin users'
     );
@@ -285,7 +285,7 @@ const run = async () => {
   await step('cannot approve itself', async () => {
     await call('launderer', 'PATCH', '/user', { approved: true });
     const users = expect(
-      await call('admin', 'GET', '/admin/users'),
+      await call('admin', 'GET', `/admin/users?q=${names.launderer}`),
       200,
       'admin users'
     );
@@ -355,7 +355,7 @@ const run = async () => {
       'customer signup'
     );
     const users = expect(
-      await call('admin', 'GET', '/admin/users'),
+      await call('admin', 'GET', `/admin/users?q=${names.customer}`),
       200,
       'admin users'
     );
@@ -564,7 +564,7 @@ const run = async () => {
       'rival signup'
     );
     const users = expect(
-      await call('admin', 'GET', '/admin/users'),
+      await call('admin', 'GET', `/admin/users?q=${other}`),
       200,
       'admin users'
     );

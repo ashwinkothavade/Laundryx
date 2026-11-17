@@ -7,11 +7,15 @@ const notificationSchema = new mongoose.Schema(
       required: true,
       ref: 'User',
     },
+    // Both parties are references. A username can change, and a notification
+    // pointing at a name nobody holds is unreachable by its own recipient.
     student: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
     },
     launderer: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
     },
     message: {
       type: String,

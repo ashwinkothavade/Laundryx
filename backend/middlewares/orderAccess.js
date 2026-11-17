@@ -26,7 +26,7 @@ const loadOrder =
       const related =
         as === 'owner'
           ? order.user.toString() === req.user.user_id
-          : order.launderer === req.user.username;
+          : order.launderer.toString() === req.user.user_id;
 
       if (!related) {
         logger.warn(

@@ -49,7 +49,7 @@ const summarise = (orders) => ({
 const getLaundererAnalytics = async (req, resp) => {
   try {
     const [orders, catalogItems, reviews] = await Promise.all([
-      Order.find({ launderer: req.user.username }).lean(),
+      Order.find({ launderer: req.user.user_id }).lean(),
       CatalogItem.countDocuments({ launderer: req.user.user_id }),
       Review.find({ launderer: req.user.user_id }).lean(),
     ]);
@@ -332,7 +332,7 @@ const setExpress = async (req, resp) => {
 const getAllOrders = async (req, resp) => {
   try {
     const orders = await Order.find({
-      launderer: req.user.username,
+      launderer: req.user.user_id,
     }).populate('user', '-password -__v');
     return resp.status(200).json({ orders });
   } catch (err) {
@@ -355,7 +355,7 @@ const getOrdersByStudent = async (req, resp) => {
     // launderers, to any launderer who asked.
     const orders = await Order.find({
       user: user._id,
-      launderer: req.user.username,
+      launderer: req.user.user_id,
     });
     return resp.status(200).json({ orders });
   } catch (err) {

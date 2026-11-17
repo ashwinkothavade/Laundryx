@@ -161,7 +161,7 @@ function OrderDetail() {
             await validatePayment(resp);
             const notification = {
               student: userName,
-              launderer: order.launderer,
+              launderer: order.launderer?.username,
               message: `Order Total of order ${order._id} of ${userName} paid successfully.`,
               orderId: '',
             };
@@ -215,7 +215,7 @@ function OrderDetail() {
       if (response.status === 200) {
         const notification = {
           student: userName,
-          launderer: selectedOrder.launderer,
+          launderer: selectedOrder.launderer?.username,
           message: `Order ${order_id} of ${userName} of ${userHostel} picked up successfully.`,
           orderId: '',
         };

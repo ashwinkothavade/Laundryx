@@ -34,15 +34,10 @@ const createReview = async (req, resp) => {
         .status(400)
         .json({ message: 'You can only review delivered orders' });
     }
-    const launderer = await User.findOne({
-      username: order.launderer,
-      role: 'launderer',
-    });
-    if (!launderer) {
-      return resp.status(404).json({ message: 'Launderer not found' });
-    }
+    // The order already references the launderer, so there is nothing to look
+    // up by name any more.
     const review = await Review.create({
-      launderer: launderer._id,
+      launderer: order.launderer,
       student: req.user.user_id,
       order: order._id,
       rating: numericRating,

@@ -13,7 +13,7 @@ const getStudentOrders = async (req, resp) => {
     const studentId = decodedToken.user_id; // avoiding database call by storing the user_id in the token
     const result = await Order.find({
       user: studentId,
-    });
+    }).populate('launderer', 'username phone_number');
     resp.status(200).json({
       orders: result,
     });
@@ -186,9 +186,13 @@ const createStudentOrder = async (req, resp) => {
       orderTotal,
       pickupDate,
       pickupTime,
-      launderer,
+      // The reference, not the username the client sent.
+      launderer: laundererUser._id,
     });
     await order.save();
+    // Hand back the launderer's name rather than a bare id, matching what the
+    // order lists return.
+    await order.populate('launderer', 'username phone_number');
     resp.status(201).json({
       order: order,
     });

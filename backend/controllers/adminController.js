@@ -177,15 +177,19 @@ const getAllOrders = async (req, resp) => {
 
     if (req.query.q) {
       const rx = searchRx(req.query.q);
-      // The customer is a reference, so match their ids first and search the
-      // launderer's name on the order itself.
+      // Both parties are references, so resolve the name to ids once and match
+      // the order against either side.
       const userIds = await User.find({ username: rx }).distinct('_id');
-      filter.$or = [{ launderer: rx }, { user: { $in: userIds } }];
+      filter.$or = [
+        { launderer: { $in: userIds } },
+        { user: { $in: userIds } },
+      ];
     }
 
     const [orders, total] = await Promise.all([
       Order.find(filter)
         .populate('user', 'username email hostel -_id')
+        .populate('launderer', 'username -_id')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit),
@@ -259,8 +263,18 @@ const getAnalytics = async (req, resp) => {
         { $match: { paid: true } },
         { $group: { _id: null, revenue: { $sum: '$orderTotal' } } },
       ]),
+      // Grouped by reference, then resolved to a name — the chart labels
+      // launderers, and an ObjectId is not a label.
       Order.aggregate([
         { $group: { _id: '$launderer', orders: { $sum: 1 } } },
+        {
+          $lookup: {
+            from: 'User',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'launderer',
+          },
+        },
         { $sort: { orders: -1 } },
       ]),
       User.countDocuments({ role: 'launderer', approved: false }),
@@ -303,7 +317,7 @@ const getAnalytics = async (req, resp) => {
         statusCounts,
         totalCatalogItems: await CatalogItem.countDocuments(),
         ordersPerLaunderer: ordersPerLaundererAgg.map((o) => ({
-          launderer: o._id,
+          launderer: o.launderer?.[0]?.username || 'unknown',
           orders: o.orders,
         })),
       },

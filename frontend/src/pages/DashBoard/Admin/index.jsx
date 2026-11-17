@@ -800,7 +800,7 @@ function AdminDashboard() {
                   {filteredOrders.map((o) => (
                     <Tr key={o._id}>
                       <Td>{o.user?.username || '—'}</Td>
-                      <Td>{o.launderer}</Td>
+                      <Td>{o.launderer?.username}</Td>
                       <Td isNumeric>{money(o.orderTotal)}</Td>
                       <Td>
                         {(() => {

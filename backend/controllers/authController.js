@@ -2,8 +2,6 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const User = require('../models/userModel');
-const Order = require('../models/orderModel');
-const Notification = require('../models/notificationModel');
 const authUtils = require('../utils/authUtils');
 const logger = require('../utils/logger');
 
@@ -213,48 +211,7 @@ const updateUser = async (req, resp) => {
       return resp.status(404).json({ message: 'User not found' });
     }
 
-    // Orders and notifications name their launderer by username, while the
-    // catalog and reviews use an ObjectId. Username is editable, so without
-    // this a launderer who renamed themselves walked away from their own
-    // order history: an empty queue and analytics reading zero.
-    //
-    // Carrying the rename across is the stopgap. The real fix is to reference
-    // the launderer by _id like the newer models already do, which is a
-    // migration rather than a patch — see ROADMAP.
     const renamed = before.username !== user.username;
-    if (renamed && user.role === 'launderer') {
-      try {
-        const [orders, notifs] = await Promise.all([
-          Order.updateMany(
-            { launderer: before.username },
-            { $set: { launderer: user.username } }
-          ),
-          Notification.updateMany(
-            { launderer: before.username },
-            { $set: { launderer: user.username } }
-          ),
-        ]);
-        logger.info(
-          `Renamed launderer ${before.username} -> ${user.username}: ` +
-            `${orders.modifiedCount} orders, ${notifs.modifiedCount} notifications`
-        );
-      } catch (cascadeErr) {
-        // Put the name back rather than leave records pointing at a username
-        // nobody holds.
-        await User.findByIdAndUpdate(req.user.user_id, {
-          username: before.username,
-        });
-        logger.error(
-          `Rename cascade failed for ${before.username}; rolled back: ${
-            cascadeErr.message
-          }`,
-          { stack: cascadeErr.stack }
-        );
-        return resp.status(500).json({
-          message: 'Could not update every record for that name change',
-        });
-      }
-    }
 
     // username and hostel are both baked into the JWT, so changing either
     // leaves the session carrying stale claims — a renamed launderer's own

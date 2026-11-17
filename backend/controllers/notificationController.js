@@ -1,5 +1,6 @@
 const Notification = require('../models/notificationModel');
 const Order = require('../models/orderModel');
+const User = require('../models/userModel');
 const logger = require('../utils/logger');
 // @desc    Get all notifications
 // @route   GET /notifications
@@ -9,7 +10,7 @@ const getNotifications = async (req, resp) => {
     const decodedToken = req.user;
     if (decodedToken.role === 'customer') {
       const notifications = await Notification.find({
-        student: decodedToken.username,
+        student: decodedToken.user_id,
       });
       resp.status(200).json({
         notifications: notifications,
@@ -18,7 +19,7 @@ const getNotifications = async (req, resp) => {
       });
     } else {
       const notifications = await Notification.find({
-        launderer: decodedToken.username,
+        launderer: decodedToken.user_id,
       });
       resp.status(200).json({
         notifications: notifications,
@@ -45,7 +46,7 @@ const getNotifications = async (req, resp) => {
 const createNotification = async (req, resp) => {
   try {
     const { launderer, message, orderId } = req.body;
-    const { role, username, user_id: userId } = req.user;
+    const { role, user_id: userId } = req.user;
 
     const text = typeof message === 'string' ? message.trim() : '';
     if (!text) {
@@ -55,8 +56,8 @@ const createNotification = async (req, resp) => {
       return resp.status(400).json({ message: 'Message is too long' });
     }
 
-    let studentName = '';
-    let laundererName = '';
+    let studentRef = null;
+    let laundererRef = null;
 
     if (role === 'launderer') {
       // Notifying a student: the order must be one placed with this
@@ -65,22 +66,30 @@ const createNotification = async (req, resp) => {
       if (!order) {
         return resp.status(404).json({ message: 'Order not found' });
       }
-      if (order.launderer !== username) {
+      if (order.launderer.toString() !== userId) {
         return resp
           .status(403)
           .json({ message: 'That order was not placed with you' });
       }
-      studentName = order.user.username;
+      studentRef = order.user._id;
     } else if (role === 'customer') {
       // Notifying a launderer: only one this customer has actually ordered
       // from, so this cannot be used to message arbitrary accounts.
-      const hasOrder = await Order.exists({ user: userId, launderer });
+      // The client names a launderer; resolve it to the reference the order
+      // actually holds before checking the relationship.
+      const laundererUser = await User.findOne({
+        username: launderer,
+        role: 'launderer',
+      }).select('_id');
+      const hasOrder =
+        laundererUser &&
+        (await Order.exists({ user: userId, launderer: laundererUser._id }));
       if (!hasOrder) {
         return resp
           .status(403)
           .json({ message: 'You have no order with that launderer' });
       }
-      laundererName = launderer;
+      laundererRef = laundererUser._id;
     } else {
       return resp
         .status(403)
@@ -89,8 +98,8 @@ const createNotification = async (req, resp) => {
 
     const notification = await Notification.create({
       user: userId,
-      student: studentName,
-      launderer: laundererName,
+      student: studentRef,
+      launderer: laundererRef,
       message: text,
       read: false,
     });
@@ -117,11 +126,11 @@ const deleteNotification = async (req, resp) => {
 
     // A notification belongs to whoever it was addressed to. Without this,
     // any signed-in user could delete anyone's notifications by id.
-    const { role, username } = req.user;
+    const { role } = req.user;
     const mine =
       role === 'customer'
-        ? notification.student === username
-        : notification.launderer === username;
+        ? String(notification.student) === req.user.user_id
+        : String(notification.launderer) === req.user.user_id;
 
     if (!mine) {
       return resp

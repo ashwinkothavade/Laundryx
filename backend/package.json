@@ -10,7 +10,8 @@
     "seed:data": "node scripts/seedData.js",
     "lint": "eslint .  --ext js --report-unused-disable-directives --max-warnings 0 --ignore-pattern coverage",
     "lint:fix": "eslint  . --ext js --fix --report-unused-disable-directives --max-warnings 0 --ignore-pattern coverage",
-    "verify": "node scripts/verifyFlows.js"
+    "verify": "node scripts/verifyFlows.js",
+    "migrate:launderer-refs": "node scripts/migrateLaundererRefs.js"
   },
   "keywords": [],
   "author": "",

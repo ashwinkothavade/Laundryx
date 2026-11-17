@@ -30,9 +30,10 @@ async function laundererWithAnOrder() {
   return { launderer, student, order: res.body.order };
 }
 
-// Orders and notifications reference a launderer by their username string,
-// while the catalog and reviews use an ObjectId. A username is editable, so
-// renaming yourself used to walk away from your own order history.
+// Orders reference the launderer by _id, so a rename cannot detach them —
+// there is no copy of the name to go stale. These guard the property rather
+// than the mechanism: an implementation that went back to storing the name
+// would fail here even if it carried the rename across correctly.
 describe('Renaming a launderer keeps their records', () => {
   test('their order queue survives the rename', async () => {
     const { launderer } = await laundererWithAnOrder();
@@ -54,13 +55,26 @@ describe('Renaming a launderer keeps their records', () => {
     expect(queue.body.orders).toHaveLength(1);
   });
 
-  test('the order itself now points at the new name', async () => {
+  test('the order still points at the same launderer, by reference', async () => {
     const { launderer, order } = await laundererWithAnOrder();
 
     await rename(launderer.cookie, 'brightwash');
 
     const stored = await Order.findById(order._id).lean();
-    expect(stored.launderer).toBe('brightwash');
+    // Unchanged, and that is the point: the order never held the name.
+    expect(String(stored.launderer)).toBe(launderer.id);
+  });
+
+  test('the launderer resolves to their new name through the reference', async () => {
+    const { launderer, order } = await laundererWithAnOrder();
+
+    await rename(launderer.cookie, 'brightwash');
+
+    const populated = await Order.findById(order._id).populate(
+      'launderer',
+      'username'
+    );
+    expect(populated.launderer.username).toBe('brightwash');
   });
 
   test('their analytics still count the order', async () => {
@@ -95,9 +109,10 @@ describe('Renaming a launderer keeps their records', () => {
     const res = await rename(launderer.cookie, rival.username);
     expect(res.status).toBe(409);
 
-    // The order must not have been re-pointed at the rival.
+    // The order must still point at its own launderer, not the rival.
     const stored = await Order.findById(order._id).lean();
-    expect(stored.launderer).toBe(launderer.username);
+    expect(String(stored.launderer)).toBe(launderer.id);
+    expect(String(stored.launderer)).not.toBe(rival.id);
   });
 });
 

@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const {
   app,
   request,
@@ -46,13 +47,14 @@ describe('The hot order queries use an index', () => {
 
   test('scoped launderer history — { user, launderer }', async () => {
     const user = await models.User.findOne({ username: student.username });
-    const { scan } = await planFor({ user: user._id, launderer: 'freshfold' });
+    const laundererId = new mongoose.Types.ObjectId();
+    const { scan } = await planFor({ user: user._id, launderer: laundererId });
     expect(scan).toBe('IXSCAN');
   });
 
   test("a launderer's queue, newest first — { launderer } sorted", async () => {
     const { scan } = await planFor(
-      { launderer: 'freshfold' },
+      { launderer: new mongoose.Types.ObjectId() },
       { createdAt: -1 }
     );
     expect(scan).toBe('IXSCAN');

@@ -73,12 +73,11 @@ Legend: `[ ]` todo · `[~]` partially done · `[x]` done.
   screen. Coupons still load in full — the list is small and admin-created, so
   it has a natural ceiling the others do not.
 - [ ] **[P2]** Live order tracking / ETA for pickup & delivery.
-- [ ] **[P1]** Reference the launderer on `Order` and `Notification` by `_id`
-  rather than by username string, as `CatalogItem` and `Review` already do.
-  Username is editable, so the string is a foreign key that can change out
-  from under the records pointing at it. `PATCH /user` currently carries a
-  rename across both collections, which closes the hole but leaves two
-  writes where there should be none.
+- [x] **[P1]** Reference the launderer on `Order` and `Notification` by `_id`,
+  as `CatalogItem` and `Review` already did. A username is editable, so storing
+  it made a mutable value into a foreign key. The rename cascade that used to
+  paper over this is gone — there is no copy of the name left to go stale.
+  Existing rows are converted by `npm run migrate:launderer-refs`.
 - [ ] **[P2]** Chat/support between student and launderer.
 - [ ] **[P2]** Multi-currency / multi-region; localization (i18n).
 - [ ] **[P2]** Referral program; loyalty points.

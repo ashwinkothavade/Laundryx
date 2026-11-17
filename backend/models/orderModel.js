@@ -131,8 +131,13 @@ const orderSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    // A reference, not the launderer's username. The username is editable, so
+    // storing it here made a mutable value into a foreign key: renaming
+    // yourself detached every order you had ever taken. CatalogItem and Review
+    // already referenced the launderer by _id; this brings Order in line.
     launderer: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
       required: true,
     },
   },

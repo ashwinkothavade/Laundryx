@@ -46,7 +46,7 @@ const printReceipt = (order) => {
     </style></head><body>
     <h1>LaundriX</h1>
     <p class="muted">Receipt · Order ${order._id}</p>
-    <p class="muted">Launderer: ${order.launderer} · Handover: ${
+    <p class="muted">Launderer: ${order.launderer?.username ?? ''} · Handover: ${
       order.fulfilmentMode === 'self_dropoff' ? 'Self drop-off' : 'Home pickup'
     }</p>
     <table><thead><tr><th>Item</th><th>Wash</th><th style="text-align:right">Qty</th><th style="text-align:right">Price</th><th style="text-align:right">Total</th></tr></thead>
@@ -89,7 +89,7 @@ function InvoiceModal({ isOpen, onClose, order }) {
             Order {order._id}
           </Text>
           <Text fontSize="sm" color="gray.500">
-            Launderer: {order.launderer} ·{' '}
+            Launderer: {order.launderer?.username} ·{' '}
             {order.fulfilmentMode === 'self_dropoff'
               ? 'Self drop-off'
               : 'Home pickup'}

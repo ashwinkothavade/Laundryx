@@ -134,3 +134,22 @@ concurrent runs do not collide and leftovers are obvious.
 
 See [DEPLOYMENT.md](DEPLOYMENT.md#troubleshooting-a-down-deployment) for the
 deployment-level runbook.
+
+## One-off migrations
+
+### `npm run migrate:launderer-refs`
+
+Converts `Order.launderer` and `Notification.launderer` from the launderer's
+username to a reference to their user record. Needed once, on any database
+holding rows written before that change.
+
+```bash
+npm run migrate:launderer-refs -- --dry-run   # report, change nothing
+npm run migrate:launderer-refs                # convert
+```
+
+Safe to re-run: rows already holding a reference are skipped, so a partial run
+can simply be run again. Rows naming a launderer who no longer exists are left
+alone and reported rather than guessed at or deleted — losing the record
+quietly is the failure this migration exists to fix. Such a row still reads
+without error; its launderer comes back empty.
