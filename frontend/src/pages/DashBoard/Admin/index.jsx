@@ -37,7 +37,13 @@ import {
   WrapItem,
   useToast,
 } from '@chakra-ui/react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet-async';
 import {
@@ -52,6 +58,7 @@ import {
   MdRefresh,
 } from 'react-icons/md';
 import Navbar from '../../../components/Navbar';
+import Pager from '../../../components/Pager';
 import HBar, {
   CATEGORY_COLORS,
   ChartCard,
@@ -132,6 +139,17 @@ function AdminDashboard() {
   const [orderPaid, setOrderPaid] = useState('all');
   const [catalogSearch, setCatalogSearch] = useState('');
 
+  // Each table is a window onto a collection now, so it carries its own page
+  // and the server's count of what is behind it.
+  const BLANK_PAGE = { page: 1, limit: 25, total: 0, totalPages: 1 };
+  const [usersPage, setUsersPage] = useState(1);
+  const [ordersPage, setOrdersPage] = useState(1);
+  const [catalogPage, setCatalogPage] = useState(1);
+  const [usersMeta, setUsersMeta] = useState(BLANK_PAGE);
+  const [ordersMeta, setOrdersMeta] = useState(BLANK_PAGE);
+  const [catalogMeta, setCatalogMeta] = useState(BLANK_PAGE);
+  const [listLoading, setListLoading] = useState(false);
+
   const orderStatusOf = (o) => {
     if (o.deliveredStatus) return 'delivered';
     if (o.pickUpStatus) return 'pickedup';
@@ -139,83 +157,132 @@ function AdminDashboard() {
     return 'pending';
   };
 
-  const filteredUsers = useMemo(() => {
-    const q = userSearch.trim().toLowerCase();
-    return users.filter(
-      (u) =>
-        (userRole === 'all' || u.role === userRole) &&
-        (!q ||
-          u.username?.toLowerCase().includes(q) ||
-          u.email?.toLowerCase().includes(q))
-    );
-  }, [users, userSearch, userRole]);
+  // Searching and filtering moved to the server with pagination: filtering a
+  // single page in the browser would only ever search the rows already on
+  // screen, which looks like "no results" for anything further down.
+  const filteredUsers = users;
+  const filteredOrders = orders;
+  const filteredCatalog = catalog;
 
-  const filteredOrders = useMemo(() => {
-    const q = orderSearch.trim().toLowerCase();
-    return orders.filter(
-      (o) =>
-        (orderStatus === 'all' || orderStatusOf(o) === orderStatus) &&
-        (orderPaid === 'all' || (orderPaid === 'paid' ? o.paid : !o.paid)) &&
-        (!q ||
-          o.user?.username?.toLowerCase().includes(q) ||
-          o.launderer?.toLowerCase().includes(q))
-    );
-  }, [orders, orderSearch, orderStatus, orderPaid]);
-
-  const filteredCatalog = useMemo(() => {
-    const q = catalogSearch.trim().toLowerCase();
-    if (!q) return catalog;
-    return catalog.filter(
-      (c) =>
-        c.launderer?.username?.toLowerCase().includes(q) ||
-        c.clothingType?.toLowerCase().includes(q) ||
-        c.washType?.toLowerCase().includes(q)
-    );
-  }, [catalog, catalogSearch]);
-
-  // Metrics derived client-side from the already-loaded orders / users, so the
-  // analytics tab shows actionable numbers without extra endpoints.
-  const derived = useMemo(() => {
-    const pendingApprovals = users.filter(
-      (u) => u.role === 'launderer' && !u.approved
-    ).length;
-    const outstanding = orders
-      .filter((o) => !o.paid)
-      .reduce((s, o) => s + (o.orderTotal || 0), 0);
-    const paidOrders = orders.filter((o) => o.paid);
-    const avgOrderValue = paidOrders.length
-      ? Math.round(
-          paidOrders.reduce((s, o) => s + (o.orderTotal || 0), 0) /
-            paidOrders.length
-        )
-      : 0;
-    const statusCounts = orders.reduce(
-      (acc, o) => {
-        acc[orderStatusOf(o)] += 1;
-        return acc;
+  // These used to be computed from the full user and order lists. With the
+  // lists paginated those arrays are one page, so deriving from them would
+  // describe page one and call it the system. The server counts them instead.
+  const derived = useMemo(
+    () => ({
+      pendingApprovals: analytics?.pendingApprovals ?? 0,
+      outstanding: analytics?.outstanding ?? 0,
+      avgOrderValue: analytics?.avgOrderValue ?? 0,
+      statusCounts: analytics?.statusCounts ?? {
+        pending: 0,
+        accepted: 0,
+        pickedup: 0,
+        delivered: 0,
       },
-      { pending: 0, accepted: 0, pickedup: 0, delivered: 0 }
-    );
-    return { pendingApprovals, outstanding, avgOrderValue, statusCounts };
-  }, [users, orders]);
+    }),
+    [analytics]
+  );
+
+  // The query each table is currently showing. Blank values are dropped so the
+  // request carries only what is actually being filtered on.
+  const listParams = useCallback(() => {
+    const clean = (o) =>
+      Object.fromEntries(Object.entries(o).filter(([, v]) => v !== ''));
+    return {
+      users: clean({
+        page: usersPage,
+        q: userSearch.trim(),
+        role: userRole === 'all' ? '' : userRole,
+      }),
+      orders: clean({
+        page: ordersPage,
+        q: orderSearch.trim(),
+        status: orderStatus === 'all' ? '' : orderStatus,
+        paid: orderPaid === 'all' ? '' : orderPaid,
+      }),
+      catalog: clean({ page: catalogPage, q: catalogSearch.trim() }),
+    };
+  }, [
+    usersPage,
+    userSearch,
+    userRole,
+    ordersPage,
+    orderSearch,
+    orderStatus,
+    orderPaid,
+    catalogPage,
+    catalogSearch,
+  ]);
+
+  const applyList = (result, setRows, setMeta, key) => {
+    if (result.status !== 'fulfilled') return;
+    const { data } = result.value;
+    setRows(data[key]);
+    setMeta({
+      page: data.page,
+      limit: data.limit,
+      total: data.total,
+      totalPages: data.totalPages,
+    });
+  };
+
+  // Just the three tables, for when a filter or a page changes.
+  const loadLists = useCallback(async () => {
+    setListLoading(true);
+    const p = listParams();
+    const [u, o, c] = await Promise.allSettled([
+      adminGetUsers(p.users),
+      adminGetOrders(p.orders),
+      adminGetCatalog(p.catalog),
+    ]);
+    applyList(u, setUsers, setUsersMeta, 'users');
+    applyList(o, setOrders, setOrdersMeta, 'orders');
+    applyList(c, setCatalog, setCatalogMeta, 'items');
+    setListLoading(false);
+  }, [listParams]);
 
   const loadAll = async () => {
+    const p = listParams();
     const [a, u, o, c, s, cp] = await Promise.allSettled([
       adminGetAnalytics(),
-      adminGetUsers(),
-      adminGetOrders(),
-      adminGetCatalog(),
+      adminGetUsers(p.users),
+      adminGetOrders(p.orders),
+      adminGetCatalog(p.catalog),
       getSettings(),
       adminListCoupons(),
     ]);
     if (a.status === 'fulfilled') setAnalytics(a.value.data.analytics);
-    if (u.status === 'fulfilled') setUsers(u.value.data.users);
-    if (o.status === 'fulfilled') setOrders(o.value.data.orders);
-    if (c.status === 'fulfilled') setCatalog(c.value.data.items);
+    applyList(u, setUsers, setUsersMeta, 'users');
+    applyList(o, setOrders, setOrdersMeta, 'orders');
+    applyList(c, setCatalog, setCatalogMeta, 'items');
     if (s.status === 'fulfilled') setSettings(s.value.data.settings);
     if (cp.status === 'fulfilled') setCoupons(cp.value.data.coupons);
     setLoading(false);
   };
+
+  // Re-query when a filter or page changes. Debounced, so typing in a search
+  // box does not fire a request per keystroke; the first render is skipped
+  // because loadAll has already fetched with these same parameters.
+  const firstRun = useRef(true);
+  useEffect(() => {
+    if (firstRun.current) {
+      firstRun.current = false;
+      return undefined;
+    }
+    const t = setTimeout(loadLists, 300);
+    return () => clearTimeout(t);
+  }, [loadLists]);
+
+  // A filter change makes the current page number meaningless — page 4 of the
+  // old result set is rarely page 4 of the new one — so go back to the first.
+  useEffect(() => {
+    setUsersPage(1);
+  }, [userSearch, userRole]);
+  useEffect(() => {
+    setOrdersPage(1);
+  }, [orderSearch, orderStatus, orderPaid]);
+  useEffect(() => {
+    setCatalogPage(1);
+  }, [catalogSearch]);
 
   const refresh = async () => {
     setRefreshing(true);
@@ -574,10 +641,14 @@ function AdminDashboard() {
                   <option value="launderer">Launderers</option>
                   <option value="admin">Admins</option>
                 </Select>
-                <ResultCount
-                  shown={filteredUsers.length}
-                  total={users.length}
+                <Pager
+                  page={usersMeta.page}
+                  limit={usersMeta.limit}
+                  total={usersMeta.total}
+                  totalPages={usersMeta.totalPages}
+                  loading={listLoading}
                   noun="users"
+                  onChange={setUsersPage}
                 />
               </Flex>
               <ScrollTable>
@@ -705,10 +776,14 @@ function AdminDashboard() {
                   <option value="paid">Paid</option>
                   <option value="unpaid">Unpaid</option>
                 </Select>
-                <ResultCount
-                  shown={filteredOrders.length}
-                  total={orders.length}
+                <Pager
+                  page={ordersMeta.page}
+                  limit={ordersMeta.limit}
+                  total={ordersMeta.total}
+                  totalPages={ordersMeta.totalPages}
+                  loading={listLoading}
                   noun="orders"
+                  onChange={setOrdersPage}
                 />
               </Flex>
               <ScrollTable>
@@ -774,10 +849,14 @@ function AdminDashboard() {
                   onChange={setCatalogSearch}
                   placeholder="Search launderer, clothing or wash"
                 />
-                <ResultCount
-                  shown={filteredCatalog.length}
-                  total={catalog.length}
+                <Pager
+                  page={catalogMeta.page}
+                  limit={catalogMeta.limit}
+                  total={catalogMeta.total}
+                  totalPages={catalogMeta.totalPages}
+                  loading={listLoading}
                   noun="items"
+                  onChange={setCatalogPage}
                 />
               </Flex>
               <ScrollTable>

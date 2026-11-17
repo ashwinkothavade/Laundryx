@@ -171,14 +171,19 @@ const getLaundererReviews = (username) =>
 const getReviewsSummary = () => axios.get(`${API_URL}/reviews/summary`);
 
 // ---- Admin ----
-const adminGetUsers = () => axios.get(`${API_URL}/admin/users`);
+// Admin lists are paginated and filtered server-side; `params` carries
+// { page, limit, q, role, status, paid }.
+const adminGetUsers = (params = {}) =>
+  axios.get(`${API_URL}/admin/users`, { params });
 const adminDeleteUser = (id) => axios.delete(`${API_URL}/admin/users/${id}`);
 const adminUpdateUserRole = (id, role) =>
   axios.patch(`${API_URL}/admin/users/${id}/role`, { role });
 const adminSetApproval = (id, approved) =>
   axios.patch(`${API_URL}/admin/users/${id}/approval`, { approved });
-const adminGetOrders = () => axios.get(`${API_URL}/admin/orders`);
-const adminGetCatalog = () => axios.get(`${API_URL}/admin/catalog`);
+const adminGetOrders = (params = {}) =>
+  axios.get(`${API_URL}/admin/orders`, { params });
+const adminGetCatalog = (params = {}) =>
+  axios.get(`${API_URL}/admin/catalog`, { params });
 const adminGetAnalytics = () => axios.get(`${API_URL}/admin/analytics`);
 
 export {

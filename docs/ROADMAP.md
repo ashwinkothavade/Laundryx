@@ -68,8 +68,10 @@ Legend: `[ ]` todo · `[~]` partially done · `[x]` done.
 - [ ] **[P1]** Launderer capacity limits & working-days calendar (beyond time
   slots); order scheduling conflicts.
 - [ ] **[P1]** Order photos + damage reporting (before/after).
-- [ ] **[P1]** Search & pagination on all admin lists (users/orders/catalog/
-  coupons) — they currently load everything.
+- [x] **[P1]** Search & pagination on admin users/orders/catalog, with the
+  filtering done server-side so a search is not limited to the rows already on
+  screen. Coupons still load in full — the list is small and admin-created, so
+  it has a natural ceiling the others do not.
 - [ ] **[P2]** Live order tracking / ETA for pickup & delivery.
 - [ ] **[P1]** Reference the launderer on `Order` and `Notification` by `_id`
   rather than by username string, as `CatalogItem` and `Review` already do.

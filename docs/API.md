@@ -120,13 +120,13 @@ All under `/admin` require an admin.
 
 | Method | Path | Body / notes |
 |---|---|---|
-| GET | `/admin/users` | All users |
+| GET | `/admin/users` | Paginated. `?page` `?limit` (default 25, max 100) `?q` (username/email) `?role`. Returns `{ users, page, limit, total, totalPages }` |
 | DELETE | `/admin/users/:id` | Delete a user (not self) |
 | PATCH | `/admin/users/:id/role` | `{ role }` (not self) |
 | PATCH | `/admin/users/:id/approval` | `{ approved: boolean }` — launderers only |
-| GET | `/admin/orders` | Every order (student populated) |
-| GET | `/admin/catalog` | Every catalog item (launderer populated) |
-| GET | `/admin/analytics` | `usersByRole`, `totalOrders`, `paidRevenue`, `totalCatalogItems`, `ordersPerLaunderer` |
+| GET | `/admin/orders` | Paginated. `?page` `?limit` `?q` (customer or launderer) `?status` (`pending`/`accepted`/`pickedup`/`delivered`) `?paid` (`paid`/`unpaid`). Returns `{ orders, page, limit, total, totalPages }` |
+| GET | `/admin/catalog` | Paginated. `?page` `?limit` `?q` (item, wash type or launderer). Returns `{ items, page, limit, total, totalPages }` |
+| GET | `/admin/analytics` | `usersByRole`, `totalOrders`, `paidRevenue`, `totalCatalogItems`, `ordersPerLaunderer`, plus `pendingApprovals`, `outstanding`, `avgOrderValue`, `statusCounts` — the figures the console can no longer derive from a single page |
 
 ## Payments (Razorpay)
 

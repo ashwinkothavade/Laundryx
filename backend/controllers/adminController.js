@@ -5,13 +5,59 @@ const logger = require('../utils/logger');
 
 const ROLES = ['customer', 'launderer', 'admin'];
 
+// Admin lists used to return whole collections. That is fine at seed-data
+// size and is the first thing to fall over with real traffic: every open of
+// the console shipped every user, order and catalog item ever created.
+const DEFAULT_LIMIT = 25;
+const MAX_LIMIT = 100;
+
+const pageParams = (req) => {
+  const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
+  const requested = Number.parseInt(req.query.limit, 10) || DEFAULT_LIMIT;
+  // Capped, so a client cannot ask for the unbounded response we just removed.
+  const limit = Math.min(MAX_LIMIT, Math.max(1, requested));
+  return { page, limit, skip: (page - 1) * limit };
+};
+
+const meta = (page, limit, total) => ({
+  page,
+  limit,
+  total,
+  totalPages: Math.max(1, Math.ceil(total / limit)),
+});
+
+// User input goes into a RegExp, so the characters that mean something to the
+// engine have to stop meaning it — otherwise a search for "a+" is a different
+// query, and a crafted one is a denial of service.
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const searchRx = (q) => new RegExp(escapeRegex(q.trim()), 'i');
+
 // @desc    List all users
 // @route   GET /admin/users
 // @access  Private (admin)
 const getAllUsers = async (req, resp) => {
   try {
-    const users = await User.find().select('-password -__v').sort({ role: 1 });
-    return resp.status(200).json({ users });
+    const { page, limit, skip } = pageParams(req);
+    const filter = {};
+    if (req.query.role && ROLES.includes(req.query.role)) {
+      filter.role = req.query.role;
+    }
+    if (req.query.q) {
+      const rx = searchRx(req.query.q);
+      filter.$or = [{ username: rx }, { email: rx }];
+    }
+
+    // Searching and filtering happen here rather than in the browser: with a
+    // page of results, client-side search would only ever search that page.
+    const [users, total] = await Promise.all([
+      User.find(filter)
+        .select('-password -__v')
+        .sort({ role: 1, username: 1 })
+        .skip(skip)
+        .limit(limit),
+      User.countDocuments(filter),
+    ]);
+    return resp.status(200).json({ users, ...meta(page, limit, total) });
   } catch (err) {
     logger.error(`admin getAllUsers error: ${err.message}`, {
       stack: err.stack,
@@ -113,10 +159,39 @@ const setApproval = async (req, resp) => {
 // @access  Private (admin)
 const getAllOrders = async (req, resp) => {
   try {
-    const orders = await Order.find()
-      .populate('user', 'username email hostel -_id')
-      .sort({ createdAt: -1 });
-    return resp.status(200).json({ orders });
+    const { page, limit, skip } = pageParams(req);
+    const filter = {};
+
+    // Status is stored as three booleans, so the named stages are ranges over
+    // them, in the same precedence the UI reads them in.
+    const byStatus = {
+      pending: { acceptedStatus: false },
+      accepted: { acceptedStatus: true, pickUpStatus: false },
+      pickedup: { pickUpStatus: true, deliveredStatus: false },
+      delivered: { deliveredStatus: true },
+    };
+    if (byStatus[req.query.status])
+      Object.assign(filter, byStatus[req.query.status]);
+    if (req.query.paid === 'paid') filter.paid = true;
+    if (req.query.paid === 'unpaid') filter.paid = false;
+
+    if (req.query.q) {
+      const rx = searchRx(req.query.q);
+      // The customer is a reference, so match their ids first and search the
+      // launderer's name on the order itself.
+      const userIds = await User.find({ username: rx }).distinct('_id');
+      filter.$or = [{ launderer: rx }, { user: { $in: userIds } }];
+    }
+
+    const [orders, total] = await Promise.all([
+      Order.find(filter)
+        .populate('user', 'username email hostel -_id')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Order.countDocuments(filter),
+    ]);
+    return resp.status(200).json({ orders, ...meta(page, limit, total) });
   } catch (err) {
     logger.error(`admin getAllOrders error: ${err.message}`, {
       stack: err.stack,
@@ -130,10 +205,27 @@ const getAllOrders = async (req, resp) => {
 // @access  Private (admin)
 const getAllCatalog = async (req, resp) => {
   try {
-    const items = await CatalogItem.find()
-      .populate('launderer', 'username -_id')
-      .sort({ createdAt: -1 });
-    return resp.status(200).json({ items });
+    const { page, limit, skip } = pageParams(req);
+    const filter = {};
+    if (req.query.q) {
+      const rx = searchRx(req.query.q);
+      const laundererIds = await User.find({ username: rx }).distinct('_id');
+      filter.$or = [
+        { clothingType: rx },
+        { washType: rx },
+        { launderer: { $in: laundererIds } },
+      ];
+    }
+
+    const [items, total] = await Promise.all([
+      CatalogItem.find(filter)
+        .populate('launderer', 'username -_id')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      CatalogItem.countDocuments(filter),
+    ]);
+    return resp.status(200).json({ items, ...meta(page, limit, total) });
   } catch (err) {
     logger.error(`admin getAllCatalog error: ${err.message}`, {
       stack: err.stack,
@@ -147,19 +239,52 @@ const getAllCatalog = async (req, resp) => {
 // @access  Private (admin)
 const getAnalytics = async (req, resp) => {
   try {
-    const [usersByRoleAgg, totalOrders, revenueAgg, ordersPerLaundererAgg] =
-      await Promise.all([
-        User.aggregate([{ $group: { _id: '$role', count: { $sum: 1 } } }]),
-        Order.countDocuments(),
-        Order.aggregate([
-          { $match: { paid: true } },
-          { $group: { _id: null, revenue: { $sum: '$orderTotal' } } },
-        ]),
-        Order.aggregate([
-          { $group: { _id: '$launderer', orders: { $sum: 1 } } },
-          { $sort: { orders: -1 } },
-        ]),
-      ]);
+    // These four used to be derived in the browser from the full user and
+    // order lists. Now that those lists arrive a page at a time, deriving them
+    // client-side would quietly describe page one rather than the system, so
+    // they are counted here instead.
+    const [
+      usersByRoleAgg,
+      totalOrders,
+      revenueAgg,
+      ordersPerLaundererAgg,
+      pendingApprovals,
+      outstandingAgg,
+      paidCount,
+      statusCounts,
+    ] = await Promise.all([
+      User.aggregate([{ $group: { _id: '$role', count: { $sum: 1 } } }]),
+      Order.countDocuments(),
+      Order.aggregate([
+        { $match: { paid: true } },
+        { $group: { _id: null, revenue: { $sum: '$orderTotal' } } },
+      ]),
+      Order.aggregate([
+        { $group: { _id: '$launderer', orders: { $sum: 1 } } },
+        { $sort: { orders: -1 } },
+      ]),
+      User.countDocuments({ role: 'launderer', approved: false }),
+      Order.aggregate([
+        { $match: { paid: false } },
+        { $group: { _id: null, total: { $sum: '$orderTotal' } } },
+      ]),
+      Order.countDocuments({ paid: true }),
+      // Mutually exclusive, in the precedence the UI reads them in: an order
+      // that was delivered is not also counted as accepted.
+      Promise.all([
+        Order.countDocuments({ acceptedStatus: false }),
+        Order.countDocuments({ acceptedStatus: true, pickUpStatus: false }),
+        Order.countDocuments({ pickUpStatus: true, deliveredStatus: false }),
+        Order.countDocuments({ deliveredStatus: true }),
+      ]).then(([pending, accepted, pickedup, delivered]) => ({
+        pending,
+        accepted,
+        pickedup,
+        delivered,
+      })),
+    ]);
+
+    const paidRevenue = revenueAgg[0] ? revenueAgg[0].revenue : 0;
 
     const usersByRole = usersByRoleAgg.reduce((acc, r) => {
       acc[r._id] = r.count;
@@ -171,7 +296,11 @@ const getAnalytics = async (req, resp) => {
         usersByRole,
         totalUsers: Object.values(usersByRole).reduce((a, b) => a + b, 0),
         totalOrders,
-        paidRevenue: revenueAgg[0] ? revenueAgg[0].revenue : 0,
+        paidRevenue,
+        pendingApprovals,
+        outstanding: outstandingAgg[0] ? outstandingAgg[0].total : 0,
+        avgOrderValue: paidCount ? Math.round(paidRevenue / paidCount) : 0,
+        statusCounts,
         totalCatalogItems: await CatalogItem.countDocuments(),
         ordersPerLaunderer: ordersPerLaundererAgg.map((o) => ({
           launderer: o._id,
